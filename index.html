@@ -31,13 +31,9 @@
         .badge-transition:active { transform: scale(0.9); }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Checkboxes */
         .toggle-checkbox:checked { right: 0; border-color: #10B981; }
         .toggle-checkbox:checked + .toggle-label { background-color: #10B981; }
         .task-check:checked + div { text-decoration: line-through; opacity: 0.5; }
-        
-        /* Tabla Notas */
         .input-nota { min-width: 40px; text-align: center; }
     </style>
 </head>
@@ -56,7 +52,9 @@
                 <div class="bg-white text-raspanti-bordo font-black p-1 rounded">R</div>
                 <span class="font-bold text-sm uppercase">Mi Agenda</span>
             </div>
-            <button onclick="logout()" class="text-xs opacity-80">SALIR</button>
+            <button onclick="openSettings()" class="opacity-90 hover:opacity-100 transition">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+            </button>
         </header>
 
         <main class="flex-1 overflow-y-auto p-4 pb-24 max-w-md mx-auto w-full no-scrollbar">
@@ -66,12 +64,10 @@
                     <h2 class="text-xl font-bold text-raspanti-bordo">¡Hola Profe!</h2>
                     <p class="text-gray-500 text-sm" id="fecha-hoy">Cargando...</p>
                 </div>
-
                 <div class="bg-raspanti-bordo text-white p-5 rounded-2xl shadow-lg">
                     <h3 class="font-bold mb-3 border-b border-white/20 pb-2">Clases de Hoy</h3>
                     <div id="lista-hoy" class="text-sm space-y-2"></div>
                 </div>
-
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex justify-between items-center mb-3">
                         <h3 class="font-bold text-gray-700">Mis Tareas</h3>
@@ -103,28 +99,23 @@
                         </button>
                     </div>
                 </div>
-                
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <span id="aula-modalidad" class="text-[10px] bg-raspanti-crema text-raspanti-bordo px-2 py-1 rounded font-bold uppercase">--</span>
                     <h2 id="aula-nombre" class="text-2xl font-black text-raspanti-bordo mt-2 leading-tight">Materia</h2>
                 </div>
-
                 <div class="flex bg-white p-1 rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
                     <button onclick="setTab('crono')" id="btn-crono" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-raspanti-crema text-raspanti-bordo">CRONOGRAMA</button>
                     <button onclick="setTab('alumnos')" id="btn-alumnos" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400">ALUMNOS</button>
                     <button onclick="setTab('notas')" id="btn-notas" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400">NOTAS</button>
                 </div>
-
                 <div id="tab-crono" class="space-y-3">
                     <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 text-xs text-blue-800 flex gap-2"><i data-lucide="info" class="w-4 h-4 shrink-0"></i><p>Toca para cambiar modalidad. Usa "Sin Clase" para feriados.</p></div>
                     <div id="lista-cronograma" class="space-y-2"></div>
                 </div>
-
                 <div id="tab-alumnos" class="hidden space-y-3">
                     <div class="flex justify-between items-center px-1"><h3 class="font-bold text-gray-600 text-sm">Padrón</h3><button onclick="openModal('modal-alumno')" class="text-xs bg-raspanti-dorado text-white px-3 py-1 rounded shadow font-bold">AGREGAR</button></div>
                     <div id="lista-alumnos" class="space-y-2"></div>
                 </div>
-
                 <div id="tab-notas" class="hidden space-y-3">
                     <div class="flex justify-between items-center px-1"><h3 class="font-bold text-gray-600 text-sm">Libro de Notas</h3><button onclick="openModal('modal-examen')" class="text-xs bg-raspanti-bordo text-white px-3 py-1 rounded shadow font-bold">NUEVO EXAMEN</button></div>
                     <div class="overflow-x-auto bg-white rounded-xl border border-gray-100 shadow-sm">
@@ -138,7 +129,6 @@
 
             <div id="view-lista" class="hidden fade-in space-y-4">
                 <button onclick="cancelarLista()" class="text-gray-500 text-xs font-bold flex items-center gap-1"><i data-lucide="x" class="w-3"></i> CANCELAR</button>
-                
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex justify-between items-end mb-2">
                          <p class="text-[10px] font-bold text-gray-400 uppercase">FECHA DE ASISTENCIA</p>
@@ -147,7 +137,6 @@
                     <input type="date" id="input-fecha-lista" onchange="cambiarFechaLista(this.value)" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-raspanti-bordo text-lg mb-2">
                     <button onclick="guardarLista()" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-green-600 transition flex justify-center items-center gap-2"><i data-lucide="save" class="w-5 h-5"></i> GUARDAR CAMBIOS</button>
                 </div>
-
                 <div id="lista-check-container" class="space-y-2 pb-10"></div>
             </div>
 
@@ -163,18 +152,10 @@
         </nav>
     </div>
 
-    <div id="modal-tarea" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 class="text-lg font-black text-raspanti-bordo mb-4">Nueva Tarea</h3>
-            <input id="input-tarea-txt" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Ej: Corregir Parciales">
-            <div class="flex gap-2"><button onclick="closeModal('modal-tarea')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarTarea()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button></div>
-        </div>
-    </div>
-
     <div id="modal-materia" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 class="text-lg font-black text-raspanti-bordo mb-4">Nueva Materia</h3>
-            <label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label><input id="input-mat-nombre" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Ej: Práctica II">
+            <h3 class="text-lg font-black text-raspanti-bordo mb-4" id="title-materia">Nueva Materia</h3>
+            <input type="hidden" id="edit-mat-id"> <label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label><input id="input-mat-nombre" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Ej: Práctica II">
             <label class="text-xs font-bold text-gray-500 ml-1">FECHA INICIO</label><input type="date" id="input-mat-inicio" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold text-gray-700">
             <div class="grid grid-cols-2 gap-2 mb-4">
                 <div><label class="text-xs font-bold text-gray-500 ml-1">DÍA</label><select id="input-mat-dia" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option></select></div>
@@ -184,12 +165,56 @@
         </div>
     </div>
     
-    <div id="modal-alumno" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-4">Nuevo Alumno</h3><input id="input-alum-ape" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Apellido"><input id="input-alum-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Nombre"><div class="flex gap-2"><button onclick="closeModal('modal-alumno')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarAlumno()" class="flex-1 py-3 bg-raspanti-dorado text-white rounded-lg font-bold shadow">Agregar</button></div></div></div>
-    <div id="modal-examen" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-4">Nuevo Examen/TP</h3><input id="input-exam-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border font-bold" placeholder="Nombre"><label class="text-xs font-bold text-gray-500 ml-1">FECHA</label><input type="date" id="input-exam-date" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold"><div class="flex gap-2"><button onclick="closeModal('modal-examen')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarExamen()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Crear</button></div></div></div>
+    <div id="modal-alumno" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-4" id="title-alumno">Nuevo Alumno</h3><input type="hidden" id="edit-alum-idx"><input id="input-alum-ape" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Apellido"><input id="input-alum-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Nombre"><div class="flex gap-2"><button onclick="closeModal('modal-alumno')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarAlumno()" class="flex-1 py-3 bg-raspanti-dorado text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
+    
+    <div id="modal-examen" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-4" id="title-examen">Nuevo Examen/TP</h3><input type="hidden" id="edit-exam-id"><input id="input-exam-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border font-bold" placeholder="Nombre"><label class="text-xs font-bold text-gray-500 ml-1">FECHA</label><input type="date" id="input-exam-date" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold"><div class="flex gap-2"><button onclick="closeModal('modal-examen')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarExamen()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
+    
+    <div id="modal-tarea" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-4">Nueva Tarea</h3><input id="input-tarea-txt" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Ej: Corregir Parciales"><div class="flex gap-2"><button onclick="closeModal('modal-tarea')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarTarea()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
+
+    <div id="modal-settings" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center">
+            <h3 class="text-lg font-black text-raspanti-bordo mb-6">Configuración y Seguridad</h3>
+            
+            <div class="bg-blue-50 p-4 rounded-xl mb-4 border border-blue-100">
+                <i data-lucide="download" class="w-8 h-8 text-blue-500 mx-auto mb-2"></i>
+                <h4 class="font-bold text-blue-800">Copia de Seguridad</h4>
+                <p class="text-xs text-blue-600 mb-3">Descarga tus datos para no perderlos.</p>
+                <button onclick="downloadBackup()" class="bg-blue-600 text-white w-full py-2 rounded-lg font-bold text-sm shadow">DESCARGAR COPIA</button>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-xl mb-6 border border-gray-200">
+                <i data-lucide="upload" class="w-8 h-8 text-gray-500 mx-auto mb-2"></i>
+                <h4 class="font-bold text-gray-700">Restaurar Datos</h4>
+                <p class="text-xs text-gray-500 mb-3">Carga un archivo de respaldo.</p>
+                <input type="file" id="file-restore" class="hidden" onchange="restoreBackup(this)">
+                <button onclick="document.getElementById('file-restore').click()" class="bg-gray-200 text-gray-700 w-full py-2 rounded-lg font-bold text-sm">SELECCIONAR ARCHIVO</button>
+            </div>
+
+            <button onclick="closeModal('modal-settings'); logout()" class="text-red-500 font-bold text-sm">Cerrar Sesión</button>
+            <button onclick="closeModal('modal-settings')" class="block w-full mt-4 text-gray-400 text-sm font-bold">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="install-modal" class="fixed inset-0 z-[70] bg-black/60 hidden flex items-end sm:items-center justify-center backdrop-blur-sm">
+        <div class="bg-white w-full sm:max-w-md rounded-t-[30px] sm:rounded-[30px] p-6 slide-up shadow-2xl relative">
+            <button onclick="closeInstall()" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-16 h-16 bg-raspanti-bordo rounded-2xl flex items-center justify-center border-4 border-raspanti-dorado shadow-md text-white font-black text-2xl">R</div>
+                <div><h3 class="font-bold text-lg leading-tight">Instalar App Raspanti</h3><p class="text-xs text-gray-500">Mejor experiencia sin conexión.</p></div>
+            </div>
+            <div id="install-ios" class="hidden space-y-3 text-sm text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                <p class="flex items-center gap-2">1. Toca <strong>Compartir</strong> <i data-lucide="share" class="w-4 h-4 text-blue-500"></i></p>
+                <p class="flex items-center gap-2">2. Elige <strong>"Agregar a Inicio"</strong> <i data-lucide="plus-square" class="w-4 h-4 text-gray-800"></i></p>
+            </div>
+            <div id="install-android" class="hidden">
+                <button onclick="triggerInstall()" class="w-full bg-raspanti-bordo text-white py-4 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2"><i data-lucide="download" class="w-5 h-5"></i> INSTALAR</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // --- DB & CONFIG ---
-        const DB={get:()=>JSON.parse(localStorage.getItem('raspanti_v4'))||{materias:[], tareas:[]}, save:(d)=>localStorage.setItem('raspanti_v4',JSON.stringify(d))};
+        const DB={get:()=>JSON.parse(localStorage.getItem('raspanti_v6'))||{materias:[], tareas:[]}, save:(d)=>localStorage.setItem('raspanti_v6',JSON.stringify(d))};
         let activeId = null; let activeDateISO = null; 
 
         // --- INICIO ---
@@ -205,6 +230,26 @@
             if(v==='dashboard'){d.classList.replace('text-gray-400','text-raspanti-bordo');m.classList.replace('text-raspanti-bordo','text-gray-400');initDash();}
             else{m.classList.replace('text-gray-400','text-raspanti-bordo');d.classList.replace('text-raspanti-bordo','text-gray-400');if(v==='materias')renderMaterias();}
             document.getElementById('navbar').style.display=(v==='aula'||v==='lista')?'none':'flex';
+        }
+
+        // --- BACKUP & RESTORE ---
+        function openSettings(){ document.getElementById('modal-settings').classList.remove('hidden'); }
+        function downloadBackup(){
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB.get()));
+            const node = document.createElement('a'); node.setAttribute("href", dataStr);
+            node.setAttribute("download", "raspanti_backup_" + new Date().toISOString().split('T')[0] + ".json");
+            document.body.appendChild(node); node.click(); node.remove();
+        }
+        function restoreBackup(input){
+            const file = input.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e){
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(!data.materias) throw new Error("Formato inválido");
+                    DB.save(data); alert("✅ Datos restaurados con éxito!"); location.reload();
+                } catch(err) { alert("❌ Error: Archivo inválido."); }
+            }; reader.readAsText(file);
         }
 
         // --- DASHBOARD ---
@@ -228,16 +273,43 @@
         function borrarTarea(i){ const db=DB.get(); db.tareas.splice(i,1); DB.save(db); renderTareas(); }
 
         // --- MATERIAS ---
+        function openMateriaModal(id=null){
+            document.getElementById('title-materia').innerText = id ? 'Editar Materia' : 'Nueva Materia';
+            document.getElementById('edit-mat-id').value = id || '';
+            if(id){
+                const m = DB.get().materias.find(x=>x.id==id);
+                document.getElementById('input-mat-nombre').value = m.nombre;
+                document.getElementById('input-mat-inicio').value = m.fechaInicio;
+                document.getElementById('input-mat-dia').value = m.dia;
+                document.getElementById('input-mat-mod').value = m.modalidadBase;
+            } else {
+                document.getElementById('input-mat-nombre').value = '';
+            }
+            openModal('modal-materia');
+        }
         function guardarMateria(){
-            const db=DB.get();
-            let fIni = document.getElementById('input-mat-inicio').value; if(!fIni) fIni = new Date().toISOString().split('T')[0];
-            db.materias.push({id:Date.now(), nombre:document.getElementById('input-mat-nombre').value, modalidadBase:document.getElementById('input-mat-mod').value, dia:document.getElementById('input-mat-dia').value, fechaInicio: fIni, cronograma:{}, alumnos:[], examenes:[], asistencias:{}}); 
+            const db=DB.get(); const editId = document.getElementById('edit-mat-id').value;
+            const mat = {
+                nombre:document.getElementById('input-mat-nombre').value, 
+                modalidadBase:document.getElementById('input-mat-mod').value, 
+                dia:document.getElementById('input-mat-dia').value, 
+                fechaInicio: document.getElementById('input-mat-inicio').value || new Date().toISOString().split('T')[0]
+            };
+            
+            if(editId){
+                const idx = db.materias.findIndex(x=>x.id==editId);
+                db.materias[idx] = {...db.materias[idx], ...mat}; // Merge changes
+            } else {
+                mat.id = Date.now(); mat.cronograma={}; mat.alumnos=[]; mat.examenes=[]; mat.asistencias={};
+                db.materias.push(mat);
+            }
             DB.save(db); closeModal('modal-materia'); renderMaterias();
         }
-        function renderMaterias(){const l=document.getElementById('lista-materias'); l.innerHTML=''; const db=DB.get(); document.getElementById('no-materias').classList.toggle('hidden',db.materias.length>0); db.materias.forEach(m=>{l.innerHTML+=`<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center"><div onclick="abrirAula(${m.id})" class="flex-1"><h3 class="font-bold text-gray-800">${m.nombre}</h3><div class="text-xs text-gray-400 font-bold uppercase mt-1">${m.dia} • ${m.modalidadBase}</div></div><button onclick="borrarMateria(${m.id})" class="text-gray-300 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
-        function borrarMateria(id){if(confirm('¿Eliminar?')){const db=DB.get(); db.materias=db.materias.filter(m=>m.id!==id); DB.save(db); renderMaterias();}}
 
-        // --- AULA ---
+        function renderMaterias(){const l=document.getElementById('lista-materias'); l.innerHTML=''; const db=DB.get(); document.getElementById('no-materias').classList.toggle('hidden',db.materias.length>0); db.materias.forEach(m=>{l.innerHTML+=`<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center"><div onclick="abrirAula(${m.id})" class="flex-1"><h3 class="font-bold text-gray-800">${m.nombre}</h3><div class="text-xs text-gray-400 font-bold uppercase mt-1">${m.dia} • ${m.modalidadBase}</div></div><div class="flex gap-1"><button onclick="openMateriaModal(${m.id})" class="text-gray-400 hover:text-blue-500 p-2"><i data-lucide="pencil" class="w-4"></i></button><button onclick="borrarMateria(${m.id})" class="text-gray-400 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-4"></i></button></div></div>`;}); lucide.createIcons();}
+        function borrarMateria(id){if(confirm('¿Eliminar materia? Se perderá todo su contenido.')){const db=DB.get(); db.materias=db.materias.filter(m=>m.id!==id); DB.save(db); renderMaterias();}}
+
+        // --- AULA & CRONOGRAMA ---
         function abrirAula(id){activeId=id; const m=DB.get().materias.find(x=>x.id===id); document.getElementById('aula-nombre').innerText=m.nombre; document.getElementById('aula-modalidad').innerText=m.modalidadBase; nav('aula'); setTab('crono');}
         function setTab(t){['crono','alumnos','notas'].forEach(x=>{document.getElementById('tab-'+x).classList.add('hidden'); document.getElementById('btn-'+x).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400';}); document.getElementById('tab-'+t).classList.remove('hidden'); document.getElementById('btn-'+t).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-raspanti-crema text-raspanti-bordo'; if(t==='crono')renderCrono(); if(t==='alumnos')renderAlum(); if(t==='notas')renderNotas();}
         
@@ -271,89 +343,128 @@
         function cancelarLista(){ nav('aula'); }
         function guardarLista(){ const db=DB.get(), m=db.materias.find(x=>x.id===activeId); if(!m.asistencias) m.asistencias = {}; const presentes = []; document.querySelectorAll('input[name="asist-check"]:checked').forEach(c => presentes.push(parseInt(c.value))); m.asistencias[activeDateISO] = presentes; DB.save(db); alert('✅ Guardado'); nav('aula'); setTab('alumnos'); }
 
-        // --- ALUMNOS/NOTAS/EXCEL (MEJORADO) ---
+        // --- ALUMNOS (EDITABLE) ---
+        function openAlumnoModal(idx=null){
+            document.getElementById('title-alumno').innerText = idx!==null ? 'Editar Alumno' : 'Nuevo Alumno';
+            document.getElementById('edit-alum-idx').value = idx!==null ? idx : '';
+            if(idx!==null){
+                const m = DB.get().materias.find(x=>x.id===activeId);
+                const al = m.alumnos[idx];
+                document.getElementById('input-alum-ape').value = al.ape;
+                document.getElementById('input-alum-nom').value = al.nom;
+            } else {
+                document.getElementById('input-alum-ape').value = '';
+                document.getElementById('input-alum-nom').value = '';
+            }
+            openModal('modal-alumno');
+        }
+        function guardarAlumno(){
+            const db=DB.get(), m=db.materias.find(x=>x.id===activeId);
+            const idx = document.getElementById('edit-alum-idx').value;
+            const alData = { ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value };
+            
+            if(idx !== ''){ // Edit
+                m.alumnos[idx] = {...m.alumnos[idx], ...alData};
+            } else { // New
+                m.alumnos.push({id:Date.now(), ...alData, notas:{}});
+            }
+            m.alumnos.sort((a,b)=>a.ape.localeCompare(b.ape));
+            DB.save(db); closeModal('modal-alumno'); renderAlum();
+        }
+
         function renderAlum(){
             const m=DB.get().materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML='';
             const fechas = m.asistencias ? Object.keys(m.asistencias) : [];
             m.alumnos.forEach((al,i)=>{
                 let asis=0; fechas.forEach(f=>{if(m.asistencias[f].includes(al.id))asis++;});
                 const porc = fechas.length>0 ? Math.round((asis/fechas.length)*100) : 100;
-                l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm"><div><span class="font-bold text-gray-700 text-sm block">${al.ape}, ${al.nom}</span><span class="text-[10px] font-bold text-gray-400">Asistencia: <span class="${porc<75?'text-red-500':'text-green-600'}">${porc}%</span></span></div><button onclick="delAlum(${i})" class="text-gray-300 hover:text-red-500"><i data-lucide="x" class="w-4"></i></button></div>`;
+                l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm"><div><span class="font-bold text-gray-700 text-sm block">${al.ape}, ${al.nom}</span><span class="text-[10px] font-bold text-gray-400">Asistencia: <span class="${porc<75?'text-red-500':'text-green-600'}">${porc}%</span></span></div><div class="flex gap-1"><button onclick="openAlumnoModal(${i})" class="text-gray-400 hover:text-blue-500 p-1"><i data-lucide="pencil" class="w-4"></i></button><button onclick="delAlum(${i})" class="text-gray-400 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-4"></i></button></div></div>`;
             }); lucide.createIcons();
         }
-        function guardarAlumno(){const db=DB.get(), m=db.materias.find(x=>x.id===activeId); m.alumnos.push({id:Date.now(), ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, notas:{}}); m.alumnos.sort((a,b)=>a.ape.localeCompare(b.ape)); DB.save(db); closeModal('modal-alumno'); renderAlum();}
         function delAlum(i){if(confirm('¿Quitar?')){const db=DB.get(); db.materias.find(x=>x.id===activeId).alumnos.splice(i,1); DB.save(db); renderAlum();}}
         
+        // --- NOTAS (EDITABLE) ---
         function renderNotas(){
             const m=DB.get().materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); 
             h.innerHTML='<th class="p-3 sticky left-0 bg-gray-50 text-xs font-bold text-gray-500">ALUMNO</th>'; 
-            m.examenes.forEach(e=>h.innerHTML+=`<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500 uppercase">${e.nombre}</th>`);
-            h.innerHTML+='<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-700 uppercase">PROM.</th>'; // Columna Promedio
+            m.examenes.forEach((e, i)=>h.innerHTML+=`<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500 uppercase cursor-pointer hover:text-blue-600" onclick="openExamModal(${i})">${e.nombre} <i data-lucide="pencil" class="w-3 h-3 inline"></i></th>`);
+            h.innerHTML+='<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-700 uppercase">PROM.</th>'; 
             
             b.innerHTML=''; 
             m.alumnos.forEach((al,i)=>{
                 let r=`<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm truncate max-w-[120px]">${al.ape}, ${al.nom[0]}.</td>`; 
                 let sum=0, count=0;
                 m.examenes.forEach(e=>{
-                    const v=al.notas[e.id]||''; 
-                    if(v){ sum+=parseFloat(v); count++; }
+                    const v=al.notas[e.id]||''; if(v){ sum+=parseFloat(v); count++; }
                     const c=(v&&v<4)?'text-red-500 bg-red-50':''; 
                     r+=`<td class="p-2 text-center border-b"><input type="number" class="w-10 text-center p-1 rounded border ${c} input-nota" value="${v}" onchange="saveNota(${i},${e.id},this.value)"></td>`;
                 }); 
-                // Promedio
                 const avg = count>0 ? (sum/count).toFixed(2) : '-';
                 const avgColor = avg!=='-' ? (avg>=7?'text-green-600':(avg<4?'text-red-500':'text-gray-500')) : 'text-gray-300';
                 r+=`<td class="p-2 text-center border-b font-black ${avgColor}">${avg}</td></tr>`;
                 b.innerHTML+=r;
-            });
+            }); lucide.createIcons();
         }
-        function guardarExamen(){const db=DB.get(); db.materias.find(x=>x.id===activeId).examenes.push({id:Date.now(), nombre:document.getElementById('input-exam-nom').value, fecha:document.getElementById('input-exam-date').value}); DB.save(db); closeModal('modal-examen'); renderNotas();}
+        
+        function openExamModal(idx=null){
+             document.getElementById('title-examen').innerText = idx!==null ? 'Editar Examen' : 'Nuevo Examen';
+             document.getElementById('edit-exam-id').value = idx!==null ? idx : ''; // Usamos indice temporalmente
+             if(idx!==null){
+                 const m = DB.get().materias.find(x=>x.id===activeId);
+                 const ex = m.examenes[idx];
+                 document.getElementById('input-exam-nom').value = ex.nombre;
+                 document.getElementById('input-exam-date').value = ex.fecha;
+             } else {
+                 document.getElementById('input-exam-nom').value = '';
+             }
+             openModal('modal-examen');
+        }
+
+        function guardarExamen(){
+            const db=DB.get(), m=db.materias.find(x=>x.id===activeId);
+            const idx = document.getElementById('edit-exam-id').value;
+            const exData = { nombre:document.getElementById('input-exam-nom').value, fecha:document.getElementById('input-exam-date').value };
+            
+            if(idx !== ''){
+                m.examenes[idx] = {...m.examenes[idx], ...exData};
+            } else {
+                m.examenes.push({id:Date.now(), ...exData});
+            }
+            DB.save(db); closeModal('modal-examen'); renderNotas();
+        }
+
         function saveNota(i,eid,v){const db=DB.get(); db.materias.find(x=>x.id===activeId).alumnos[i].notas[eid]=v; DB.save(db); renderNotas();}
         
         function exportarExcel(){
             const m=DB.get().materias.find(x=>x.id===activeId); if(!m)return;
-            // ESTRUCTURA SOLICITADA: NOMBRE | FECHAS (P/A) | % | NOTAS | PROMEDIO FINAL
             let c="data:text/csv;charset=utf-8,APELLIDO,NOMBRE";
-            
-            // 1. Columnas de Fechas (Asistencias)
             const fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
             fechas.forEach(f=> {const [y,mm,d] = f.split('-'); c += `,${d}/${mm}`;});
             c += ",% ASIST";
-            
-            // 2. Columnas de Examenes
-            m.examenes.forEach(e=>c+=","+e.nombre);
-            c += ",PROMEDIO FINAL\n";
-            
-            // 3. Filas
+            m.examenes.forEach(e=>c+=","+e.nombre); c += ",PROMEDIO FINAL\n";
             m.alumnos.forEach(a=>{
                 c+=`${a.ape},${a.nom}`;
-                
-                // Asistencias P/A
                 let asistCount=0;
-                fechas.forEach(f => {
-                    const isP = m.asistencias[f].includes(a.id);
-                    if(isP) asistCount++;
-                    c += `,${isP ? 'P' : 'A'}`;
-                });
-                
-                // Porcentaje
+                fechas.forEach(f => { const isP = m.asistencias[f].includes(a.id); if(isP) asistCount++; c += `,${isP ? 'P' : 'A'}`; });
                 const porc = fechas.length>0 ? Math.round((asistCount/fechas.length)*100) : 100;
                 c += `,${porc}%`;
-                
-                // Notas y Promedio
                 let sum=0, count=0;
-                m.examenes.forEach(e=>{
-                    const val = a.notas[e.id];
-                    c+=","+(val||"-");
-                    if(val){ sum+=parseFloat(val); count++; }
-                });
+                m.examenes.forEach(e=>{ const val = a.notas[e.id]; c+=","+(val||"-"); if(val){ sum+=parseFloat(val); count++; } });
                 const avg = count>0 ? (sum/count).toFixed(2) : "-";
                 c += `,${avg}\n`;
             });
-            
             const l=document.createElement("a"); l.setAttribute("href",encodeURI(c)); l.setAttribute("download",`Registro_${m.nombre}.csv`); document.body.appendChild(l); l.click(); document.body.removeChild(l);
         }
 
+        // --- PWA INSTALL ---
+        let deferredPrompt; const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent), isPwa = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; showInstallModal(); });
+        window.addEventListener('load', () => { if (!isPwa && !sessionStorage.getItem('install_closed')) setTimeout(showInstallModal, 2000); });
+        function showInstallModal() { document.getElementById('install-modal').classList.remove('hidden'); if(isIos) document.getElementById('install-ios').classList.remove('hidden'); else document.getElementById('install-android').classList.remove('hidden'); }
+        function closeInstall() { document.getElementById('install-modal').classList.add('hidden'); sessionStorage.setItem('install_closed', 'true'); }
+        async function triggerInstall() { if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; deferredPrompt = null; if(outcome === 'accepted') closeInstall(); } else { alert('Usa el menú del navegador para Instalar.'); } }
+
+        // UTILS
         function openModal(id){document.getElementById(id).classList.remove('hidden');} function closeModal(id){document.getElementById(id).classList.add('hidden');}
     </script>
 </body>
