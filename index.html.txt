@@ -23,8 +23,11 @@
         body { background-color: #F8FAFC; -webkit-tap-highlight-color: transparent; font-family: system-ui, sans-serif; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        /* Ocultar scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Animación suave para el pintor */
+        .badge-transition { transition: all 0.2s ease; }
+        .badge-transition:active { transform: scale(0.9); }
     </style>
 </head>
 <body class="h-screen flex flex-col text-slate-800 bg-slate-50">
@@ -54,9 +57,8 @@
                 </div>
                 
                 <div class="bg-raspanti-bordo text-white p-5 rounded-2xl shadow-lg">
-                    <h3 class="font-bold mb-3 border-b border-white/20 pb-2">Hoy</h3>
-                    <div id="lista-hoy" class="text-sm space-y-2">
-                        </div>
+                    <h3 class="font-bold mb-3 border-b border-white/20 pb-2">Tu actividad hoy</h3>
+                    <div id="lista-hoy" class="text-sm space-y-2"></div>
                 </div>
             </div>
 
@@ -65,8 +67,7 @@
                     <h2 class="text-xl font-bold text-raspanti-bordo">Mis Materias</h2>
                     <button onclick="openModal('modal-materia')" class="bg-raspanti-bordo text-white p-2 rounded-lg shadow"><i data-lucide="plus"></i></button>
                 </div>
-                <div id="lista-materias" class="space-y-3">
-                    </div>
+                <div id="lista-materias" class="space-y-3"></div>
                 <p id="no-materias" class="text-center text-gray-400 text-sm mt-10 hidden">No hay materias cargadas.</p>
             </div>
 
@@ -74,18 +75,31 @@
                 <button onclick="nav('materias')" class="text-gray-500 text-xs font-bold flex items-center gap-1"><i data-lucide="arrow-left" class="w-3"></i> VOLVER</button>
                 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <span id="aula-modalidad" class="text-[10px] bg-raspanti-crema text-raspanti-bordo px-2 py-1 rounded font-bold uppercase">--</span>
-                    <h2 id="aula-nombre" class="text-2xl font-black text-raspanti-bordo mt-2">Materia</h2>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span id="aula-modalidad" class="text-[10px] bg-raspanti-crema text-raspanti-bordo px-2 py-1 rounded font-bold uppercase">--</span>
+                            <h2 id="aula-nombre" class="text-2xl font-black text-raspanti-bordo mt-2 leading-tight">Materia</h2>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="flex bg-white p-1 rounded-xl shadow-sm border border-gray-100">
-                    <button onclick="setTab('alumnos')" id="btn-alumnos" class="flex-1 py-2 text-xs font-bold rounded-lg bg-raspanti-crema text-raspanti-bordo">ALUMNOS</button>
-                    <button onclick="setTab('notas')" id="btn-notas" class="flex-1 py-2 text-xs font-bold rounded-lg text-gray-400">NOTAS</button>
+                <div class="flex bg-white p-1 rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
+                    <button onclick="setTab('crono')" id="btn-crono" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-raspanti-crema text-raspanti-bordo">CRONOGRAMA</button>
+                    <button onclick="setTab('alumnos')" id="btn-alumnos" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400">ALUMNOS</button>
+                    <button onclick="setTab('notas')" id="btn-notas" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400">NOTAS</button>
                 </div>
 
-                <div id="tab-alumnos" class="space-y-3">
+                <div id="tab-crono" class="space-y-3">
+                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 text-xs text-blue-800 flex gap-2">
+                        <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
+                        <p>Toca el botón de la derecha para cambiar la modalidad de cada fecha.</p>
+                    </div>
+                    <div id="lista-cronograma" class="space-y-2"></div>
+                </div>
+
+                <div id="tab-alumnos" class="hidden space-y-3">
                     <div class="flex justify-between items-center px-1">
-                        <h3 class="font-bold text-gray-600 text-sm">Lista</h3>
+                        <h3 class="font-bold text-gray-600 text-sm">Padrón</h3>
                         <button onclick="openModal('modal-alumno')" class="text-xs bg-raspanti-dorado text-white px-3 py-1 rounded shadow font-bold">AGREGAR</button>
                     </div>
                     <div id="lista-alumnos" class="space-y-2"></div>
@@ -120,23 +134,26 @@
     <div id="modal-materia" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <h3 class="text-lg font-black text-raspanti-bordo mb-4">Nueva Materia</h3>
-            <input id="input-mat-nombre" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border font-bold" placeholder="Nombre (Ej: Matemática)">
+            <label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label>
+            <input id="input-mat-nombre" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border font-bold" placeholder="Ej: Práctica II">
             
-            <label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD</label>
-            <select id="input-mat-mod" onchange="checkMod()" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border">
-                <option value="Presencial">Presencial</option>
-                <option value="Virtual">Virtual</option>
-                <option value="Asincronico">Asincrónico</option>
+            <label class="text-xs font-bold text-gray-500 ml-1">DÍA PRINCIPAL</label>
+            <select id="input-mat-dia" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border font-bold text-gray-700">
+                <option value="Lunes">Lunes</option>
+                <option value="Martes">Martes</option>
+                <option value="Miércoles">Miércoles</option>
+                <option value="Jueves">Jueves</option>
+                <option value="Viernes">Viernes</option>
             </select>
 
-            <div id="div-dias">
-                <label class="text-xs font-bold text-gray-500 ml-1">DÍA</label>
-                <select id="input-mat-dia" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border">
-                    <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option>
-                </select>
-            </div>
+            <label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD BASE</label>
+            <select id="input-mat-mod" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold text-gray-700">
+                <option value="Hibrida">Híbrida / Mixta (Configurar)</option>
+                <option value="Presencial">Todo Presencial</option>
+                <option value="Virtual">Todo Virtual</option>
+            </select>
 
-            <div class="flex gap-2 mt-4">
+            <div class="flex gap-2">
                 <button onclick="closeModal('modal-materia')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button>
                 <button onclick="guardarMateria()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button>
             </div>
@@ -171,8 +188,8 @@
     <script>
         // --- BASE DE DATOS LOCAL ---
         const DB = {
-            get: () => JSON.parse(localStorage.getItem('raspanti_data')) || [],
-            save: (data) => localStorage.setItem('raspanti_data', JSON.stringify(data))
+            get: () => JSON.parse(localStorage.getItem('raspanti_data_v2')) || [],
+            save: (data) => localStorage.setItem('raspanti_data_v2', JSON.stringify(data))
         };
 
         let activeId = null;
@@ -185,83 +202,96 @@
             initDash();
         }
 
-        // --- FUNCIONES ---
-        function login() {
-            localStorage.setItem('raspanti_logged', 'true');
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('app-content').classList.remove('hidden');
-            initDash();
-        }
-        function logout() {
-            localStorage.removeItem('raspanti_logged');
-            location.reload();
-        }
+        // --- AUTH ---
+        function login() { localStorage.setItem('raspanti_logged', 'true'); location.reload(); }
+        function logout() { localStorage.removeItem('raspanti_logged'); location.reload(); }
 
+        // --- NAV ---
         function nav(view) {
             ['dashboard','materias','aula'].forEach(id => document.getElementById('view-'+id).classList.add('hidden'));
             document.getElementById('view-'+view).classList.remove('hidden');
             
-            // Navbar icons
-            const d = document.getElementById('nav-dash');
-            const m = document.getElementById('nav-mat');
+            const d = document.getElementById('nav-dash'); const m = document.getElementById('nav-mat');
             if(view === 'dashboard') {
-                d.classList.replace('text-gray-400','text-raspanti-bordo');
-                m.classList.replace('text-raspanti-bordo','text-gray-400');
+                d.classList.replace('text-gray-400','text-raspanti-bordo'); m.classList.replace('text-raspanti-bordo','text-gray-400');
                 initDash();
             } else {
-                m.classList.replace('text-gray-400','text-raspanti-bordo');
-                d.classList.replace('text-raspanti-bordo','text-gray-400');
+                m.classList.replace('text-gray-400','text-raspanti-bordo'); d.classList.replace('text-raspanti-bordo','text-gray-400');
                 if(view === 'materias') renderMaterias();
             }
-
-            // Ocultar nav en aula
-            if(view === 'aula') document.getElementById('navbar').classList.add('hidden');
-            else document.getElementById('navbar').classList.remove('hidden');
+            document.getElementById('navbar').style.display = (view === 'aula') ? 'none' : 'flex';
         }
 
+        // --- DASHBOARD INTELIGENTE ---
         function initDash() {
             const date = new Date();
             const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+            const hoyISO = date.toISOString().split('T')[0]; // YYYY-MM-DD
+            
             document.getElementById('fecha-hoy').innerText = `${dias[date.getDay()]}, ${date.getDate()}/${date.getMonth()+1}`;
             
             const data = DB.get();
-            const hoy = dias[date.getDay()];
             const lista = document.getElementById('lista-hoy');
             lista.innerHTML = '';
             
             let hayAlgo = false;
+            
             data.forEach(m => {
-                // Clase hoy?
-                if(m.modalidad !== 'Asincronico' && m.dia === hoy) {
-                    lista.innerHTML += `<div class="bg-white/10 p-2 rounded flex items-center gap-2"><div class="w-2 h-2 bg-green-400 rounded-full"></div> <strong>${m.nombre}</strong> (Clase)</div>`;
-                    hayAlgo = true;
+                // Verificar en Cronograma Personalizado
+                let tipoHoy = null;
+                if(m.cronograma && m.cronograma[hoyISO]) {
+                    tipoHoy = m.cronograma[hoyISO]; // 'Presencial', 'Virtual', etc.
                 }
-                // Examen hoy?
-                const hoyISO = date.toISOString().split('T')[0];
+
+                // Si hay algo agendado hoy (que no sea "Sin Clase")
+                if(tipoHoy && tipoHoy !== 'Sin Clase') {
+                    hayAlgo = true;
+                    let colorDot = 'bg-gray-400';
+                    let textoExtra = '';
+
+                    if(tipoHoy === 'Presencial') { colorDot = 'bg-red-500'; textoExtra = '(Instituto)'; }
+                    else if(tipoHoy === 'Virtual') { colorDot = 'bg-blue-400'; textoExtra = '(Zoom/Meet)'; }
+                    else if(tipoHoy === 'Asincronico') { colorDot = 'bg-yellow-400'; textoExtra = '(Campus)'; }
+
+                    lista.innerHTML += `<div class="bg-white/10 p-3 rounded-lg flex items-center gap-3">
+                        <div class="w-3 h-3 ${colorDot} rounded-full border border-white/20"></div> 
+                        <div>
+                            <strong class="block text-sm">${m.nombre}</strong>
+                            <span class="text-xs opacity-80 uppercase font-bold">${tipoHoy} ${textoExtra}</span>
+                        </div>
+                    </div>`;
+                }
+
+                // Exámenes
                 m.examenes.forEach(e => {
                     if(e.fecha === hoyISO) {
-                        lista.innerHTML += `<div class="bg-white text-raspanti-bordo p-2 rounded flex items-center gap-2 font-bold"><div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div> EXAMEN: ${m.nombre} - ${e.nombre}</div>`;
                         hayAlgo = true;
+                        lista.innerHTML += `<div class="bg-white text-raspanti-bordo p-3 rounded-lg flex items-center gap-3 font-bold border-l-4 border-raspanti-dorado">
+                            <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse"></div> 
+                            EXAMEN: ${m.nombre} - ${e.nombre}
+                        </div>`;
                     }
                 });
             });
 
-            if(!hayAlgo) lista.innerHTML = '<span class="opacity-60 italic">No tienes actividades hoy.</span>';
+            if(!hayAlgo) lista.innerHTML = '<span class="opacity-60 italic text-sm">No tienes actividades programadas para hoy.</span>';
         }
 
         // --- MATERIAS ---
-        function checkMod() {
-            const mod = document.getElementById('input-mat-mod').value;
-            document.getElementById('div-dias').style.display = (mod === 'Asincronico') ? 'none' : 'block';
-        }
-
         function guardarMateria() {
             const data = DB.get();
+            const diaElegido = document.getElementById('input-mat-dia').value;
+            
+            // Generar cronograma inicial (próximas 16 semanas)
+            const crono = {};
+            // (Logica simplificada: El usuario pintará los dias al entrar)
+            
             data.push({
                 id: Date.now(),
                 nombre: document.getElementById('input-mat-nombre').value,
-                modalidad: document.getElementById('input-mat-mod').value,
-                dia: document.getElementById('input-mat-dia').value,
+                modalidadBase: document.getElementById('input-mat-mod').value,
+                dia: diaElegido,
+                cronograma: {}, // Aquí guardaremos: "2024-05-10": "Virtual"
                 alumnos: [],
                 examenes: []
             });
@@ -271,129 +301,154 @@
         }
 
         function renderMaterias() {
-            const data = DB.get();
             const list = document.getElementById('lista-materias');
             list.innerHTML = '';
+            const data = DB.get();
             if(data.length === 0) document.getElementById('no-materias').classList.remove('hidden');
             else document.getElementById('no-materias').classList.add('hidden');
 
             data.forEach(m => {
-                const diaTxt = m.modalidad === 'Asincronico' ? 'Campus' : m.dia;
-                const div = document.createElement('div');
-                div.className = 'bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center';
-                div.innerHTML = `
-                    <div onclick="abrirAula(${m.id})">
+                list.innerHTML += `<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center">
+                    <div onclick="abrirAula(${m.id})" class="flex-1">
                         <h3 class="font-bold text-gray-800">${m.nombre}</h3>
-                        <div class="text-xs text-gray-400 font-bold uppercase mt-1">${m.modalidad} • ${diaTxt}</div>
+                        <div class="text-xs text-gray-400 font-bold uppercase mt-1">${m.dia} • ${m.modalidadBase}</div>
                     </div>
-                    <button onclick="borrarMateria(${m.id})" class="text-gray-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4"></i></button>
-                `;
-                list.appendChild(div);
+                    <button onclick="borrarMateria(${m.id})" class="text-gray-300 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-4"></i></button>
+                </div>`;
             });
             lucide.createIcons();
         }
 
         function borrarMateria(id) {
-            if(!confirm('¿Eliminar?')) return;
-            let data = DB.get();
-            data = data.filter(m => m.id !== id);
-            DB.save(data);
-            renderMaterias();
+            if(confirm('¿Eliminar?')) {
+                const data = DB.get().filter(m => m.id !== id);
+                DB.save(data);
+                renderMaterias();
+            }
         }
 
-        // --- AULA ---
+        // --- AULA & CRONOGRAMA (EL PINTOR) ---
         function abrirAula(id) {
             activeId = id;
             const m = DB.get().find(x => x.id === id);
             document.getElementById('aula-nombre').innerText = m.nombre;
-            document.getElementById('aula-modalidad').innerText = m.modalidad;
+            document.getElementById('aula-modalidad').innerText = m.modalidadBase;
             nav('aula');
-            setTab('alumnos');
-            renderAlumnos();
+            setTab('crono'); // Abrir cronograma por defecto para configurar
         }
 
         function setTab(t) {
-            document.getElementById('tab-alumnos').classList.add('hidden');
-            document.getElementById('tab-notas').classList.add('hidden');
+            ['crono','alumnos','notas'].forEach(x => {
+                document.getElementById('tab-'+x).classList.add('hidden');
+                const btn = document.getElementById('btn-'+x);
+                btn.className = 'flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400';
+            });
             document.getElementById('tab-'+t).classList.remove('hidden');
+            document.getElementById('btn-'+t).className = 'flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-raspanti-crema text-raspanti-bordo';
             
-            const btnA = document.getElementById('btn-alumnos');
-            const btnN = document.getElementById('btn-notas');
-            if(t==='alumnos'){
-                btnA.classList.replace('text-gray-400','text-raspanti-bordo'); btnA.classList.add('bg-raspanti-crema');
-                btnN.classList.replace('text-raspanti-bordo','text-gray-400'); btnN.classList.remove('bg-raspanti-crema');
-            } else {
-                btnN.classList.replace('text-gray-400','text-raspanti-bordo'); btnN.classList.add('bg-raspanti-crema');
-                btnA.classList.replace('text-raspanti-bordo','text-gray-400'); btnA.classList.remove('bg-raspanti-crema');
-                renderNotas();
-            }
+            if(t === 'crono') renderCronograma();
+            if(t === 'alumnos') renderAlumnos();
+            if(t === 'notas') renderNotas();
         }
 
-        function guardarAlumno() {
+        // LÓGICA DEL CRONOGRAMA ("EL PINTOR")
+        function renderCronograma() {
+            const m = DB.get().find(x => x.id === activeId);
+            const list = document.getElementById('lista-cronograma');
+            list.innerHTML = '';
+
+            // Generar fechas (Próximos 4 meses desde hoy, solo el día de cursada)
+            const diasMap = { 'Domingo':0, 'Lunes':1, 'Martes':2, 'Miércoles':3, 'Jueves':4, 'Viernes':5, 'Sábado':6 };
+            const targetDay = diasMap[m.dia];
+            
+            let date = new Date();
+            // Ir al primer día coincidente
+            while(date.getDay() !== targetDay) { date.setDate(date.getDate() + 1); }
+
+            // Generar 16 semanas
+            for(let i=0; i<16; i++) {
+                const iso = date.toISOString().split('T')[0];
+                const displayDate = `${date.getDate()}/${date.getMonth()+1}`;
+                
+                // Obtener estado guardado O usar el base
+                let estado = 'Sin Configurar';
+                if(m.cronograma && m.cronograma[iso]) {
+                    estado = m.cronograma[iso];
+                } else {
+                    // Por defecto toma la modalidad base
+                    estado = (m.modalidadBase === 'Hibrida') ? 'Presencial' : m.modalidadBase;
+                    if(m.modalidadBase === 'Virtual') estado = 'Virtual';
+                }
+
+                // Definir estilos según estado
+                let badgeClass = 'bg-gray-100 text-gray-500';
+                let icon = 'help-circle';
+                
+                if(estado === 'Presencial') { badgeClass = 'bg-red-100 text-red-700 border border-red-200'; icon = 'map-pin'; }
+                else if(estado === 'Virtual') { badgeClass = 'bg-blue-100 text-blue-700 border border-blue-200'; icon = 'video'; }
+                else if(estado === 'Asincronico') { badgeClass = 'bg-yellow-100 text-yellow-700 border border-yellow-200'; icon = 'book-open'; }
+                else if(estado === 'Sin Clase') { badgeClass = 'bg-gray-100 text-gray-400 line-through'; icon = 'slash'; }
+
+                list.innerHTML += `
+                <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                    <span class="font-bold text-gray-700 text-sm w-12">${displayDate}</span>
+                    <button onclick="ciclarEstado('${iso}')" class="flex-1 ml-4 py-2 px-3 rounded-lg font-bold text-xs uppercase flex items-center justify-center gap-2 ${badgeClass} badge-transition">
+                        <i data-lucide="${icon}" class="w-3 h-3"></i> ${estado}
+                    </button>
+                </div>`;
+
+                date.setDate(date.getDate() + 7); // Próxima semana
+            }
+            lucide.createIcons();
+        }
+
+        function ciclarEstado(fechaIso) {
             const data = DB.get();
             const m = data.find(x => x.id === activeId);
-            m.alumnos.push({
-                ape: document.getElementById('input-alum-ape').value,
-                nom: document.getElementById('input-alum-nom').value,
-                notas: {}
-            });
-            m.alumnos.sort((a,b) => a.ape.localeCompare(b.ape));
+            if(!m.cronograma) m.cronograma = {};
+
+            // Estados rotativos
+            const estados = ['Presencial', 'Virtual', 'Asincronico', 'Sin Clase'];
+            
+            // Buscar estado actual
+            let current = m.cronograma[fechaIso] || ((m.modalidadBase==='Hibrida')?'Presencial':m.modalidadBase);
+            if(!estados.includes(current)) current = 'Presencial';
+
+            // Siguiente estado
+            const nextIndex = (estados.indexOf(current) + 1) % estados.length;
+            m.cronograma[fechaIso] = estados[nextIndex];
+
             DB.save(data);
-            closeModal('modal-alumno');
-            renderAlumnos();
+            renderCronograma(); // Refrescar UI
         }
 
+        // --- ALUMNOS & NOTAS (Igual que antes) ---
         function renderAlumnos() {
             const m = DB.get().find(x => x.id === activeId);
             const l = document.getElementById('lista-alumnos');
             l.innerHTML = '';
             m.alumnos.forEach((al, idx) => {
                 l.innerHTML += `<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-xs text-gray-500">${al.ape[0]}</div>
-                        <span class="font-bold text-gray-700 text-sm">${al.ape}, ${al.nom}</span>
-                    </div>
+                    <span class="font-bold text-gray-700 text-sm">${al.ape}, ${al.nom}</span>
                     <button onclick="delAlum(${idx})" class="text-gray-300 hover:text-red-500"><i data-lucide="x" class="w-4"></i></button>
                 </div>`;
             });
             lucide.createIcons();
         }
-
-        function delAlum(idx) {
-            if(!confirm('¿Quitar?')) return;
+        function guardarAlumno() {
             const data = DB.get();
             const m = data.find(x => x.id === activeId);
-            m.alumnos.splice(idx, 1);
-            DB.save(data);
-            renderAlumnos();
+            m.alumnos.push({ ape: document.getElementById('input-alum-ape').value, nom: document.getElementById('input-alum-nom').value, notas: {} });
+            m.alumnos.sort((a,b) => a.ape.localeCompare(b.ape));
+            DB.save(data); closeModal('modal-alumno'); renderAlumnos();
         }
-
-        function guardarExamen() {
-            const data = DB.get();
-            const m = data.find(x => x.id === activeId);
-            m.examenes.push({
-                id: Date.now(),
-                nombre: document.getElementById('input-exam-nom').value,
-                fecha: document.getElementById('input-exam-date').value
-            });
-            DB.save(data);
-            closeModal('modal-examen');
-            renderNotas();
-        }
-
+        function delAlum(idx) { if(confirm('¿Quitar?')) { const data=DB.get(); data.find(x=>x.id===activeId).alumnos.splice(idx,1); DB.save(data); renderAlumnos(); } }
+        
         function renderNotas() {
             const m = DB.get().find(x => x.id === activeId);
-            const head = document.getElementById('head-notas');
-            const body = document.getElementById('body-notas');
-            
-            // Headers
+            const head = document.getElementById('head-notas'); const body = document.getElementById('body-notas');
             head.innerHTML = '<th class="p-3 sticky left-0 bg-gray-50">Alumno</th>';
-            m.examenes.forEach(e => {
-                const f = e.fecha ? e.fecha.split('-').reverse().slice(0,2).join('/') : '';
-                head.innerHTML += `<th class="p-3 text-center min-w-[80px] text-xs">${e.nombre}<br><span class="font-normal opacity-50">${f}</span></th>`;
-            });
-
-            // Body
+            m.examenes.forEach(e => head.innerHTML += `<th class="p-3 text-center min-w-[80px] text-xs">${e.nombre}</th>`);
             body.innerHTML = '';
             m.alumnos.forEach((al, aIdx) => {
                 let row = `<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm truncate max-w-[120px]">${al.ape}, ${al.nom[0]}.</td>`;
@@ -402,22 +457,18 @@
                     const color = (val && val<4) ? 'text-red-500 bg-red-50' : 'text-gray-700';
                     row += `<td class="p-2 text-center border-b"><input type="number" class="w-10 text-center p-1 rounded border ${color}" value="${val}" onchange="saveNota(${aIdx}, ${e.id}, this.value)"></td>`;
                 });
-                row += '</tr>';
-                body.innerHTML += row;
+                body.innerHTML += row + '</tr>';
             });
         }
-
-        function saveNota(aIdx, eId, val) {
-            const data = DB.get();
-            const m = data.find(x => x.id === activeId);
-            m.alumnos[aIdx].notas[eId] = val;
-            DB.save(data);
-            renderNotas(); // Refrescar color
+        function guardarExamen() {
+            const data=DB.get(); data.find(x=>x.id===activeId).examenes.push({id:Date.now(), nombre:document.getElementById('input-exam-nom').value, fecha:document.getElementById('input-exam-date').value});
+            DB.save(data); closeModal('modal-examen'); renderNotas();
         }
+        function saveNota(aIdx, eId, val) { const data=DB.get(); data.find(x=>x.id===activeId).alumnos[aIdx].notas[eId]=val; DB.save(data); renderNotas(); }
 
+        // --- UTILIDADES ---
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
     </script>
 </body>
 </html>
