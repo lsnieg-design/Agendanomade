@@ -127,9 +127,9 @@
                 
                 <div id="tab-crono" class="space-y-3">
                     <div class="flex justify-between items-center">
-                        <p class="text-xs text-gray-500 font-bold ml-1">Agenda de Clases</p>
+                        <p class="text-xs text-gray-500 font-bold ml-1">Planificación</p>
                         <button onclick="openImportModal()" class="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded border border-green-200 font-bold flex items-center gap-1">
-                            <i data-lucide="file-spreadsheet" class="w-3 h-3"></i> IMPORTAR EXCEL
+                            <i data-lucide="file-spreadsheet" class="w-3 h-3"></i> IMPORTAR
                         </button>
                     </div>
                     <div id="lista-cronograma" class="space-y-3"></div>
@@ -185,10 +185,41 @@
     <div id="modal-import" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative">
             <button onclick="closeModal('modal-import')" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
-            <h3 class="text-lg font-black text-raspanti-bordo mb-2">Importar Excel</h3>
-            <p class="text-xs text-gray-500 mb-4">Copia las columnas <strong>FECHA</strong> y <strong>CONTENIDO</strong> de tu Excel y pégalas aquí.</p>
-            <textarea id="input-import-text" class="w-full p-3 bg-gray-50 rounded-lg border h-40 text-xs font-mono mb-4" placeholder="Ej: 17/03/2025   Presentación..."></textarea>
+            <h3 class="text-lg font-black text-raspanti-bordo mb-2">Importar Planificación</h3>
+            <p class="text-xs text-gray-500 mb-4">Copia 4 columnas de tu Excel (Fecha, Contenido, Biblio, Actividad) y pega aquí.</p>
+            <textarea id="input-import-text" class="w-full p-3 bg-gray-50 rounded-lg border h-40 text-xs font-mono mb-4" placeholder="17/03/2025  Tema 1  Libro A  TP1..."></textarea>
             <button onclick="processImport()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2"><i data-lucide="check" class="w-5 h-5"></i> PROCESAR</button>
+        </div>
+    </div>
+
+    <div id="modal-clase-detail" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <h3 class="text-lg font-black text-raspanti-bordo mb-1" id="detail-date">--/--</h3>
+            <input type="hidden" id="detail-iso">
+            
+            <div class="space-y-3 mt-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-500">CONTENIDO / TEMA</label>
+                    <textarea id="detail-tema" class="w-full p-2 bg-gray-50 rounded border text-sm font-medium h-20"></textarea>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">BIBLIOGRAFÍA</label>
+                    <textarea id="detail-biblio" class="w-full p-2 bg-gray-50 rounded border text-sm text-gray-600 h-16"></textarea>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">ACTIVIDAD CLASE</label>
+                    <input id="detail-act-clase" class="w-full p-2 bg-gray-50 rounded border text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">TAREA</label>
+                    <input id="detail-act-tarea" class="w-full p-2 bg-gray-50 rounded border text-sm">
+                </div>
+            </div>
+
+            <div class="flex gap-2 mt-4">
+                <button onclick="closeModal('modal-clase-detail')" class="flex-1 py-3 text-gray-500 font-bold">Cerrar</button>
+                <button onclick="saveClaseDetail()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button>
+            </div>
         </div>
     </div>
 
@@ -196,7 +227,7 @@
 
     <script>
         // --- DB ---
-        const DB={get:()=>JSON.parse(localStorage.getItem('raspanti_v11'))||{materias:[], tareas:[], profileName:'Hola Profe'}, save:(d)=>localStorage.setItem('raspanti_v11',JSON.stringify(d))};
+        const DB={get:()=>JSON.parse(localStorage.getItem('raspanti_v12'))||{materias:[], tareas:[], profileName:'Hola Profe'}, save:(d)=>localStorage.setItem('raspanti_v12',JSON.stringify(d))};
         let activeId=null, activeDateISO=null, activeObsIdx=null, tempFoto=''; 
 
         // --- CORE ---
@@ -230,7 +261,11 @@
                 let iso = loopDate.toISOString().split('T')[0];
                 let dayName = dias[loopDate.getDay()];
                 db.materias.forEach(m => {
-                    if(m.temas && m.temas[iso]){ ys=true; ls.innerHTML += `<div class="border-l-2 border-raspanti-dorado pl-3 py-1"><span class="text-xs font-bold text-gray-400 uppercase block">${dayName} - ${m.nombre}</span><p class="text-sm font-medium text-gray-700">${m.temas[iso]}</p></div>`; }
+                    // Check complex object or simple string
+                    const plan = m.planificacion?.[iso];
+                    const tema = plan ? (typeof plan === 'string' ? plan : plan.tema) : null;
+                    
+                    if(tema){ ys=true; ls.innerHTML += `<div class="border-l-2 border-raspanti-dorado pl-3 py-1"><span class="text-xs font-bold text-gray-400 uppercase block">${dayName} - ${m.nombre}</span><p class="text-sm font-medium text-gray-700 truncate">${tema}</p></div>`; }
                 });
             }
             if(!ys) ls.innerHTML = '<span class="text-xs text-gray-400 italic">Nada planificado esta semana.</span>';
@@ -252,7 +287,7 @@
             const db=DB.get(), eid=document.getElementById('edit-mat-id').value;
             const mat={nombre:document.getElementById('input-mat-nombre').value, modalidadBase:document.getElementById('input-mat-mod').value, dia:document.getElementById('input-mat-dia').value, fechaInicio:document.getElementById('input-mat-inicio').value||new Date().toISOString().split('T')[0]};
             if(eid){const idx=db.materias.findIndex(x=>x.id==eid); db.materias[idx]={...db.materias[idx],...mat};}
-            else{mat.id=Date.now(); mat.cronograma={}; mat.temas={}; mat.alumnos=[]; mat.examenes=[]; mat.asistencias={}; db.materias.push(mat);}
+            else{mat.id=Date.now(); mat.cronograma={}; mat.planificacion={}; mat.alumnos=[]; mat.examenes=[]; mat.asistencias={}; db.materias.push(mat);}
             DB.save(db); closeModal('modal-materia'); renderMaterias();
         }
         function renderMaterias(){const l=document.getElementById('lista-materias'); l.innerHTML=''; const db=DB.get(); document.getElementById('no-materias').classList.toggle('hidden',db.materias.length>0); db.materias.forEach(m=>{l.innerHTML+=`<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center"><div onclick="abrirAula(${m.id})" class="flex-1"><h3 class="font-bold text-gray-800">${m.nombre}</h3><div class="text-xs text-gray-400 font-bold uppercase mt-1">${m.dia} • ${m.modalidadBase}</div></div><div class="flex gap-1"><button onclick="openMateriaModal(${m.id})" class="text-gray-400 hover:text-blue-500 p-2"><i data-lucide="pencil" class="w-4"></i></button><button onclick="borrarMateria(${m.id})" class="text-gray-400 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-4"></i></button></div></div>`;}); lucide.createIcons();}
@@ -270,29 +305,76 @@
                 let b='bg-gray-100 text-gray-500', ic='help-circle';
                 if(st==='Presencial'){b='bg-red-100 text-red-700 border-red-200';ic='map-pin';}else if(st==='Virtual'){b='bg-blue-100 text-blue-700 border-blue-200';ic='video';}else if(st==='Asincronico'){b='bg-yellow-100 text-yellow-700 border-yellow-200';ic='book-open';}else if(st==='Sin Clase'){b='line-through opacity-50';ic='slash';}
                 
-                const temaVal = (m.temas && m.temas[iso]) ? m.temas[iso] : '';
-                l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm"><div class="flex items-center justify-between mb-2"><span class="font-bold text-gray-700 text-sm w-12">${disp}</span><button onclick="cycle('${iso}')" class="flex-1 ml-4 py-1 px-3 rounded-lg font-bold text-[10px] uppercase flex items-center justify-center gap-2 ${b} badge-transition"><i data-lucide="${ic}" class="w-3 h-3"></i> ${st}</button></div><input type="text" class="w-full text-sm bg-gray-50 p-2 rounded border border-transparent focus:bg-white focus:border-raspanti-dorado outline-none transition" placeholder="Tema..." value="${temaVal}" onchange="saveTema('${iso}', this.value)"></div>`;
+                // DATA PLANIFICACION
+                const plan = m.planificacion?.[iso] || {};
+                const temaVal = typeof plan === 'string' ? plan : (plan.tema || '');
+                const hasDetails = plan.biblio || plan.actClase || plan.actTarea;
+                const infoIcon = hasDetails ? 'file-text' : 'plus-circle';
+                const infoColor = hasDetails ? 'text-blue-500' : 'text-gray-300';
+
+                l.innerHTML+=`
+                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-gray-700 text-sm w-12">${disp}</span>
+                        <button onclick="cycle('${iso}')" class="flex-1 ml-4 py-1 px-3 rounded-lg font-bold text-[10px] uppercase flex items-center justify-center gap-2 ${b} badge-transition"><i data-lucide="${ic}" class="w-3 h-3"></i> ${st}</button>
+                    </div>
+                    <div class="flex gap-2 items-center">
+                        <input type="text" class="flex-1 text-sm bg-gray-50 p-2 rounded border border-transparent focus:bg-white focus:border-raspanti-dorado outline-none transition" placeholder="Tema..." value="${temaVal}" onchange="saveTemaSimple('${iso}', this.value)">
+                        <button onclick="openClaseDetail('${iso}')" class="p-2"><i data-lucide="${infoIcon}" class="w-5 h-5 ${infoColor}"></i></button>
+                    </div>
+                </div>`;
                 d.setDate(d.getDate()+7);
             } lucide.createIcons();
         }
         function cycle(iso){const db=DB.get(), m=db.materias.find(x=>x.id===activeId); if(!m.cronograma)m.cronograma={}; const sts=['Presencial','Virtual','Asincronico','Sin Clase'], c=m.cronograma[iso]||((m.modalidadBase==='Hibrida')?'Presencial':m.modalidadBase); m.cronograma[iso]=sts[(sts.indexOf(c)+1)%sts.length]; DB.save(db); renderCrono();}
-        function saveTema(iso, val){ const db=DB.get(), m=db.materias.find(x=>x.id===activeId); if(!m.temas) m.temas={}; m.temas[iso] = val; DB.save(db); }
+        
+        function saveTemaSimple(iso, val){
+            const db=DB.get(), m=db.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={};
+            if(!m.planificacion[iso]) m.planificacion[iso] = {};
+            // Convert to obj if string legacy
+            if(typeof m.planificacion[iso] === 'string') m.planificacion[iso] = {tema: m.planificacion[iso]};
+            m.planificacion[iso].tema = val;
+            DB.save(db);
+        }
 
-        // --- IMPORTACIÓN EXCEL ---
+        // --- DETALLE CLASE ---
+        function openClaseDetail(iso){
+            activeDateISO = iso; const m=DB.get().materias.find(x=>x.id===activeId);
+            const p = m.planificacion?.[iso] || {};
+            
+            document.getElementById('detail-date').innerText = `Clase del ${iso.split('-').reverse().slice(0,2).join('/')}`;
+            document.getElementById('detail-tema').value = p.tema || '';
+            document.getElementById('detail-biblio').value = p.biblio || '';
+            document.getElementById('detail-act-clase').value = p.actClase || '';
+            document.getElementById('detail-act-tarea').value = p.actTarea || '';
+            
+            document.getElementById('modal-clase-detail').classList.remove('hidden');
+        }
+        function saveClaseDetail(){
+            const db=DB.get(), m=db.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={};
+            const p = {
+                tema: document.getElementById('detail-tema').value,
+                biblio: document.getElementById('detail-biblio').value,
+                actClase: document.getElementById('detail-act-clase').value,
+                actTarea: document.getElementById('detail-act-tarea').value
+            };
+            m.planificacion[activeDateISO] = p;
+            DB.save(db); closeModal('modal-clase-detail'); renderCrono();
+        }
+
+        // --- IMPORTACIÓN EXCEL (FULL) ---
         function openImportModal() { document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('input-import-text').value=''; }
         function processImport() {
             const raw = document.getElementById('input-import-text').value;
-            if(!raw.trim()) { alert("Pega el contenido primero."); return; }
+            if(!raw.trim()) { alert("Pega el contenido."); return; }
             const lines = raw.split('\n');
-            const db = DB.get(); const m = db.materias.find(x=>x.id===activeId); if(!m.temas) m.temas = {};
+            const db = DB.get(); const m = db.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion = {};
             let count = 0;
 
             lines.forEach(line => {
-                const parts = line.split('\t'); // Excel usa tabs
+                const parts = line.split('\t'); // Excel tabs
                 if(parts.length >= 1) {
-                    // Try parsing date from parts[0]
                     const dateRaw = parts[0].trim();
-                    // Regex dd/mm/yyyy or dd-mm-yyyy
                     const match = dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/);
                     if(match) {
                         const day = match[1].padStart(2,'0');
@@ -300,24 +382,23 @@
                         const year = match[3].length === 2 ? '20'+match[3] : match[3];
                         const isoDate = `${year}-${month}-${day}`;
                         
-                        // Content: Try part 1, if short try part 2 (skipping "Unit" column)
-                        let content = "";
-                        if(parts.length > 1) {
-                            if(parts[1].length < 4 && parts.length > 2) content = parts[2].trim();
-                            else content = parts[1].trim();
-                        }
+                        // Heuristica: Saltear columna "Unidad" (numeros cortos)
+                        let idx = 1;
+                        if(parts[idx] && parts[idx].trim().length < 3 && !isNaN(parseInt(parts[idx]))) idx++;
                         
-                        if(content) {
-                            m.temas[isoDate] = content;
+                        const tema = parts[idx] ? parts[idx].trim() : "";
+                        const biblio = parts[idx+1] ? parts[idx+1].trim() : "";
+                        const actClase = parts[idx+2] ? parts[idx+2].trim() : "";
+                        const actTarea = parts[idx+3] ? parts[idx+3].trim() : ""; // Optional
+
+                        if(tema) {
+                            m.planificacion[isoDate] = { tema, biblio, actClase, actTarea };
                             count++;
                         }
                     }
                 }
             });
-            DB.save(db);
-            alert(`✅ Se importaron ${count} fechas.`);
-            closeModal('modal-import');
-            renderCrono();
+            DB.save(db); alert(`✅ Se importaron ${count} clases.`); closeModal('modal-import'); renderCrono();
         }
 
         // --- TOMAR LISTA ---
@@ -360,7 +441,7 @@
         function openObs(i){activeObsIdx=i; const m=DB.get().materias.find(x=>x.id===activeId).alumnos[i]; document.getElementById('obs-alum-name').innerText=`${m.ape}, ${m.nom}`; document.getElementById('input-obs-txt').value=m.obs||''; openModal('modal-obs');}
         function guardarObs(){const db=DB.get(); db.materias.find(x=>x.id===activeId).alumnos[activeObsIdx].obs=document.getElementById('input-obs-txt').value; DB.save(db); closeModal('modal-obs'); renderAlum();}
 
-        // --- NOTAS ---
+        // --- NOTAS (EDIT) ---
         function openExamModal(idx=null){document.getElementById('title-examen').innerText=idx!==null?'Editar':'Nuevo Examen'; document.getElementById('edit-exam-id').value=idx!==null?idx:''; if(idx!==null){const e=DB.get().materias.find(x=>x.id===activeId).examenes[idx]; document.getElementById('input-exam-nom').value=e.nombre; document.getElementById('input-exam-date').value=e.fecha;} else{document.getElementById('input-exam-nom').value='';} openModal('modal-examen');}
         function guardarExamen(){const db=DB.get(), m=db.materias.find(x=>x.id===activeId), idx=document.getElementById('edit-exam-id').value, d={nombre:document.getElementById('input-exam-nom').value, fecha:document.getElementById('input-exam-date').value}; if(idx!==''){m.examenes[idx]={...m.examenes[idx],...d};} else {m.examenes.push({id:Date.now(),...d});} DB.save(db); closeModal('modal-examen'); renderNotas();}
         function renderNotas(){const m=DB.get().materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); h.innerHTML='<th class="p-3 sticky left-0 bg-gray-50 text-xs font-bold text-gray-500">ALUMNO</th>'; m.examenes.forEach((e,i)=>h.innerHTML+=`<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500 uppercase cursor-pointer hover:text-blue-600" onclick="openExamModal(${i})">${e.nombre} <i data-lucide="pencil" class="w-3 inline"></i></th>`); h.innerHTML+='<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-700">PROM</th>'; b.innerHTML=''; m.alumnos.forEach((al,i)=>{let r=`<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm truncate max-w-[120px]">${al.ape}, ${al.nom[0]}.</td>`; let s=0,c=0; m.examenes.forEach(e=>{const v=al.notas[e.id]||''; if(v){s+=parseFloat(v);c++;} const cl=(v&&v<4)?'text-red-500 bg-red-50':''; r+=`<td class="p-2 border-b"><input type="number" class="w-10 p-1 rounded border ${cl} input-nota" value="${v}" onchange="saveNota(${i},${e.id},this.value)"></td>`;}); const avg=c>0?(s/c).toFixed(2):'-', cl=avg!=='-'?(avg>=7?'text-green-600':(avg<4?'text-red-500':'text-gray-500')):'text-gray-300'; r+=`<td class="p-2 text-center border-b font-black ${cl}">${avg}</td></tr>`; b.innerHTML+=r;}); lucide.createIcons();}
