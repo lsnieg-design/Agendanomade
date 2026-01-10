@@ -59,6 +59,10 @@
         
         /* CUADERNO (NOTAS) */
         #canvas-container { touch-action: none; background: white; border-radius: 10px; overflow: hidden; height: 60vh; position: relative; border: 1px solid #e5e7eb; cursor: crosshair; }
+
+        /* GUIDES */
+        .install-guide-arrow { position: fixed; top: 10px; right: 20px; z-index: 100; animation: bounce 1s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     </style>
 </head>
 <body class="h-screen flex flex-col text-slate-800 bg-slate-50">
@@ -216,12 +220,12 @@
     <div id="modal-settings" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center"><h3 class="text-lg font-black text-raspanti-bordo mb-6">Configuración</h3><div class="bg-blue-50 p-4 rounded-xl mb-4 border border-blue-100"><i data-lucide="download" class="w-8 h-8 text-blue-500 mx-auto mb-2"></i><h4 class="font-bold text-blue-800">Copia de Seguridad</h4><button onclick="downloadBackup()" class="bg-blue-600 text-white w-full py-2 rounded-lg font-bold text-sm shadow mt-2">DESCARGAR</button></div><div class="bg-gray-50 p-4 rounded-xl mb-6 border border-gray-200"><i data-lucide="upload" class="w-8 h-8 text-gray-500 mx-auto mb-2"></i><h4 class="font-bold text-gray-700">Restaurar</h4><input type="file" id="file-restore" class="hidden" onchange="restoreBackup(this)"><button onclick="document.getElementById('file-restore').click()" class="bg-gray-200 text-gray-700 w-full py-2 rounded-lg font-bold text-sm mt-2">SELECCIONAR ARCHIVO</button></div><button onclick="closeModal('modal-settings')" class="block w-full mt-4 text-gray-400 text-sm font-bold">Cerrar</button></div></div>
     <div id="modal-import" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative"><button onclick="closeModal('modal-import')" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button><h3 class="text-lg font-black text-raspanti-bordo mb-2">Importar Planificación</h3><p class="text-xs text-gray-500 mb-4">Copia 4 columnas de tu Excel (Fecha, Contenido, Biblio, Actividad) y pega aquí.</p><textarea id="input-import-text" class="w-full p-3 bg-gray-50 rounded-lg border h-40 text-xs font-mono mb-4" placeholder="17/03/2025  Tema 1  Libro A  TP1..."></textarea><button onclick="processImport()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2"><i data-lucide="check" class="w-5 h-5"></i> PROCESAR</button></div></div>
     <div id="modal-clase-detail" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative max-h-[90vh] overflow-y-auto"><h3 class="text-lg font-black text-raspanti-bordo mb-1" id="detail-date">--/--</h3><input type="hidden" id="detail-iso"><div class="space-y-3 mt-4"><div><label class="text-xs font-bold text-gray-500">CONTENIDO / TEMA</label><textarea id="detail-tema" class="w-full p-2 bg-gray-50 rounded border text-sm font-medium h-20"></textarea></div><div><label class="text-xs font-bold text-gray-500">BIBLIOGRAFÍA</label><textarea id="detail-biblio" class="w-full p-2 bg-gray-50 rounded border text-sm text-gray-600 h-16"></textarea></div><div><label class="text-xs font-bold text-gray-500">ACTIVIDAD CLASE</label><input id="detail-act-clase" class="w-full p-2 bg-gray-50 rounded border text-sm"></div><div><label class="text-xs font-bold text-gray-500">TAREA</label><input id="detail-act-tarea" class="w-full p-2 bg-gray-50 rounded border text-sm"></div></div><div class="flex gap-2 mt-4"><button onclick="closeModal('modal-clase-detail')" class="flex-1 py-3 text-gray-500 font-bold">Cerrar</button><button onclick="saveClaseDetail()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
-    <div id="install-modal" class="fixed inset-0 z-[70] bg-black/60 hidden flex items-end sm:items-center justify-center backdrop-blur-sm"><div class="bg-white w-full sm:max-w-md rounded-t-[30px] sm:rounded-[30px] p-6 slide-up shadow-2xl relative"><button onclick="closeInstall()" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button><div class="flex items-center gap-4 mb-4"><div class="w-16 h-16 bg-raspanti-bordo rounded-2xl flex items-center justify-center border-4 border-raspanti-dorado shadow-md text-white font-black text-2xl">R</div><div><h3 class="font-bold text-lg leading-tight">Instalar App</h3><p class="text-xs text-gray-500">Mejor experiencia.</p></div></div><div id="install-ios" class="hidden space-y-3 text-sm text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100"><p>1. Toca <strong>Compartir</strong> <i data-lucide="share" class="w-4 h-4 text-blue-500"></i></p><p>2. <strong>"Agregar a Inicio"</strong> <i data-lucide="plus-square" class="w-4 h-4 text-gray-800"></i></p></div><div id="install-android" class="hidden"><button onclick="triggerInstall()" class="w-full bg-raspanti-bordo text-white py-4 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2"><i data-lucide="download" class="w-5 h-5"></i> INSTALAR</button></div></div></div>
+    <div id="install-modal" class="fixed inset-0 z-[70] bg-black/60 hidden flex items-end sm:items-center justify-center backdrop-blur-sm"><div class="bg-white w-full sm:max-w-md rounded-t-[30px] sm:rounded-[30px] p-6 slide-up shadow-2xl relative"><button onclick="closeInstall()" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button><div class="flex items-center gap-4 mb-4"><div class="w-16 h-16 bg-raspanti-bordo rounded-2xl flex items-center justify-center border-4 border-raspanti-dorado shadow-md text-white font-black text-2xl">R</div><div><h3 class="font-bold text-lg leading-tight">Instalar App</h3><p class="text-xs text-gray-500">Mejor experiencia.</p></div></div><div id="install-guide-arrow" class="install-guide-arrow hidden"><i data-lucide="arrow-up" class="w-8 h-8 text-white"></i></div><div id="install-ios" class="hidden space-y-3 text-sm text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100"><p>1. Toca <strong>Compartir</strong> <i data-lucide="share" class="w-4 h-4 text-blue-500"></i></p><p>2. <strong>"Agregar a Inicio"</strong> <i data-lucide="plus-square" class="w-4 h-4 text-gray-800"></i></p></div><div id="install-android" class="hidden"><button onclick="triggerInstall()" class="w-full bg-raspanti-bordo text-white py-4 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2"><i data-lucide="download" class="w-5 h-5"></i> INSTALAR</button></div></div></div>
 
     <script>
         const DB={
-            get:()=>JSON.parse(localStorage.getItem('raspanti_v16'))||{materias:[], tareas:[], eventos:{}, notas:[], profileName:'Hola Profe'}, 
-            save:(d)=>localStorage.setItem('raspanti_v16',JSON.stringify(d))
+            get:()=>JSON.parse(localStorage.getItem('raspanti_v17'))||{materias:[], tareas:[], eventos:{}, notas:[], profileName:'Hola Profe'}, 
+            save:(d)=>localStorage.setItem('raspanti_v17',JSON.stringify(d))
         };
         let activeId=null, activeDateISO=null, activeObsIdx=null, tempFoto='', activeCalISO=null, activeNoteId=null;
         let currentMonth=new Date().getMonth(), currentYear=new Date().getFullYear();
@@ -239,64 +243,27 @@
             if(v==='dashboard') initDash(); if(v==='materias') renderMaterias(); if(v==='calendario') renderCalendar(currentMonth, currentYear); if(v==='cuaderno') renderNotesList();
         }
 
-        // --- DASHBOARD IMPROVED ---
+        // --- DASHBOARD ---
         function initDash(){
             const d=new Date(), dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'], h=d.toISOString().split('T')[0];
             document.getElementById('fecha-hoy').innerText=`${dias[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}`;
             const db=DB.get(); document.getElementById('dash-name').innerText=db.profileName||'Hola Profe';
             
-            // LISTA HOY (UNIFICADA)
             const l=document.getElementById('lista-hoy'); l.innerHTML=''; let y=false;
-            
-            // 1. Clases de materias
             db.materias.forEach(m=>{
-                // Check if class exists today
-                let t=m.cronograma?.[h]; 
-                // Also check planning content
-                let plan = m.planificacion?.[h];
-                let planTema = plan ? (typeof plan === 'string' ? plan : plan.tema) : '';
-
-                if(t && t!=='Sin Clase'){
-                    y=true; 
-                    let c='bg-gray-400',x=''; 
-                    if(t.startsWith('Presenc')){c='bg-red-500';x='(Inst.)';}
-                    else if(t.startsWith('Virt')){c='bg-blue-400';x='(Zoom)';}
-                    else if(t.startsWith('Asinc')){c='bg-yellow-400';x='(Campus)';}
-                    
-                    l.innerHTML+=`
-                    <div class="bg-white/10 p-3 rounded-lg flex items-center gap-3 mb-2">
-                        <div class="w-3 h-3 ${c} rounded-full border border-white/20 shrink-0"></div>
-                        <div class="overflow-hidden">
-                            <strong class="block text-sm truncate">${m.nombre}</strong>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs opacity-80 uppercase font-bold">${t} ${x}</span>
-                                ${planTema ? `<span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded text-white/90 truncate max-w-[150px]">${planTema}</span>` : ''}
-                            </div>
-                        </div>
-                    </div>`;
+                let t=m.cronograma?.[h]; let plan=m.planificacion?.[h]; let planTema=plan?(typeof plan==='string'?plan:plan.tema):'';
+                if(t && t!=='Sin Clase'){ y=true; let c='bg-gray-400',x=''; 
+                    if(t.startsWith('Presenc')){c='bg-red-500';x='(Inst.)';}else if(t.startsWith('Virt')){c='bg-blue-400';x='(Zoom)';}else if(t.startsWith('Asinc')){c='bg-yellow-400';x='(Campus)';}
+                    l.innerHTML+=`<div class="bg-white/10 p-3 rounded-lg flex items-center gap-3 mb-2"><div class="w-3 h-3 ${c} rounded-full border border-white/20 shrink-0"></div><div class="overflow-hidden"><strong class="block text-sm truncate">${m.nombre}</strong><div class="flex items-center gap-2"><span class="text-xs opacity-80 uppercase font-bold">${t} ${x}</span>${planTema?`<span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded text-white/90 truncate max-w-[150px]">${planTema}</span>`:''}</div></div></div>`;
                 }
             });
-
-            // 2. Eventos del Calendario
-            if(db.eventos?.[h]){
-                db.eventos[h].forEach(ev => {
-                    y=true;
-                    l.innerHTML += `
-                    <div class="bg-white/90 p-3 rounded-lg flex items-center gap-3 mb-2 border-l-4 border-purple-500 text-gray-800">
-                        <i data-lucide="calendar" class="w-4 h-4 text-purple-600"></i>
-                        <span class="text-sm font-bold">${ev}</span>
-                    </div>`;
-                });
-            }
-
+            if(db.eventos?.[h]){ db.eventos[h].forEach(ev=>{ y=true; l.innerHTML+=`<div class="bg-white/90 p-3 rounded-lg flex items-center gap-3 mb-2 border-l-4 border-purple-500 text-gray-800"><i data-lucide="calendar" class="w-4 h-4 text-purple-600"></i><span class="text-sm font-bold">${ev}</span></div>`; }); }
             if(!y)l.innerHTML='<span class="opacity-60 italic text-sm">Sin actividades hoy.</span>';
             
-            // Semanal
             const ls=document.getElementById('lista-semana'); ls.innerHTML=''; let ys=false; let current = new Date(); const first = current.getDate() - current.getDay() + 1; let monday = new Date(current.setDate(first));
             for(let i=0; i<5; i++){ let loopDate = new Date(monday); loopDate.setDate(monday.getDate() + i); let iso = loopDate.toISOString().split('T')[0]; let dayName = dias[loopDate.getDay()]; db.materias.forEach(m => { const plan = m.planificacion?.[iso]; const tema = plan ? (typeof plan === 'string' ? plan : plan.tema) : null; if(tema){ ys=true; ls.innerHTML += `<div class="border-l-2 border-raspanti-dorado pl-3 py-1"><span class="text-xs font-bold text-gray-400 uppercase block">${dayName} - ${m.nombre}</span><p class="text-sm font-medium text-gray-700 truncate">${tema}</p></div>`; } }); }
             if(!ys) ls.innerHTML = '<span class="text-xs text-gray-400 italic">Nada planificado esta semana.</span>';
-            renderTareas();
-            lucide.createIcons();
+            renderTareas(); lucide.createIcons();
         }
         function editProfileName(){const n = prompt("Nombre:", document.getElementById('dash-name').innerText); if(n){ const db=DB.get(); db.profileName=n; DB.save(db); initDash(); }}
         function renderTareas(){const db=DB.get(),l=document.getElementById('lista-tareas'); l.innerHTML=''; if(db.tareas.length===0){document.getElementById('no-tareas').classList.remove('hidden');return;} document.getElementById('no-tareas').classList.add('hidden'); db.tareas.forEach((t,i)=>{l.innerHTML+=`<div class="flex items-center gap-3 p-2 border-b border-gray-50 last:border-0"><input type="checkbox" class="task-check w-5 h-5 rounded border-gray-300 text-raspanti-bordo focus:ring-raspanti-bordo" ${t.done?'checked':''} onchange="toggleTarea(${i})"><div class="flex-1 text-sm font-medium text-gray-700">${t.text}</div><button onclick="borrarTarea(${i})" class="text-gray-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
@@ -348,7 +315,7 @@
         function setTool(c){penColor=(c==='eraser'?'white':c);}
         function clearCanvas(){ctx.fillStyle="white";ctx.fillRect(0,0,canvas.width,canvas.height);}
 
-        // --- MATERIAS (Legacy) ---
+        // --- MATERIAS & RESTO (IGUAL V16) ---
         function openMateriaModal(id=null){document.getElementById('title-materia').innerText=id?'Editar Materia':'Nueva Materia'; document.getElementById('edit-mat-id').value=id||''; if(id){const m=DB.get().materias.find(x=>x.id==id); document.getElementById('input-mat-nombre').value=m.nombre; document.getElementById('input-mat-inicio').value=m.fechaInicio; document.getElementById('input-mat-dia').value=m.dia; document.getElementById('input-mat-mod').value=m.modalidadBase;} else{document.getElementById('input-mat-nombre').value='';} openModal('modal-materia');}
         function guardarMateria(){const db=DB.get(), eid=document.getElementById('edit-mat-id').value; const mat={nombre:document.getElementById('input-mat-nombre').value, modalidadBase:document.getElementById('input-mat-mod').value, dia:document.getElementById('input-mat-dia').value, fechaInicio:document.getElementById('input-mat-inicio').value||new Date().toISOString().split('T')[0]}; if(eid){const idx=db.materias.findIndex(x=>x.id==eid); db.materias[idx]={...db.materias[idx],...mat};} else{mat.id=Date.now(); mat.cronograma={}; mat.planificacion={}; mat.alumnos=[]; mat.examenes=[]; mat.asistencias={}; db.materias.push(mat);} DB.save(db); closeModal('modal-materia'); renderMaterias();}
         function renderMaterias(){const l=document.getElementById('lista-materias'); l.innerHTML=''; const db=DB.get(); document.getElementById('no-materias').classList.toggle('hidden',db.materias.length>0); db.materias.forEach(m=>{l.innerHTML+=`<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center"><div onclick="abrirAula(${m.id})" class="flex-1"><h3 class="font-bold text-gray-800">${m.nombre}</h3><div class="text-xs text-gray-400 font-bold uppercase mt-1">${m.dia} • ${m.modalidadBase}</div></div><div class="flex gap-1"><button onclick="openMateriaModal(${m.id})" class="text-gray-400 hover:text-blue-500 p-2"><i data-lucide="pencil" class="w-4"></i></button><button onclick="borrarMateria(${m.id})" class="text-gray-400 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-4"></i></button></div></div>`;}); lucide.createIcons();}
@@ -389,7 +356,10 @@
         window.addEventListener('load',()=>{if(!isPwa&&!sessionStorage.getItem('install_closed'))setTimeout(showInstallModal,2000);});
         function showInstallModal(){document.getElementById('install-modal').classList.remove('hidden'); if(isIos)document.getElementById('install-ios').classList.remove('hidden'); else document.getElementById('install-android').classList.remove('hidden');}
         function closeInstall(){document.getElementById('install-modal').classList.add('hidden'); sessionStorage.setItem('install_closed','true');}
-        async function triggerInstall(){if(deferredPrompt){deferredPrompt.prompt();const{outcome}=await deferredPrompt.userChoice;deferredPrompt=null;if(outcome==='accepted')closeInstall();}else{alert('Usa el menú del navegador para instalar.');}}
+        async function triggerInstall(){if(deferredPrompt){deferredPrompt.prompt();const{outcome}=await deferredPrompt.userChoice;deferredPrompt=null;if(outcome==='accepted')closeInstall();}else{
+            document.getElementById('install-guide-arrow').classList.remove('hidden');
+            setTimeout(() => document.getElementById('install-guide-arrow').classList.add('hidden'), 5000);
+        }}
     </script>
 </body>
 </html>
