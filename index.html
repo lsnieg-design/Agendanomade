@@ -48,6 +48,10 @@
         .avatar-upload { width: 80px; height: 80px; border-radius: 50%; background: #f3f4f6; border: 2px dashed #d1d5db; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; }
         .avatar-upload img { width: 100%; height: 100%; object-fit: cover; }
         .avatar-small { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #e5e7eb; }
+        
+        /* Barra Progreso */
+        .progress-bar { height: 6px; border-radius: 3px; background: #e5e7eb; overflow: hidden; margin-top: 4px; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
     </style>
 </head>
 <body class="h-screen flex flex-col text-slate-800 bg-slate-50">
@@ -72,13 +76,26 @@
             
             <div id="view-dashboard" class="fade-in space-y-4">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h2 class="text-xl font-bold text-raspanti-bordo">¡Hola Profe!</h2>
-                    <p class="text-gray-500 text-sm" id="fecha-hoy">Cargando...</p>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 class="text-xl font-bold text-raspanti-bordo flex items-center gap-2 cursor-pointer" onclick="editProfileName()">
+                                <span id="dash-name">Hola Profe</span> <i data-lucide="pencil" class="w-3 h-3 text-gray-300"></i>
+                            </h2>
+                            <p class="text-gray-500 text-sm" id="fecha-hoy">Cargando...</p>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="bg-raspanti-bordo text-white p-5 rounded-2xl shadow-lg">
                     <h3 class="font-bold mb-3 border-b border-white/20 pb-2">Clases de Hoy</h3>
                     <div id="lista-hoy" class="text-sm space-y-2"></div>
                 </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-700 mb-3 flex items-center gap-2"><i data-lucide="calendar-days" class="w-4 h-4 text-raspanti-dorado"></i> Próximos 15 días</h3>
+                    <div id="lista-proximos" class="text-sm space-y-2"></div>
+                </div>
+
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-gray-700">Tareas</h3><button onclick="openModal('modal-tarea')" class="text-xs bg-raspanti-crema text-raspanti-bordo px-2 py-1 rounded font-bold hover:bg-raspanti-dorado transition">+ NUEVA</button></div>
                     <div id="lista-tareas" class="space-y-2"></div>
@@ -154,41 +171,27 @@
     </div>
 
     <div id="modal-tarea" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-4">Nueva Tarea</h3><input id="input-tarea-txt" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Descripción"><div class="flex gap-2"><button onclick="closeModal('modal-tarea')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarTarea()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
-    
     <div id="modal-materia" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-4" id="title-materia">Nueva Materia</h3><input type="hidden" id="edit-mat-id"><label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label><input id="input-mat-nombre" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Ej: Matemática"><label class="text-xs font-bold text-gray-500 ml-1">INICIO CURSADA</label><input type="date" id="input-mat-inicio" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold"><div class="grid grid-cols-2 gap-2 mb-4"><div><label class="text-xs font-bold text-gray-500 ml-1">DÍA</label><select id="input-mat-dia" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option></select></div><div><label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD</label><select id="input-mat-mod" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Hibrida">Mixta</option><option value="Presencial">Presencial</option><option value="Virtual">Virtual</option></select></div></div><div class="flex gap-2"><button onclick="closeModal('modal-materia')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarMateria()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     
     <div id="modal-alumno" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <h3 class="text-lg font-black text-raspanti-bordo mb-4" id="title-alumno">Nuevo Alumno</h3>
             <input type="hidden" id="edit-alum-idx">
-            
-            <div class="flex justify-center mb-4">
-                <label for="input-alum-foto" class="avatar-upload group">
-                    <img id="preview-foto" src="" class="hidden">
-                    <div id="placeholder-foto" class="text-gray-400 text-center text-[10px] font-bold">
-                        <i data-lucide="camera" class="w-6 h-6 mx-auto mb-1"></i>Foto
-                    </div>
-                    <input type="file" id="input-alum-foto" class="hidden" accept="image/*" onchange="previewImage(this)">
-                </label>
-            </div>
-
-            <input id="input-alum-ape" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Apellido">
-            <input id="input-alum-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Nombre">
+            <div class="flex justify-center mb-4"><label for="input-alum-foto" class="avatar-upload group"><img id="preview-foto" src="" class="hidden"><div id="placeholder-foto" class="text-gray-400 text-center text-[10px] font-bold"><i data-lucide="camera" class="w-6 h-6 mx-auto mb-1"></i>Foto</div><input type="file" id="input-alum-foto" class="hidden" accept="image/*" onchange="previewImage(this)"></label></div>
+            <input id="input-alum-ape" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Apellido"><input id="input-alum-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Nombre">
             <div class="flex gap-2"><button onclick="closeModal('modal-alumno')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarAlumno()" class="flex-1 py-3 bg-raspanti-dorado text-white rounded-lg font-bold shadow">Guardar</button></div>
         </div>
     </div>
     
     <div id="modal-examen" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-4" id="title-examen">Nuevo Examen/TP</h3><input type="hidden" id="edit-exam-id"><input id="input-exam-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border font-bold" placeholder="Nombre"><label class="text-xs font-bold text-gray-500 ml-1">FECHA</label><input type="date" id="input-exam-date" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold"><div class="flex gap-2"><button onclick="closeModal('modal-examen')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarExamen()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
-    
     <div id="modal-obs" class="fixed inset-0 bg-black/50 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-2">Observación</h3><p id="obs-alum-name" class="text-sm font-bold text-gray-500 mb-3"></p><textarea id="input-obs-txt" class="w-full p-3 bg-gray-50 rounded-lg border h-32 mb-4" placeholder="Escribe una observación..."></textarea><div class="flex gap-2"><button onclick="closeModal('modal-obs')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarObs()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
-
     <div id="modal-settings" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center"><h3 class="text-lg font-black text-raspanti-bordo mb-6">Configuración</h3><div class="bg-blue-50 p-4 rounded-xl mb-4 border border-blue-100"><i data-lucide="download" class="w-8 h-8 text-blue-500 mx-auto mb-2"></i><h4 class="font-bold text-blue-800">Copia de Seguridad</h4><button onclick="downloadBackup()" class="bg-blue-600 text-white w-full py-2 rounded-lg font-bold text-sm shadow mt-2">DESCARGAR</button></div><div class="bg-gray-50 p-4 rounded-xl mb-6 border border-gray-200"><i data-lucide="upload" class="w-8 h-8 text-gray-500 mx-auto mb-2"></i><h4 class="font-bold text-gray-700">Restaurar</h4><input type="file" id="file-restore" class="hidden" onchange="restoreBackup(this)"><button onclick="document.getElementById('file-restore').click()" class="bg-gray-200 text-gray-700 w-full py-2 rounded-lg font-bold text-sm mt-2">SELECCIONAR ARCHIVO</button></div><button onclick="closeModal('modal-settings')" class="block w-full mt-4 text-gray-400 text-sm font-bold">Cerrar</button></div></div>
-
+    
     <div id="install-modal" class="fixed inset-0 z-[70] bg-black/60 hidden flex items-end sm:items-center justify-center backdrop-blur-sm"><div class="bg-white w-full sm:max-w-md rounded-t-[30px] sm:rounded-[30px] p-6 slide-up shadow-2xl relative"><button onclick="closeInstall()" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button><div class="flex items-center gap-4 mb-4"><div class="w-16 h-16 bg-raspanti-bordo rounded-2xl flex items-center justify-center border-4 border-raspanti-dorado shadow-md text-white font-black text-2xl">R</div><div><h3 class="font-bold text-lg leading-tight">Instalar App</h3><p class="text-xs text-gray-500">Mejor experiencia.</p></div></div><div id="install-ios" class="hidden space-y-3 text-sm text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100"><p>1. Toca <strong>Compartir</strong> <i data-lucide="share" class="w-4 h-4 text-blue-500"></i></p><p>2. <strong>"Agregar a Inicio"</strong> <i data-lucide="plus-square" class="w-4 h-4 text-gray-800"></i></p></div><div id="install-android" class="hidden"><button onclick="triggerInstall()" class="w-full bg-raspanti-bordo text-white py-4 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2"><i data-lucide="download" class="w-5 h-5"></i> INSTALAR</button></div></div></div>
 
     <script>
         // --- DB ---
-        const DB={get:()=>JSON.parse(localStorage.getItem('raspanti_v8'))||{materias:[], tareas:[]}, save:(d)=>localStorage.setItem('raspanti_v8',JSON.stringify(d))};
+        const DB={get:()=>JSON.parse(localStorage.getItem('raspanti_v9'))||{materias:[], tareas:[], profileName:'Hola Profe'}, save:(d)=>localStorage.setItem('raspanti_v9',JSON.stringify(d))};
         let activeId=null, activeDateISO=null, activeObsIdx=null, tempFoto=''; 
 
         // --- CORE ---
@@ -207,10 +210,33 @@
         function initDash(){
             const d=new Date(), dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'], h=d.toISOString().split('T')[0];
             document.getElementById('fecha-hoy').innerText=`${dias[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}`;
-            const db=DB.get(), l=document.getElementById('lista-hoy'); l.innerHTML=''; let y=false;
+            const db=DB.get(); document.getElementById('dash-name').innerText=db.profileName||'Hola Profe';
+            
+            // Hoy
+            const l=document.getElementById('lista-hoy'); l.innerHTML=''; let y=false;
             db.materias.forEach(m=>{ let t=m.cronograma?.[h]; if(t&&t!=='Sin Clase'){y=true; let c='bg-gray-400',x=''; if(t==='Presencial'){c='bg-red-500';x='(Inst.)';}else if(t==='Virtual'){c='bg-blue-400';x='(Zoom)';}else if(t==='Asincronico'){c='bg-yellow-400';x='(Campus)';} l.innerHTML+=`<div class="bg-white/10 p-3 rounded-lg flex items-center gap-3"><div class="w-3 h-3 ${c} rounded-full border border-white/20"></div><div><strong class="block text-sm">${m.nombre}</strong><span class="text-xs opacity-80 uppercase font-bold">${t} ${x}</span></div></div>`; } });
             if(!y)l.innerHTML='<span class="opacity-60 italic text-sm">Sin clases hoy.</span>';
+            
+            // Próximos Eventos (15 días)
+            const lp=document.getElementById('lista-proximos'); lp.innerHTML=''; let yp=false;
+            const limit = new Date(); limit.setDate(limit.getDate() + 15);
+            db.materias.forEach(m => {
+                m.examenes.forEach(e => {
+                    const exDate = new Date(e.fecha);
+                    if(exDate >= new Date() && exDate <= limit){
+                        yp=true;
+                        const fStr = `${exDate.getDate()}/${exDate.getMonth()+1}`;
+                        lp.innerHTML += `<div class="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0"><div class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-1 rounded">${fStr}</div><div class="text-sm font-medium text-gray-700">${m.nombre}: ${e.nombre}</div></div>`;
+                    }
+                });
+            });
+            if(!yp) lp.innerHTML = '<span class="text-xs text-gray-400 italic">No hay exámenes próximos.</span>';
+
             renderTareas();
+        }
+        function editProfileName(){
+            const n = prompt("Ingresa tu nombre:", document.getElementById('dash-name').innerText);
+            if(n){ const db=DB.get(); db.profileName=n; DB.save(db); initDash(); }
         }
         function renderTareas(){const db=DB.get(),l=document.getElementById('lista-tareas'); l.innerHTML=''; if(db.tareas.length===0){document.getElementById('no-tareas').classList.remove('hidden');return;} document.getElementById('no-tareas').classList.add('hidden'); db.tareas.forEach((t,i)=>{l.innerHTML+=`<div class="flex items-center gap-3 p-2 border-b border-gray-50 last:border-0"><input type="checkbox" class="task-check w-5 h-5 rounded border-gray-300 text-raspanti-bordo focus:ring-raspanti-bordo" ${t.done?'checked':''} onchange="toggleTarea(${i})"><div class="flex-1 text-sm font-medium text-gray-700">${t.text}</div><button onclick="borrarTarea(${i})" class="text-gray-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
         function guardarTarea(){const db=DB.get(); db.tareas.push({text:document.getElementById('input-tarea-txt').value, done:false}); DB.save(db); closeModal('modal-tarea'); renderTareas();}
@@ -250,7 +276,7 @@
         }
         function cycle(iso){const db=DB.get(), m=db.materias.find(x=>x.id===activeId); if(!m.cronograma)m.cronograma={}; const sts=['Presencial','Virtual','Asincronico','Sin Clase'], c=m.cronograma[iso]||((m.modalidadBase==='Hibrida')?'Presencial':m.modalidadBase); m.cronograma[iso]=sts[(sts.indexOf(c)+1)%sts.length]; DB.save(db); renderCrono();}
 
-        // --- TOMAR LISTA (FOTOS) ---
+        // --- TOMAR LISTA ---
         function iniciarTomaLista(){const h=new Date().toISOString().split('T')[0]; document.getElementById('input-fecha-lista').value=h; cambiarFechaLista(h); nav('lista');}
         function cambiarFechaLista(iso){
             activeDateISO=iso; const m=DB.get().materias.find(x=>x.id===activeId), c=document.getElementById('lista-check-container');
@@ -261,10 +287,7 @@
                 const st = statusMap ? (statusMap[al.id] || 'A') : 'P';
                 const avatar = al.foto ? `<img src="${al.foto}" class="avatar-small">` : `<div class="avatar-small bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">${al.ape[0]}</div>`;
                 c.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm">
-                    <div class="flex items-center gap-3">
-                        ${avatar}
-                        <span class="font-bold text-gray-700 w-32 truncate">${al.ape}, ${al.nom}</span>
-                    </div>
+                    <div class="flex items-center gap-3">${avatar}<span class="font-bold text-gray-700 w-32 truncate">${al.ape}, ${al.nom}</span></div>
                     <button id="btn-as-${al.id}" onclick="cycleAsist(${al.id})" class="btn-asist st-${st}">${st}</button>
                 </div>`;
             });
@@ -273,54 +296,15 @@
         function guardarLista(){const db=DB.get(), m=db.materias.find(x=>x.id===activeId); if(!m.asistencias)m.asistencias={}; const map={}; m.alumnos.forEach(al=>{map[al.id]=document.getElementById(`btn-as-${al.id}`).innerText;}); m.asistencias[activeDateISO]=map; DB.save(db); alert('✅ Guardado'); nav('aula'); setTab('alumnos');}
         function cancelarLista(){nav('aula');}
 
-        // --- ALUMNOS (FOTOS) ---
-        function previewImage(input){
-            const file = input.files[0];
-            if(file){
-                const reader = new FileReader();
-                reader.onload = function(e){
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = function(){
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        // Resize to 100x100
-                        canvas.width = 100; canvas.height = 100;
-                        ctx.drawImage(img, 0, 0, 100, 100);
-                        tempFoto = canvas.toDataURL('image/jpeg', 0.7); // Compress
-                        document.getElementById('preview-foto').src = tempFoto;
-                        document.getElementById('preview-foto').classList.remove('hidden');
-                        document.getElementById('placeholder-foto').classList.add('hidden');
-                    }
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
+        // --- ALUMNOS (VISUAL) ---
+        function previewImage(input){const file=input.files[0]; if(file){const reader=new FileReader(); reader.onload=function(e){const img=new Image(); img.src=e.target.result; img.onload=function(){const canvas=document.createElement('canvas'); const ctx=canvas.getContext('2d'); canvas.width=100; canvas.height=100; ctx.drawImage(img,0,0,100,100); tempFoto=canvas.toDataURL('image/jpeg',0.7); document.getElementById('preview-foto').src=tempFoto; document.getElementById('preview-foto').classList.remove('hidden'); document.getElementById('placeholder-foto').classList.add('hidden');}}; reader.readAsDataURL(file);}}
         function openAlumnoModal(idx=null){
-            document.getElementById('title-alumno').innerText=idx!==null?'Editar Alumno':'Nuevo Alumno'; document.getElementById('edit-alum-idx').value=idx!==null?idx:'';
-            tempFoto = ''; 
-            document.getElementById('preview-foto').classList.add('hidden'); document.getElementById('placeholder-foto').classList.remove('hidden'); document.getElementById('input-alum-foto').value='';
-            
-            if(idx!==null){
-                const m=DB.get().materias.find(x=>x.id===activeId).alumnos[idx]; 
-                document.getElementById('input-alum-ape').value=m.ape; 
-                document.getElementById('input-alum-nom').value=m.nom;
-                if(m.foto){
-                    tempFoto = m.foto;
-                    document.getElementById('preview-foto').src = m.foto;
-                    document.getElementById('preview-foto').classList.remove('hidden');
-                    document.getElementById('placeholder-foto').classList.add('hidden');
-                }
-            }
+            document.getElementById('title-alumno').innerText=idx!==null?'Editar Alumno':'Nuevo Alumno'; document.getElementById('edit-alum-idx').value=idx!==null?idx:''; tempFoto=''; document.getElementById('preview-foto').classList.add('hidden'); document.getElementById('placeholder-foto').classList.remove('hidden'); document.getElementById('input-alum-foto').value='';
+            if(idx!==null){const m=DB.get().materias.find(x=>x.id===activeId).alumnos[idx]; document.getElementById('input-alum-ape').value=m.ape; document.getElementById('input-alum-nom').value=m.nom; if(m.foto){tempFoto=m.foto; document.getElementById('preview-foto').src=m.foto; document.getElementById('preview-foto').classList.remove('hidden'); document.getElementById('placeholder-foto').classList.add('hidden');}}
             else{document.getElementById('input-alum-ape').value=''; document.getElementById('input-alum-nom').value='';} openModal('modal-alumno');
         }
-        function guardarAlumno(){
-            const db=DB.get(), m=db.materias.find(x=>x.id===activeId), idx=document.getElementById('edit-alum-idx').value;
-            const d={ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, foto: tempFoto};
-            if(idx!==''){m.alumnos[idx]={...m.alumnos[idx],...d};} else {m.alumnos.push({id:Date.now(), ...d, notas:{}, obs:''});}
-            m.alumnos.sort((a,b)=>a.ape.localeCompare(b.ape)); DB.save(db); closeModal('modal-alumno'); renderAlum();
-        }
+        function guardarAlumno(){const db=DB.get(), m=db.materias.find(x=>x.id===activeId), idx=document.getElementById('edit-alum-idx').value, d={ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, foto:tempFoto}; if(idx!==''){m.alumnos[idx]={...m.alumnos[idx],...d};}else{m.alumnos.push({id:Date.now(), ...d, notas:{}, obs:''});} m.alumnos.sort((a,b)=>a.ape.localeCompare(b.ape)); DB.save(db); closeModal('modal-alumno'); renderAlum();}
+        
         function renderAlum(){
             const m=DB.get().materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML='';
             const fs=m.asistencias?Object.keys(m.asistencias):[];
@@ -328,10 +312,21 @@
                 let p=0; fs.forEach(f=>{ const s=m.asistencias[f][al.id]; if(s==='P'||s==='T')p++; });
                 const porc = fs.length>0 ? Math.round((p/fs.length)*100) : 100;
                 const avatar = al.foto ? `<img src="${al.foto}" class="avatar-small">` : `<div class="avatar-small bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">${al.ape[0]}</div>`;
+                
+                // BARRA DE PROGRESO (NUEVO)
+                const barColor = porc >= 75 ? 'bg-green-500' : (porc >= 60 ? 'bg-yellow-500' : 'bg-red-500');
+                const riskLabel = porc < 60 ? '<span class="text-red-500 text-[9px] font-black uppercase ml-1">RIESGO</span>' : '';
+
                 l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm">
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-3 flex-1">
                         ${avatar}
-                        <div><span class="font-bold text-gray-700 text-sm block">${al.ape}, ${al.nom}</span><span class="text-[10px] font-bold text-gray-400">Asist: <span class="${porc<75?'text-red-500':'text-green-600'}">${porc}%</span></span></div>
+                        <div class="w-full pr-2">
+                            <span class="font-bold text-gray-700 text-sm block">${al.ape}, ${al.nom}</span>
+                            <div class="flex justify-between items-center text-[10px] text-gray-400 mt-1">
+                                <span>Asistencia: ${porc}% ${riskLabel}</span>
+                            </div>
+                            <div class="progress-bar"><div class="progress-fill ${barColor}" style="width: ${porc}%"></div></div>
+                        </div>
                     </div>
                     <div class="flex gap-1">
                         <button onclick="openObs(${i})" class="text-gray-400 hover:text-blue-500 p-1"><i data-lucide="message-circle" class="w-4 ${al.obs?'text-blue-500 fill-blue-100':''}"></i></button>
@@ -341,7 +336,6 @@
             }); lucide.createIcons();
         }
         function delAlum(i){if(confirm('¿Quitar?')){const db=DB.get(); db.materias.find(x=>x.id===activeId).alumnos.splice(i,1); DB.save(db); renderAlum();}}
-        
         function openObs(i){activeObsIdx=i; const m=DB.get().materias.find(x=>x.id===activeId).alumnos[i]; document.getElementById('obs-alum-name').innerText=`${m.ape}, ${m.nom}`; document.getElementById('input-obs-txt').value=m.obs||''; openModal('modal-obs');}
         function guardarObs(){const db=DB.get(); db.materias.find(x=>x.id===activeId).alumnos[activeObsIdx].obs=document.getElementById('input-obs-txt').value; DB.save(db); closeModal('modal-obs'); renderAlum();}
 
@@ -350,7 +344,6 @@
         function guardarExamen(){const db=DB.get(), m=db.materias.find(x=>x.id===activeId), idx=document.getElementById('edit-exam-id').value, d={nombre:document.getElementById('input-exam-nom').value, fecha:document.getElementById('input-exam-date').value}; if(idx!==''){m.examenes[idx]={...m.examenes[idx],...d};} else {m.examenes.push({id:Date.now(),...d});} DB.save(db); closeModal('modal-examen'); renderNotas();}
         function renderNotas(){const m=DB.get().materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); h.innerHTML='<th class="p-3 sticky left-0 bg-gray-50 text-xs font-bold text-gray-500">ALUMNO</th>'; m.examenes.forEach((e,i)=>h.innerHTML+=`<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500 uppercase cursor-pointer hover:text-blue-600" onclick="openExamModal(${i})">${e.nombre} <i data-lucide="pencil" class="w-3 inline"></i></th>`); h.innerHTML+='<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-700">PROM</th>'; b.innerHTML=''; m.alumnos.forEach((al,i)=>{let r=`<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm truncate max-w-[120px]">${al.ape}, ${al.nom[0]}.</td>`; let s=0,c=0; m.examenes.forEach(e=>{const v=al.notas[e.id]||''; if(v){s+=parseFloat(v);c++;} const cl=(v&&v<4)?'text-red-500 bg-red-50':''; r+=`<td class="p-2 border-b"><input type="number" class="w-10 p-1 rounded border ${cl} input-nota" value="${v}" onchange="saveNota(${i},${e.id},this.value)"></td>`;}); const avg=c>0?(s/c).toFixed(2):'-', cl=avg!=='-'?(avg>=7?'text-green-600':(avg<4?'text-red-500':'text-gray-500')):'text-gray-300'; r+=`<td class="p-2 text-center border-b font-black ${cl}">${avg}</td></tr>`; b.innerHTML+=r;}); lucide.createIcons();}
         function saveNota(i,eid,v){const db=DB.get(); db.materias.find(x=>x.id===activeId).alumnos[i].notas[eid]=v; DB.save(db); renderNotas();}
-        
         function exportarExcel(){const m=DB.get().materias.find(x=>x.id===activeId); if(!m)return; let c="data:text/csv;charset=utf-8,APELLIDO,NOMBRE"; const fs=m.asistencias?Object.keys(m.asistencias).sort():[]; fs.forEach(f=>{const [y,mm,d]=f.split('-'); c+=`,${d}/${mm}`;}); c+=",% ASIST"; m.examenes.forEach(e=>c+=","+e.nombre); c+=",PROMEDIO,OBSERVACIONES\n"; m.alumnos.forEach(a=>{c+=`${a.ape},${a.nom}`; let p=0; fs.forEach(f=>{const s=m.asistencias[f][a.id]||'A'; if(s==='P'||s==='T')p++; c+=`,${s}`;}); c+=`,${fs.length>0?Math.round((p/fs.length)*100):100}%`; let s=0,cnt=0; m.examenes.forEach(e=>{const v=a.notas[e.id]; c+=","+(v||"-"); if(v){s+=parseFloat(v);cnt++;}}); c+=`,${cnt>0?(s/cnt).toFixed(2):"-"},${(a.obs||"").replace(/,/g,' ')}\n`;}); const l=document.createElement("a"); l.setAttribute("href",encodeURI(c)); l.setAttribute("download",`Registro_${m.nombre}.csv`); document.body.appendChild(l); l.click(); l.remove();}
 
         // --- UTILS & PWA ---
