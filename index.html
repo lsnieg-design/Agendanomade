@@ -32,12 +32,13 @@
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Checkbox Asistencia */
+        /* Checkboxes */
         .toggle-checkbox:checked { right: 0; border-color: #10B981; }
         .toggle-checkbox:checked + .toggle-label { background-color: #10B981; }
-        
-        /* Checkbox Tareas */
         .task-check:checked + div { text-decoration: line-through; opacity: 0.5; }
+        
+        /* Tabla Notas */
+        .input-nota { min-width: 40px; text-align: center; }
     </style>
 </head>
 <body class="h-screen flex flex-col text-slate-800 bg-slate-50">
@@ -98,7 +99,7 @@
                             <i data-lucide="check-square" class="w-3 h-3"></i> ASISTENCIA
                         </button>
                         <button onclick="exportarExcel()" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm">
-                            <i data-lucide="download" class="w-3 h-3"></i>
+                            <i data-lucide="download" class="w-3 h-3"></i> EXCEL
                         </button>
                     </div>
                 </div>
@@ -125,8 +126,13 @@
                 </div>
 
                 <div id="tab-notas" class="hidden space-y-3">
-                    <div class="flex justify-between items-center px-1"><h3 class="font-bold text-gray-600 text-sm">Exámenes</h3><button onclick="openModal('modal-examen')" class="text-xs bg-raspanti-bordo text-white px-3 py-1 rounded shadow font-bold">NUEVO</button></div>
-                    <div class="overflow-x-auto bg-white rounded-xl border border-gray-100 shadow-sm"><table class="w-full text-sm"><thead><tr id="head-notas" class="bg-gray-50 text-gray-500 text-left"><th class="p-3">Alumno</th></tr></thead><tbody id="body-notas"></tbody></table></div>
+                    <div class="flex justify-between items-center px-1"><h3 class="font-bold text-gray-600 text-sm">Libro de Notas</h3><button onclick="openModal('modal-examen')" class="text-xs bg-raspanti-bordo text-white px-3 py-1 rounded shadow font-bold">NUEVO EXAMEN</button></div>
+                    <div class="overflow-x-auto bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <table class="w-full text-sm">
+                            <thead><tr id="head-notas" class="bg-gray-50 text-gray-500 text-left"><th class="p-3">Alumno</th></tr></thead>
+                            <tbody id="body-notas"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -139,12 +145,10 @@
                          <span id="lista-modalidad-badge" class="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-500 font-bold">--</span>
                     </div>
                     <input type="date" id="input-fecha-lista" onchange="cambiarFechaLista(this.value)" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-raspanti-bordo text-lg mb-2">
-                    
                     <button onclick="guardarLista()" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-green-600 transition flex justify-center items-center gap-2"><i data-lucide="save" class="w-5 h-5"></i> GUARDAR CAMBIOS</button>
                 </div>
 
-                <div id="lista-check-container" class="space-y-2 pb-10">
-                    </div>
+                <div id="lista-check-container" class="space-y-2 pb-10"></div>
             </div>
 
         </main>
@@ -170,19 +174,12 @@
     <div id="modal-materia" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <h3 class="text-lg font-black text-raspanti-bordo mb-4">Nueva Materia</h3>
-            <label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label>
-            <input id="input-mat-nombre" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Ej: Práctica II">
-            
-            <label class="text-xs font-bold text-gray-500 ml-1">FECHA INICIO CURSADA</label>
-            <input type="date" id="input-mat-inicio" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold text-gray-700">
-            
+            <label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label><input id="input-mat-nombre" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Ej: Práctica II">
+            <label class="text-xs font-bold text-gray-500 ml-1">FECHA INICIO</label><input type="date" id="input-mat-inicio" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold text-gray-700">
             <div class="grid grid-cols-2 gap-2 mb-4">
-                <div><label class="text-xs font-bold text-gray-500 ml-1">DÍA</label>
-                <select id="input-mat-dia" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option></select></div>
-                <div><label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD</label>
-                <select id="input-mat-mod" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Hibrida">Mixta</option><option value="Presencial">Presencial</option><option value="Virtual">Virtual</option></select></div>
+                <div><label class="text-xs font-bold text-gray-500 ml-1">DÍA</label><select id="input-mat-dia" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option></select></div>
+                <div><label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD</label><select id="input-mat-mod" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Hibrida">Mixta</option><option value="Presencial">Presencial</option><option value="Virtual">Virtual</option></select></div>
             </div>
-
             <div class="flex gap-2"><button onclick="closeModal('modal-materia')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarMateria()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button></div>
         </div>
     </div>
@@ -193,8 +190,7 @@
     <script>
         // --- DB & CONFIG ---
         const DB={get:()=>JSON.parse(localStorage.getItem('raspanti_v4'))||{materias:[], tareas:[]}, save:(d)=>localStorage.setItem('raspanti_v4',JSON.stringify(d))};
-        let activeId = null;
-        let activeDateISO = null; 
+        let activeId = null; let activeDateISO = null; 
 
         // --- INICIO ---
         lucide.createIcons();
@@ -215,10 +211,7 @@
         function initDash(){
             const date=new Date(), dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'], hoyISO=date.toISOString().split('T')[0];
             document.getElementById('fecha-hoy').innerText=`${dias[date.getDay()]}, ${date.getDate()}/${date.getMonth()+1}`;
-            
-            const db=DB.get(); 
-            // 1. Clases Hoy
-            const lista=document.getElementById('lista-hoy'); lista.innerHTML=''; let hay=false;
+            const db=DB.get(); const lista=document.getElementById('lista-hoy'); lista.innerHTML=''; let hay=false;
             db.materias.forEach(m=>{
                 let t=m.cronograma?.[hoyISO];
                 if(t && t!=='Sin Clase'){ hay=true; let c='bg-gray-400',x='';
@@ -227,127 +220,58 @@
                 }
             });
             if(!hay)lista.innerHTML='<span class="opacity-60 italic text-sm">No tienes actividades hoy.</span>';
-
-            // 2. Tareas
             renderTareas();
         }
-
-        // --- TAREAS ---
-        function renderTareas(){
-            const db=DB.get(), l=document.getElementById('lista-tareas'); l.innerHTML=''; 
-            if(db.tareas.length===0){document.getElementById('no-tareas').classList.remove('hidden'); return;}
-            document.getElementById('no-tareas').classList.add('hidden');
-            db.tareas.forEach((t,i)=>{
-                l.innerHTML+=`<div class="flex items-center gap-3 p-2 border-b border-gray-50 last:border-0"><input type="checkbox" class="task-check w-5 h-5 rounded border-gray-300 text-raspanti-bordo focus:ring-raspanti-bordo" ${t.done?'checked':''} onchange="toggleTarea(${i})"><div class="flex-1 text-sm font-medium text-gray-700">${t.text}</div><button onclick="borrarTarea(${i})" class="text-gray-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4"></i></button></div>`;
-            }); lucide.createIcons();
-        }
+        function renderTareas(){const db=DB.get(), l=document.getElementById('lista-tareas'); l.innerHTML=''; if(db.tareas.length===0){document.getElementById('no-tareas').classList.remove('hidden'); return;} document.getElementById('no-tareas').classList.add('hidden'); db.tareas.forEach((t,i)=>{l.innerHTML+=`<div class="flex items-center gap-3 p-2 border-b border-gray-50 last:border-0"><input type="checkbox" class="task-check w-5 h-5 rounded border-gray-300 text-raspanti-bordo focus:ring-raspanti-bordo" ${t.done?'checked':''} onchange="toggleTarea(${i})"><div class="flex-1 text-sm font-medium text-gray-700">${t.text}</div><button onclick="borrarTarea(${i})" class="text-gray-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
         function guardarTarea(){ const db=DB.get(); db.tareas.push({text:document.getElementById('input-tarea-txt').value, done:false}); DB.save(db); closeModal('modal-tarea'); renderTareas(); }
         function toggleTarea(i){ const db=DB.get(); db.tareas[i].done=!db.tareas[i].done; DB.save(db); renderTareas(); }
         function borrarTarea(i){ const db=DB.get(); db.tareas.splice(i,1); DB.save(db); renderTareas(); }
 
-        // --- MATERIAS (CON FECHA INICIO) ---
+        // --- MATERIAS ---
         function guardarMateria(){
             const db=DB.get();
-            // Validar fecha inicio
-            let fIni = document.getElementById('input-mat-inicio').value;
-            if(!fIni) fIni = new Date().toISOString().split('T')[0]; // Default Hoy
-
-            db.materias.push({
-                id:Date.now(), 
-                nombre:document.getElementById('input-mat-nombre').value, 
-                modalidadBase:document.getElementById('input-mat-mod').value, 
-                dia:document.getElementById('input-mat-dia').value, 
-                fechaInicio: fIni, // NUEVO CAMPO
-                cronograma:{}, alumnos:[], examenes:[], asistencias:{}
-            }); 
+            let fIni = document.getElementById('input-mat-inicio').value; if(!fIni) fIni = new Date().toISOString().split('T')[0];
+            db.materias.push({id:Date.now(), nombre:document.getElementById('input-mat-nombre').value, modalidadBase:document.getElementById('input-mat-mod').value, dia:document.getElementById('input-mat-dia').value, fechaInicio: fIni, cronograma:{}, alumnos:[], examenes:[], asistencias:{}}); 
             DB.save(db); closeModal('modal-materia'); renderMaterias();
         }
-
-        function renderMaterias(){
-            const l=document.getElementById('lista-materias'); l.innerHTML=''; const db=DB.get(); 
-            document.getElementById('no-materias').classList.toggle('hidden',db.materias.length>0);
-            db.materias.forEach(m=>{l.innerHTML+=`<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center"><div onclick="abrirAula(${m.id})" class="flex-1"><h3 class="font-bold text-gray-800">${m.nombre}</h3><div class="text-xs text-gray-400 font-bold uppercase mt-1">${m.dia} • ${m.modalidadBase}</div></div><button onclick="borrarMateria(${m.id})" class="text-gray-300 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();
-        }
+        function renderMaterias(){const l=document.getElementById('lista-materias'); l.innerHTML=''; const db=DB.get(); document.getElementById('no-materias').classList.toggle('hidden',db.materias.length>0); db.materias.forEach(m=>{l.innerHTML+=`<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center"><div onclick="abrirAula(${m.id})" class="flex-1"><h3 class="font-bold text-gray-800">${m.nombre}</h3><div class="text-xs text-gray-400 font-bold uppercase mt-1">${m.dia} • ${m.modalidadBase}</div></div><button onclick="borrarMateria(${m.id})" class="text-gray-300 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
         function borrarMateria(id){if(confirm('¿Eliminar?')){const db=DB.get(); db.materias=db.materias.filter(m=>m.id!==id); DB.save(db); renderMaterias();}}
 
-        // --- AULA & CRONOGRAMA ---
+        // --- AULA ---
         function abrirAula(id){activeId=id; const m=DB.get().materias.find(x=>x.id===id); document.getElementById('aula-nombre').innerText=m.nombre; document.getElementById('aula-modalidad').innerText=m.modalidadBase; nav('aula'); setTab('crono');}
         function setTab(t){['crono','alumnos','notas'].forEach(x=>{document.getElementById('tab-'+x).classList.add('hidden'); document.getElementById('btn-'+x).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400';}); document.getElementById('tab-'+t).classList.remove('hidden'); document.getElementById('btn-'+t).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-raspanti-crema text-raspanti-bordo'; if(t==='crono')renderCrono(); if(t==='alumnos')renderAlum(); if(t==='notas')renderNotas();}
         
         function renderCrono(){
             const m=DB.get().materias.find(x=>x.id===activeId), l=document.getElementById('lista-cronograma'); l.innerHTML='';
             const map={'Domingo':0,'Lunes':1,'Martes':2,'Miércoles':3,'Jueves':4,'Viernes':5,'Sábado':6}, target=map[m.dia];
-            
-            // Usar fecha de inicio configurada
-            let d = new Date(m.fechaInicio); 
-            // Ajustar al primer día correcto
-            while(d.getDay() !== target) d.setDate(d.getDate()+1);
-
-            for(let i=0;i<16;i++){ // 16 semanas
+            let d = new Date(m.fechaInicio); while(d.getDay() !== target) d.setDate(d.getDate()+1);
+            for(let i=0;i<16;i++){ 
                 const iso=d.toISOString().split('T')[0], disp=`${d.getDate()}/${d.getMonth()+1}`;
                 let st=m.cronograma?.[iso] || ((m.modalidadBase==='Hibrida')?'Presencial':m.modalidadBase); if(m.modalidadBase==='Virtual')st='Virtual';
                 let b='bg-gray-100 text-gray-500', ic='help-circle';
                 if(st==='Presencial'){b='bg-red-100 text-red-700 border-red-200';ic='map-pin';}else if(st==='Virtual'){b='bg-blue-100 text-blue-700 border-blue-200';ic='video';}else if(st==='Asincronico'){b='bg-yellow-100 text-yellow-700 border-yellow-200';ic='book-open';}else if(st==='Sin Clase'){b='line-through opacity-50';ic='slash';}
-                
                 l.innerHTML+=`<div class="flex items-center justify-between bg-white p-3 rounded-xl border border-gray-100 shadow-sm"><span class="font-bold text-gray-700 text-sm w-12">${disp}</span><button onclick="cycle('${iso}')" class="flex-1 ml-4 py-2 px-3 rounded-lg font-bold text-xs uppercase flex items-center justify-center gap-2 ${b} badge-transition"><i data-lucide="${ic}" class="w-3 h-3"></i> ${st}</button></div>`;
                 d.setDate(d.getDate()+7);
             } lucide.createIcons();
         }
-        function cycle(iso){const db=DB.get(), m=db.materias.find(x=>x.id===activeId); if(!m.cronograma)m.cronograma={}; 
-            const sts=['Presencial','Virtual','Asincronico','Sin Clase'], curr=m.cronograma[iso]||((m.modalidadBase==='Hibrida')?'Presencial':m.modalidadBase);
-            let idx=sts.indexOf(curr); if(idx<0)idx=0; m.cronograma[iso]=sts[(idx+1)%sts.length]; DB.save(db); renderCrono();}
+        function cycle(iso){const db=DB.get(), m=db.materias.find(x=>x.id===activeId); if(!m.cronograma)m.cronograma={}; const sts=['Presencial','Virtual','Asincronico','Sin Clase'], curr=m.cronograma[iso]||((m.modalidadBase==='Hibrida')?'Presencial':m.modalidadBase); let idx=sts.indexOf(curr); if(idx<0)idx=0; m.cronograma[iso]=sts[(idx+1)%sts.length]; DB.save(db); renderCrono();}
 
-        // --- TOMAR LISTA (CON FECHA EDITABLE) ---
-        function iniciarTomaLista(){
-            const hoyISO = new Date().toISOString().split('T')[0];
-            document.getElementById('input-fecha-lista').value = hoyISO;
-            cambiarFechaLista(hoyISO); // Carga la lista
-            nav('lista');
-        }
-
+        // --- TOMAR LISTA ---
+        function iniciarTomaLista(){ const hoyISO = new Date().toISOString().split('T')[0]; document.getElementById('input-fecha-lista').value = hoyISO; cambiarFechaLista(hoyISO); nav('lista'); }
         function cambiarFechaLista(isoDate){
-            activeDateISO = isoDate;
-            const m = DB.get().materias.find(x=>x.id===activeId);
-            const container = document.getElementById('lista-check-container');
-            
-            // Modalidad del día seleccionado
-            let st = m.cronograma?.[isoDate] || ((m.modalidadBase==='Hibrida')?'Presencial':m.modalidadBase);
-            document.getElementById('lista-modalidad-badge').innerText = st;
-
-            container.innerHTML = '';
-            const historial = m.asistencias?.[isoDate] || []; // Quienes vinieron
-            
+            activeDateISO = isoDate; const m = DB.get().materias.find(x=>x.id===activeId); const container = document.getElementById('lista-check-container');
+            let st = m.cronograma?.[isoDate] || ((m.modalidadBase==='Hibrida')?'Presencial':m.modalidadBase); document.getElementById('lista-modalidad-badge').innerText = st;
+            container.innerHTML = ''; const historial = m.asistencias?.[isoDate] || []; 
             if(m.alumnos.length === 0){ container.innerHTML='<p class="text-center text-gray-400 mt-10">Sin alumnos.</p>'; return; }
-
             m.alumnos.forEach(al => {
-                // Si ya existe registro de esa fecha, usamos el historial. Si NO existe (es nuevo), asumimos presente? Mejor asumimos Ausente o vacio. 
-                // Logica simple: Si la fecha ya está en "asistencias", checkeamos si está el ID.
-                // Si la fecha NO está, marcamos todos checked (asumir presente) por comodidad.
-                const isNewDate = !m.asistencias?.[isoDate];
-                const isPresent = isNewDate ? true : historial.includes(al.id);
-
-                container.innerHTML += `
-                <div class="bg-white p-4 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm">
-                    <span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span>
-                    <div class="relative inline-block w-12 mr-2 align-middle select-none">
-                        <input type="checkbox" name="asist-check" id="chk-${al.id}" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300" ${isPresent?'checked':''} value="${al.id}"/>
-                        <label for="chk-${al.id}" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
-                    </div>
-                </div>`;
+                const isNewDate = !m.asistencias?.[isoDate]; const isPresent = isNewDate ? true : historial.includes(al.id);
+                container.innerHTML += `<div class="bg-white p-4 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm"><span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span><div class="relative inline-block w-12 mr-2 align-middle select-none"><input type="checkbox" name="asist-check" id="chk-${al.id}" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300" ${isPresent?'checked':''} value="${al.id}"/><label for="chk-${al.id}" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label></div></div>`;
             });
         }
-
         function cancelarLista(){ nav('aula'); }
-        function guardarLista(){
-            const db=DB.get(), m=db.materias.find(x=>x.id===activeId);
-            if(!m.asistencias) m.asistencias = {};
-            const presentes = [];
-            document.querySelectorAll('input[name="asist-check"]:checked').forEach(c => presentes.push(parseInt(c.value)));
-            m.asistencias[activeDateISO] = presentes;
-            DB.save(db); alert('✅ Guardado'); nav('aula'); setTab('alumnos');
-        }
+        function guardarLista(){ const db=DB.get(), m=db.materias.find(x=>x.id===activeId); if(!m.asistencias) m.asistencias = {}; const presentes = []; document.querySelectorAll('input[name="asist-check"]:checked').forEach(c => presentes.push(parseInt(c.value))); m.asistencias[activeDateISO] = presentes; DB.save(db); alert('✅ Guardado'); nav('aula'); setTab('alumnos'); }
 
-        // --- ALUMNOS/NOTAS/EXCEL (IGUAL V3) ---
+        // --- ALUMNOS/NOTAS/EXCEL (MEJORADO) ---
         function renderAlum(){
             const m=DB.get().materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML='';
             const fechas = m.asistencias ? Object.keys(m.asistencias) : [];
@@ -360,25 +284,74 @@
         function guardarAlumno(){const db=DB.get(), m=db.materias.find(x=>x.id===activeId); m.alumnos.push({id:Date.now(), ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, notas:{}}); m.alumnos.sort((a,b)=>a.ape.localeCompare(b.ape)); DB.save(db); closeModal('modal-alumno'); renderAlum();}
         function delAlum(i){if(confirm('¿Quitar?')){const db=DB.get(); db.materias.find(x=>x.id===activeId).alumnos.splice(i,1); DB.save(db); renderAlum();}}
         
-        function renderNotas(){const m=DB.get().materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); h.innerHTML='<th class="p-3 sticky left-0 bg-gray-50">Alumno</th>'; m.examenes.forEach(e=>h.innerHTML+=`<th class="p-3 text-center min-w-[80px] text-xs">${e.nombre}</th>`); b.innerHTML=''; m.alumnos.forEach((al,i)=>{let r=`<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm truncate max-w-[120px]">${al.ape}, ${al.nom[0]}.</td>`; m.examenes.forEach(e=>{const v=al.notas[e.id]||'', c=(v&&v<4)?'text-red-500 bg-red-50':''; r+=`<td class="p-2 text-center border-b"><input type="number" class="w-10 text-center p-1 rounded border ${c}" value="${v}" onchange="saveNota(${i},${e.id},this.value)"></td>`;}); b.innerHTML+=r+'</tr>';});}
+        function renderNotas(){
+            const m=DB.get().materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); 
+            h.innerHTML='<th class="p-3 sticky left-0 bg-gray-50 text-xs font-bold text-gray-500">ALUMNO</th>'; 
+            m.examenes.forEach(e=>h.innerHTML+=`<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500 uppercase">${e.nombre}</th>`);
+            h.innerHTML+='<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-700 uppercase">PROM.</th>'; // Columna Promedio
+            
+            b.innerHTML=''; 
+            m.alumnos.forEach((al,i)=>{
+                let r=`<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm truncate max-w-[120px]">${al.ape}, ${al.nom[0]}.</td>`; 
+                let sum=0, count=0;
+                m.examenes.forEach(e=>{
+                    const v=al.notas[e.id]||''; 
+                    if(v){ sum+=parseFloat(v); count++; }
+                    const c=(v&&v<4)?'text-red-500 bg-red-50':''; 
+                    r+=`<td class="p-2 text-center border-b"><input type="number" class="w-10 text-center p-1 rounded border ${c} input-nota" value="${v}" onchange="saveNota(${i},${e.id},this.value)"></td>`;
+                }); 
+                // Promedio
+                const avg = count>0 ? (sum/count).toFixed(2) : '-';
+                const avgColor = avg!=='-' ? (avg>=7?'text-green-600':(avg<4?'text-red-500':'text-gray-500')) : 'text-gray-300';
+                r+=`<td class="p-2 text-center border-b font-black ${avgColor}">${avg}</td></tr>`;
+                b.innerHTML+=r;
+            });
+        }
         function guardarExamen(){const db=DB.get(); db.materias.find(x=>x.id===activeId).examenes.push({id:Date.now(), nombre:document.getElementById('input-exam-nom').value, fecha:document.getElementById('input-exam-date').value}); DB.save(db); closeModal('modal-examen'); renderNotas();}
         function saveNota(i,eid,v){const db=DB.get(); db.materias.find(x=>x.id===activeId).alumnos[i].notas[eid]=v; DB.save(db); renderNotas();}
         
         function exportarExcel(){
             const m=DB.get().materias.find(x=>x.id===activeId); if(!m)return;
-            let c="data:text/csv;charset=utf-8,MATERIA:,"+m.nombre+"\n\nAPELLIDO,NOMBRE,% ASISTENCIA";
+            // ESTRUCTURA SOLICITADA: NOMBRE | FECHAS (P/A) | % | NOTAS | PROMEDIO FINAL
+            let c="data:text/csv;charset=utf-8,APELLIDO,NOMBRE";
+            
+            // 1. Columnas de Fechas (Asistencias)
+            const fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
+            fechas.forEach(f=> {const [y,mm,d] = f.split('-'); c += `,${d}/${mm}`;});
+            c += ",% ASIST";
+            
+            // 2. Columnas de Examenes
             m.examenes.forEach(e=>c+=","+e.nombre);
-            const fs = m.asistencias ? Object.keys(m.asistencias).sort() : [];
-            fs.forEach(f=> {const [y,mm,d] = f.split('-'); c += `,${d}/${mm}`;}); c+="\n";
+            c += ",PROMEDIO FINAL\n";
+            
+            // 3. Filas
             m.alumnos.forEach(a=>{
-                let asis=0; fs.forEach(f=>{if(m.asistencias[f].includes(a.id))asis++;});
-                const porc = fs.length>0?Math.round((asis/fs.length)*100):100;
-                c+=`${a.ape},${a.nom},${porc}%`;
-                m.examenes.forEach(e=>c+=","+(a.notas[e.id]||"-"));
-                fs.forEach(f => { c += `,${m.asistencias[f].includes(a.id)?'P':'A'}`; });
-                c+="\n";
+                c+=`${a.ape},${a.nom}`;
+                
+                // Asistencias P/A
+                let asistCount=0;
+                fechas.forEach(f => {
+                    const isP = m.asistencias[f].includes(a.id);
+                    if(isP) asistCount++;
+                    c += `,${isP ? 'P' : 'A'}`;
+                });
+                
+                // Porcentaje
+                const porc = fechas.length>0 ? Math.round((asistCount/fechas.length)*100) : 100;
+                c += `,${porc}%`;
+                
+                // Notas y Promedio
+                let sum=0, count=0;
+                m.examenes.forEach(e=>{
+                    const val = a.notas[e.id];
+                    c+=","+(val||"-");
+                    if(val){ sum+=parseFloat(val); count++; }
+                });
+                const avg = count>0 ? (sum/count).toFixed(2) : "-";
+                c += `,${avg}\n`;
             });
-            const l=document.createElement("a"); l.setAttribute("href",encodeURI(c)); l.setAttribute("download",`Reporte_${m.nombre}.csv`); document.body.appendChild(l); l.click(); document.body.removeChild(l);
+            
+            const l=document.createElement("a"); l.setAttribute("href",encodeURI(c)); l.setAttribute("download",`Registro_${m.nombre}.csv`); document.body.appendChild(l); l.click(); document.body.removeChild(l);
         }
 
         function openModal(id){document.getElementById(id).classList.remove('hidden');} function closeModal(id){document.getElementById(id).classList.add('hidden');}
