@@ -5,22 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Raspanti Docente</title>
     
-    <meta name="theme-color" content="#800020">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        raspanti: {
-                            bordo: '#800020',
-                            crema: '#FFFDD0',
-                            dorado: '#C5B358',
-                        }
-                    },
-                    fontFamily: { sans: ['Segoe UI', 'system-ui', 'sans-serif'] }
+                        raspanti: { bordo: '#800020', crema: '#FFFDD0', dorado: '#C5B358' }
+                    }
                 }
             }
         }
@@ -28,511 +20,403 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        body { background-color: #F8FAFC; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #F8FAFC; -webkit-tap-highlight-color: transparent; font-family: system-ui, sans-serif; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Ocultar scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .fab:active { transform: scale(0.95); transition: 0.1s; }
-        
-        /* Checkbox lindo */
-        .toggle-checkbox:checked { right: 0; border-color: #68D391; }
-        .toggle-checkbox:checked + .toggle-label { background-color: #68D391; }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden text-slate-800 font-sans bg-slate-50">
+<body class="h-screen flex flex-col text-slate-800 bg-slate-50">
 
-    <div id="auth-screen" class="fixed inset-0 bg-gradient-to-br from-raspanti-bordo to-red-900 z-50 flex items-center justify-center p-6">
-        <div class="bg-white rounded-[35px] shadow-2xl p-8 w-full max-w-md border-t-8 border-raspanti-dorado text-center">
-            <div class="w-24 h-24 bg-white rounded-full mx-auto flex items-center justify-center border-4 border-raspanti-dorado mb-4 shadow-inner">
-                <span class="text-4xl font-black text-raspanti-bordo">R</span>
-            </div>
-            <h1 class="text-2xl font-extrabold text-raspanti-bordo uppercase leading-none mb-8">INSTITUTO<br><span class="text-raspanti-dorado">RASPANTI</span></h1>
-            <form id="login-form" class="space-y-4">
-                <input type="email" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-raspanti-dorado" placeholder="Docente (Cualquier email)" required>
-                <button type="submit" class="w-full bg-raspanti-bordo text-white py-4 rounded-2xl font-bold text-lg shadow-xl mt-6">INGRESAR</button>
-            </form>
-        </div>
+    <div id="auth-screen" class="fixed inset-0 bg-raspanti-bordo z-50 flex flex-col items-center justify-center p-6 text-center text-white">
+        <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center border-4 border-raspanti-dorado mb-6 text-raspanti-bordo text-4xl font-black">R</div>
+        <h1 class="text-2xl font-bold uppercase mb-8">Instituto Raspanti<br><span class="text-raspanti-dorado text-sm">Agenda Docente</span></h1>
+        <button onclick="login()" class="bg-white text-raspanti-bordo w-full max-w-xs py-4 rounded-xl font-bold shadow-lg hover:bg-gray-100 transition">INGRESAR</button>
     </div>
 
-    <div id="app-content" class="flex flex-col h-full hidden">
+    <div id="app-content" class="flex flex-col h-full hidden relative">
         
-        <header class="bg-raspanti-bordo text-white shadow-lg px-6 py-4 flex justify-between items-center z-20 rounded-b-[30px]">
-            <div class="flex items-center space-x-3">
-                <div class="bg-white p-1 rounded-lg shadow-sm"><span class="font-black text-raspanti-bordo px-2">R</span></div>
-                <div><h1 class="font-bold text-sm uppercase tracking-wide">Agenda Digital</h1><p class="text-[10px] text-raspanti-dorado uppercase font-bold">Panel Docente</p></div>
+        <header class="bg-raspanti-bordo text-white p-4 flex justify-between items-center shadow-md z-20">
+            <div class="flex items-center gap-3">
+                <div class="bg-white text-raspanti-bordo font-black p-1 rounded">R</div>
+                <span class="font-bold text-sm uppercase">Mi Agenda</span>
             </div>
-            <button onclick="logout()" class="opacity-70 text-xs font-bold">SALIR</button>
+            <button onclick="logout()" class="text-xs opacity-80">SALIR</button>
         </header>
 
-        <main class="flex-1 overflow-y-auto pb-28 px-4 pt-6 w-full max-w-md mx-auto no-scrollbar">
+        <main class="flex-1 overflow-y-auto p-4 pb-24 max-w-md mx-auto w-full no-scrollbar">
             
-            <div id="view-dashboard" class="fade-in space-y-5">
-                <div class="bg-white p-6 rounded-[35px] shadow-sm border border-gray-200">
-                    <h2 class="text-2xl font-bold text-raspanti-bordo tracking-tight">¡Hola Profe! 👋</h2>
-                    <p class="text-sm text-gray-500" id="fecha-hoy">--</p>
+            <div id="view-dashboard" class="fade-in space-y-4">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h2 class="text-xl font-bold text-raspanti-bordo">¡Hola Profe!</h2>
+                    <p class="text-gray-500 text-sm" id="fecha-hoy">Cargando fecha...</p>
                 </div>
-
-                <div class="bg-raspanti-bordo text-white p-5 rounded-[30px] shadow-lg relative overflow-hidden">
-                    <h3 class="font-bold text-lg mb-4">Clases de Hoy</h3>
-                    <div id="lista-clases-hoy" class="space-y-2 relative z-10 text-sm">Cargando...</div>
-                    <i data-lucide="calendar" class="absolute -right-4 -bottom-4 opacity-10 w-32 h-32"></i>
+                
+                <div class="bg-raspanti-bordo text-white p-5 rounded-2xl shadow-lg">
+                    <h3 class="font-bold mb-3 border-b border-white/20 pb-2">Hoy</h3>
+                    <div id="lista-hoy" class="text-sm space-y-2">
+                        </div>
                 </div>
             </div>
 
             <div id="view-materias" class="hidden fade-in space-y-4">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-bold text-raspanti-bordo">Mis Materias</h2>
-                    <button onclick="openModal('modal-materia')" class="bg-raspanti-bordo text-white p-3 rounded-xl shadow-lg fab"><i data-lucide="plus" class="w-6 h-6"></i></button>
+                    <h2 class="text-xl font-bold text-raspanti-bordo">Mis Materias</h2>
+                    <button onclick="openModal('modal-materia')" class="bg-raspanti-bordo text-white p-2 rounded-lg shadow"><i data-lucide="plus"></i></button>
                 </div>
-                <div id="materias-container" class="space-y-3"></div>
-                <div id="empty-state" class="hidden text-center py-10 opacity-60"><p>No hay materias cargadas.</p></div>
+                <div id="lista-materias" class="space-y-3">
+                    </div>
+                <p id="no-materias" class="text-center text-gray-400 text-sm mt-10 hidden">No hay materias cargadas.</p>
             </div>
 
             <div id="view-aula" class="hidden fade-in space-y-4">
-                <button onclick="navigate('materias')" class="flex items-center gap-2 text-gray-500 font-bold text-xs uppercase mb-2"><i data-lucide="arrow-left" class="w-4 h-4"></i> Volver</button>
+                <button onclick="nav('materias')" class="text-gray-500 text-xs font-bold flex items-center gap-1"><i data-lucide="arrow-left" class="w-3"></i> VOLVER</button>
                 
-                <div class="bg-white p-6 rounded-[35px] shadow-sm border border-gray-100">
-                    <span id="aula-modalidad" class="text-[10px] font-bold uppercase bg-raspanti-crema text-raspanti-bordo px-2 py-1 rounded mb-2 inline-block">--</span>
-                    <h2 id="aula-titulo" class="text-2xl font-black text-raspanti-bordo leading-none">Materia</h2>
-                    <p id="aula-info" class="text-sm text-gray-500 mt-2 font-medium">--</p>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <span id="aula-modalidad" class="text-[10px] bg-raspanti-crema text-raspanti-bordo px-2 py-1 rounded font-bold uppercase">--</span>
+                    <h2 id="aula-nombre" class="text-2xl font-black text-raspanti-bordo mt-2">Materia</h2>
                 </div>
 
-                <div class="flex p-1 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
-                    <button onclick="cambiarTabAula('alumnos')" id="tab-alumnos" class="flex-1 py-3 px-2 rounded-xl text-[10px] font-bold uppercase bg-raspanti-crema text-raspanti-bordo">Alumnos</button>
-                    <button onclick="cambiarTabAula('notas')" id="tab-notas" class="flex-1 py-3 px-2 rounded-xl text-[10px] font-bold uppercase text-gray-400">Notas</button>
+                <div class="flex bg-white p-1 rounded-xl shadow-sm border border-gray-100">
+                    <button onclick="setTab('alumnos')" id="btn-alumnos" class="flex-1 py-2 text-xs font-bold rounded-lg bg-raspanti-crema text-raspanti-bordo">ALUMNOS</button>
+                    <button onclick="setTab('notas')" id="btn-notas" class="flex-1 py-2 text-xs font-bold rounded-lg text-gray-400">NOTAS</button>
                 </div>
 
-                <div id="content-alumnos" class="aula-tab-content">
-                    <div class="flex justify-between items-center mb-4 px-2">
-                        <h3 class="font-bold text-gray-700">Padrón</h3>
-                        <button onclick="openModal('modal-alumno')" class="text-xs bg-raspanti-dorado text-white px-3 py-2 rounded-lg font-bold shadow fab flex gap-1 items-center"><i data-lucide="user-plus" class="w-3 h-3"></i> AGREGAR</button>
+                <div id="tab-alumnos" class="space-y-3">
+                    <div class="flex justify-between items-center px-1">
+                        <h3 class="font-bold text-gray-600 text-sm">Lista</h3>
+                        <button onclick="openModal('modal-alumno')" class="text-xs bg-raspanti-dorado text-white px-3 py-1 rounded shadow font-bold">AGREGAR</button>
                     </div>
                     <div id="lista-alumnos" class="space-y-2"></div>
                 </div>
 
-                <div id="content-notas" class="aula-tab-content hidden">
-                    <div class="flex justify-between items-center mb-4 px-2">
-                        <h3 class="font-bold text-gray-700">Calificaciones</h3>
-                        <button onclick="openModal('modal-columna')" class="text-xs bg-raspanti-bordo text-white px-3 py-2 rounded-lg font-bold shadow fab flex gap-1 items-center"><i data-lucide="plus-circle" class="w-3 h-3"></i> EXAMEN</button>
+                <div id="tab-notas" class="hidden space-y-3">
+                    <div class="flex justify-between items-center px-1">
+                        <h3 class="font-bold text-gray-600 text-sm">Exámenes</h3>
+                        <button onclick="openModal('modal-examen')" class="text-xs bg-raspanti-bordo text-white px-3 py-1 rounded shadow font-bold">NUEVO</button>
                     </div>
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto pb-4">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead><tr id="header-notas"><th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase bg-gray-50 sticky left-0 z-10">Alumno</th></tr></thead>
-                            <tbody id="body-notas" class="bg-white divide-y divide-gray-200"></tbody>
+                    <div class="overflow-x-auto bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <table class="w-full text-sm">
+                            <thead><tr id="head-notas" class="bg-gray-50 text-gray-500 text-left"><th class="p-3">Alumno</th></tr></thead>
+                            <tbody id="body-notas"></tbody>
                         </table>
-                        <div id="empty-notas" class="p-6 text-center text-sm text-gray-400 hidden">Crea un Examen para empezar.</div>
                     </div>
                 </div>
             </div>
+
         </main>
 
-        <nav id="bottom-nav" class="fixed bottom-0 w-full bg-white border-t border-gray-100 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-30 rounded-t-[30px]">
-            <div class="flex justify-around items-center h-20 max-w-md mx-auto px-2">
-                <button onclick="navigate('dashboard')" id="nav-dashboard" class="nav-btn active flex flex-col items-center justify-center w-full h-full pt-2">
-                    <div class="icon-p bg-gray-100 text-raspanti-bordo p-1.5 rounded-xl mb-1"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
-                    <span class="text-[10px] font-bold text-gray-600">Inicio</span>
-                </button>
-                <button onclick="navigate('materias')" id="nav-materias" class="nav-btn opacity-50 flex flex-col items-center justify-center w-full h-full pt-2">
-                    <div class="icon-p p-1.5 rounded-xl mb-1"><i data-lucide="book" class="w-5 h-5"></i></div>
-                    <span class="text-[10px] font-bold text-gray-400">Materias</span>
-                </button>
-            </div>
+        <nav id="navbar" class="fixed bottom-0 w-full bg-white border-t border-gray-200 h-16 flex justify-around items-center z-30 pb-1">
+            <button onclick="nav('dashboard')" id="nav-dash" class="flex flex-col items-center text-raspanti-bordo w-full h-full justify-center">
+                <i data-lucide="layout-dashboard" class="w-5 mb-1"></i><span class="text-[10px] font-bold">Inicio</span>
+            </button>
+            <button onclick="nav('materias')" id="nav-mat" class="flex flex-col items-center text-gray-400 w-full h-full justify-center">
+                <i data-lucide="book" class="w-5 mb-1"></i><span class="text-[10px] font-bold">Materias</span>
+            </button>
         </nav>
     </div>
 
-    <div id="modal-materia" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden fade-in">
-        <div class="bg-white rounded-[35px] w-full max-w-sm p-6 shadow-2xl relative">
-            <button onclick="closeModal('modal-materia')" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
-            <h3 class="text-xl font-black text-raspanti-bordo mb-4">Nueva Materia</h3>
-            <form id="form-materia" class="space-y-3">
-                <input type="text" id="materia-nombre" class="w-full p-3 bg-gray-50 rounded-xl font-bold outline-none border border-gray-200" placeholder="Nombre (Ej: Práctica I)" required>
-                
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase ml-2">Modalidad</label>
-                    <select id="materia-modalidad" onchange="toggleDias()" class="w-full p-3 bg-gray-50 rounded-xl font-bold outline-none border border-gray-200">
-                        <option value="presencial">Presencial (Instituto)</option>
-                        <option value="virtual">Virtual (Sincrónico)</option>
-                        <option value="asincronico">Asincrónico (Campus)</option>
-                    </select>
-                </div>
+    <div id="modal-materia" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 class="text-lg font-black text-raspanti-bordo mb-4">Nueva Materia</h3>
+            <input id="input-mat-nombre" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border font-bold" placeholder="Nombre (Ej: Matemática)">
+            
+            <label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD</label>
+            <select id="input-mat-mod" onchange="checkMod()" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border">
+                <option value="Presencial">Presencial</option>
+                <option value="Virtual">Virtual</option>
+                <option value="Asincronico">Asincrónico</option>
+            </select>
 
-                <div id="container-dias">
-                    <label class="text-xs font-bold text-gray-500 uppercase ml-2">Día de cursada</label>
-                    <select id="materia-dia" class="w-full p-3 bg-gray-50 rounded-xl font-bold outline-none border border-gray-200">
-                        <option value="Lunes">Lunes</option>
-                        <option value="Martes">Martes</option>
-                        <option value="Miércoles">Miércoles</option>
-                        <option value="Jueves">Jueves</option>
-                        <option value="Viernes">Viernes</option>
-                    </select>
-                </div>
+            <div id="div-dias">
+                <label class="text-xs font-bold text-gray-500 ml-1">DÍA</label>
+                <select id="input-mat-dia" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border">
+                    <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option>
+                </select>
+            </div>
 
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase ml-2">Requisito Asistencia</label>
-                    <select id="materia-asistencia" class="w-full p-3 bg-gray-50 rounded-xl font-bold outline-none border border-gray-200">
-                        <option value="75">75% (Estándar)</option>
-                        <option value="60">60% (Regular)</option>
-                        <option value="80">80% (Promoción)</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="w-full bg-raspanti-bordo text-white py-3 rounded-xl font-black shadow-lg mt-2">GUARDAR MATERIA</button>
-            </form>
+            <div class="flex gap-2 mt-4">
+                <button onclick="closeModal('modal-materia')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button>
+                <button onclick="guardarMateria()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button>
+            </div>
         </div>
     </div>
 
-    <div id="modal-alumno" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden fade-in">
-        <div class="bg-white rounded-[35px] w-full max-w-sm p-6 shadow-2xl relative">
-            <button onclick="closeModal('modal-alumno')" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
-            <h3 class="text-xl font-black text-raspanti-bordo mb-4">Nuevo Alumno</h3>
-            <form id="form-alumno" class="space-y-3">
-                <input type="text" id="alumno-apellido" class="w-full p-3 bg-gray-50 rounded-xl font-bold outline-none border border-gray-200" placeholder="Apellido" required>
-                <input type="text" id="alumno-nombre" class="w-full p-3 bg-gray-50 rounded-xl font-bold outline-none border border-gray-200" placeholder="Nombre" required>
-                <button type="submit" class="w-full bg-raspanti-dorado text-white py-3 rounded-xl font-black shadow-lg mt-2">AGREGAR</button>
-            </form>
+    <div id="modal-alumno" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 class="text-lg font-black text-raspanti-bordo mb-4">Nuevo Alumno</h3>
+            <input id="input-alum-ape" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Apellido">
+            <input id="input-alum-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Nombre">
+            <div class="flex gap-2">
+                <button onclick="closeModal('modal-alumno')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button>
+                <button onclick="guardarAlumno()" class="flex-1 py-3 bg-raspanti-dorado text-white rounded-lg font-bold shadow">Agregar</button>
+            </div>
         </div>
     </div>
 
-    <div id="modal-columna" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden fade-in">
-        <div class="bg-white rounded-[35px] w-full max-w-sm p-6 shadow-2xl relative">
-            <button onclick="closeModal('modal-columna')" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
-            <h3 class="text-xl font-black text-raspanti-bordo mb-4">Nueva Evaluación</h3>
-            <form id="form-columna" class="space-y-3">
-                <input type="text" id="columna-nombre" class="w-full p-3 bg-gray-50 rounded-xl font-bold outline-none border border-gray-200" placeholder="Nombre (Ej: 1° Parcial)" required>
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase ml-2">Fecha (Agenda)</label>
-                    <input type="date" id="columna-fecha" class="w-full p-3 bg-gray-50 rounded-xl font-bold outline-none border border-gray-200">
-                </div>
-                <button type="submit" class="w-full bg-raspanti-bordo text-white py-3 rounded-xl font-black shadow-lg mt-2">CREAR</button>
-            </form>
+    <div id="modal-examen" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 class="text-lg font-black text-raspanti-bordo mb-4">Nuevo Examen/TP</h3>
+            <input id="input-exam-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border font-bold" placeholder="Nombre (Ej: TP 1)">
+            <label class="text-xs font-bold text-gray-500 ml-1">FECHA</label>
+            <input type="date" id="input-exam-date" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold">
+            <div class="flex gap-2">
+                <button onclick="closeModal('modal-examen')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button>
+                <button onclick="guardarExamen()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Crear</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- GESTOR DE DATOS (BD LOCAL) ---
+        // --- BASE DE DATOS LOCAL ---
         const DB = {
-            getMaterias: () => JSON.parse(localStorage.getItem('raspanti_materias')) || [],
-            saveMaterias: (materias) => localStorage.setItem('raspanti_materias', JSON.stringify(materias)),
-            
-            // Helpers
-            addMateria: (materia) => {
-                const list = DB.getMaterias();
-                materia.id = Date.now().toString(); // ID único
-                materia.alumnos = [];
-                materia.columnas = [];
-                list.push(materia);
-                DB.saveMaterias(list);
-            },
-            deleteMateria: (id) => {
-                const list = DB.getMaterias().filter(m => m.id !== id);
-                DB.saveMaterias(list);
-            },
-            getMateria: (id) => DB.getMaterias().find(m => m.id === id),
-            updateMateria: (updatedMateria) => {
-                const list = DB.getMaterias().map(m => m.id === updatedMateria.id ? updatedMateria : m);
-                DB.saveMaterias(list);
-            }
+            get: () => JSON.parse(localStorage.getItem('raspanti_data')) || [],
+            save: (data) => localStorage.setItem('raspanti_data', JSON.stringify(data))
         };
 
-        // --- VARIABLES GLOBALES ---
-        let materiaActivaId = null;
-        let currentUser = null;
+        let activeId = null;
 
         // --- INICIO ---
         lucide.createIcons();
-        
-        // Verificar Login previo
-        if(localStorage.getItem('raspanti_user')) {
-            currentUser = localStorage.getItem('raspanti_user');
-            mostrarApp();
-        }
-
-        document.getElementById('login-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            localStorage.setItem('raspanti_user', 'docente'); // Guardamos sesión
-            currentUser = 'docente';
-            mostrarApp();
-        });
-
-        function mostrarApp() {
+        if(localStorage.getItem('raspanti_logged')) { 
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-content').classList.remove('hidden');
-            initDashboard();
+            initDash();
         }
-        
-        window.logout = () => {
-            localStorage.removeItem('raspanti_user');
+
+        // --- FUNCIONES ---
+        function login() {
+            localStorage.setItem('raspanti_logged', 'true');
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
+            initDash();
+        }
+        function logout() {
+            localStorage.removeItem('raspanti_logged');
             location.reload();
-        };
-
-        // --- FUNCIONES UI ---
-        
-        function toggleDias() {
-            const mod = document.getElementById('materia-modalidad').value;
-            const div = document.getElementById('container-dias');
-            if(mod === 'asincronico') div.classList.add('hidden');
-            else div.classList.remove('hidden');
         }
 
-        // --- GESTIÓN MATERIAS ---
-        function renderMaterias() {
-            const list = DB.getMaterias();
-            const cont = document.getElementById('materias-container');
-            const empty = document.getElementById('empty-state');
-            cont.innerHTML = '';
-
-            if(list.length === 0) {
-                empty.classList.remove('hidden');
+        function nav(view) {
+            ['dashboard','materias','aula'].forEach(id => document.getElementById('view-'+id).classList.add('hidden'));
+            document.getElementById('view-'+view).classList.remove('hidden');
+            
+            // Navbar icons
+            const d = document.getElementById('nav-dash');
+            const m = document.getElementById('nav-mat');
+            if(view === 'dashboard') {
+                d.classList.replace('text-gray-400','text-raspanti-bordo');
+                m.classList.replace('text-raspanti-bordo','text-gray-400');
+                initDash();
             } else {
-                empty.classList.add('hidden');
-                list.forEach(m => {
-                    const diaTxt = m.modalidad === 'asincronico' ? 'ASINCRÓNICO' : m.dia;
-                    const div = document.createElement('div');
-                    div.className = 'bg-white p-5 rounded-[30px] border border-gray-100 shadow-sm flex justify-between items-center fab cursor-pointer';
-                    div.innerHTML = `
-                        <div onclick="entrarAula('${m.id}')" class="flex-1 flex items-center gap-4">
-                            <div class="w-12 h-12 bg-raspanti-crema text-raspanti-bordo rounded-2xl flex items-center justify-center font-black border-2 border-white shadow">${m.nombre[0].toUpperCase()}</div>
-                            <div>
-                                <h3 class="font-bold text-gray-800">${m.nombre}</h3>
-                                <div class="flex gap-2 mt-1">
-                                    <span class="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-1 rounded-lg uppercase">${diaTxt}</span>
-                                    <span class="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-1 rounded-lg uppercase">${m.modalidad.substring(0,3)}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <button onclick="borrarMateria('${m.id}')"><i data-lucide="trash-2" class="text-gray-300 hover:text-red-500 w-5 h-5"></i></button>
-                    `;
-                    cont.appendChild(div);
-                });
-                lucide.createIcons();
+                m.classList.replace('text-gray-400','text-raspanti-bordo');
+                d.classList.replace('text-raspanti-bordo','text-gray-400');
+                if(view === 'materias') renderMaterias();
             }
+
+            // Ocultar nav en aula
+            if(view === 'aula') document.getElementById('navbar').classList.add('hidden');
+            else document.getElementById('navbar').classList.remove('hidden');
         }
 
-        document.getElementById('form-materia').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const nueva = {
-                nombre: document.getElementById('materia-nombre').value,
-                modalidad: document.getElementById('materia-modalidad').value,
-                dia: document.getElementById('materia-dia').value, // Si es asinc, esto se ignora visualmente
-                asistenciaReq: document.getElementById('materia-asistencia').value
-            };
-            DB.addMateria(nueva);
-            document.getElementById('form-materia').reset();
+        function initDash() {
+            const date = new Date();
+            const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+            document.getElementById('fecha-hoy').innerText = `${dias[date.getDay()]}, ${date.getDate()}/${date.getMonth()+1}`;
+            
+            const data = DB.get();
+            const hoy = dias[date.getDay()];
+            const lista = document.getElementById('lista-hoy');
+            lista.innerHTML = '';
+            
+            let hayAlgo = false;
+            data.forEach(m => {
+                // Clase hoy?
+                if(m.modalidad !== 'Asincronico' && m.dia === hoy) {
+                    lista.innerHTML += `<div class="bg-white/10 p-2 rounded flex items-center gap-2"><div class="w-2 h-2 bg-green-400 rounded-full"></div> <strong>${m.nombre}</strong> (Clase)</div>`;
+                    hayAlgo = true;
+                }
+                // Examen hoy?
+                const hoyISO = date.toISOString().split('T')[0];
+                m.examenes.forEach(e => {
+                    if(e.fecha === hoyISO) {
+                        lista.innerHTML += `<div class="bg-white text-raspanti-bordo p-2 rounded flex items-center gap-2 font-bold"><div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div> EXAMEN: ${m.nombre} - ${e.nombre}</div>`;
+                        hayAlgo = true;
+                    }
+                });
+            });
+
+            if(!hayAlgo) lista.innerHTML = '<span class="opacity-60 italic">No tienes actividades hoy.</span>';
+        }
+
+        // --- MATERIAS ---
+        function checkMod() {
+            const mod = document.getElementById('input-mat-mod').value;
+            document.getElementById('div-dias').style.display = (mod === 'Asincronico') ? 'none' : 'block';
+        }
+
+        function guardarMateria() {
+            const data = DB.get();
+            data.push({
+                id: Date.now(),
+                nombre: document.getElementById('input-mat-nombre').value,
+                modalidad: document.getElementById('input-mat-mod').value,
+                dia: document.getElementById('input-mat-dia').value,
+                alumnos: [],
+                examenes: []
+            });
+            DB.save(data);
             closeModal('modal-materia');
             renderMaterias();
-            initDashboard(); // Actualizar dashboard por si acaso
-        });
+        }
 
-        window.borrarMateria = (id) => {
-            if(confirm('¿Borrar esta materia?')) {
-                DB.deleteMateria(id);
-                renderMaterias();
-                initDashboard();
-            }
-        };
-
-        // --- AULA ---
-        window.entrarAula = (id) => {
-            materiaActivaId = id;
-            const mat = DB.getMateria(id);
-            document.getElementById('aula-titulo').innerText = mat.nombre;
-            document.getElementById('aula-modalidad').innerText = mat.modalidad + (mat.modalidad !== 'asincronico' ? ' - ' + mat.dia : '');
-            
-            navigate('aula');
-            renderAlumnos();
-            renderNotas();
-        };
-
-        // Alumnos
-        function renderAlumnos() {
-            const mat = DB.getMateria(materiaActivaId);
-            const list = document.getElementById('lista-alumnos');
-            document.getElementById('aula-info').innerText = mat.alumnos.length + " Estudiantes";
+        function renderMaterias() {
+            const data = DB.get();
+            const list = document.getElementById('lista-materias');
             list.innerHTML = '';
-            
-            mat.alumnos.forEach((al, index) => {
+            if(data.length === 0) document.getElementById('no-materias').classList.remove('hidden');
+            else document.getElementById('no-materias').classList.add('hidden');
+
+            data.forEach(m => {
+                const diaTxt = m.modalidad === 'Asincronico' ? 'Campus' : m.dia;
                 const div = document.createElement('div');
-                div.className = 'bg-white p-4 rounded-2xl border border-gray-100 flex justify-between items-center';
+                div.className = 'bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center';
                 div.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-raspanti-crema flex items-center justify-center text-xs font-bold text-raspanti-bordo">${al.apellido[0]}</div>
-                        <span class="font-bold text-gray-700">${al.apellido}, ${al.nombre}</span>
+                    <div onclick="abrirAula(${m.id})">
+                        <h3 class="font-bold text-gray-800">${m.nombre}</h3>
+                        <div class="text-xs text-gray-400 font-bold uppercase mt-1">${m.modalidad} • ${diaTxt}</div>
                     </div>
-                    <button onclick="borrarAlumno(${index})" class="text-gray-300 hover:text-red-500"><i data-lucide="x-circle" class="w-4 h-4"></i></button>
+                    <button onclick="borrarMateria(${m.id})" class="text-gray-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4"></i></button>
                 `;
                 list.appendChild(div);
             });
             lucide.createIcons();
         }
 
-        document.getElementById('form-alumno').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const mat = DB.getMateria(materiaActivaId);
-            mat.alumnos.push({
-                apellido: document.getElementById('alumno-apellido').value,
-                nombre: document.getElementById('alumno-nombre').value,
-                notas: {} // Objeto para guardar notas por ID de columna
-            });
-            mat.alumnos.sort((a,b) => a.apellido.localeCompare(b.apellido));
-            DB.updateMateria(mat);
-            document.getElementById('form-alumno').reset();
-            closeModal('modal-alumno');
-            renderAlumnos();
-            renderNotas(); // Actualizar tabla notas
-        });
+        function borrarMateria(id) {
+            if(!confirm('¿Eliminar?')) return;
+            let data = DB.get();
+            data = data.filter(m => m.id !== id);
+            DB.save(data);
+            renderMaterias();
+        }
 
-        window.borrarAlumno = (idx) => {
-            if(confirm('¿Quitar alumno?')) {
-                const mat = DB.getMateria(materiaActivaId);
-                mat.alumnos.splice(idx, 1);
-                DB.updateMateria(mat);
-                renderAlumnos();
+        // --- AULA ---
+        function abrirAula(id) {
+            activeId = id;
+            const m = DB.get().find(x => x.id === id);
+            document.getElementById('aula-nombre').innerText = m.nombre;
+            document.getElementById('aula-modalidad').innerText = m.modalidad;
+            nav('aula');
+            setTab('alumnos');
+            renderAlumnos();
+        }
+
+        function setTab(t) {
+            document.getElementById('tab-alumnos').classList.add('hidden');
+            document.getElementById('tab-notas').classList.add('hidden');
+            document.getElementById('tab-'+t).classList.remove('hidden');
+            
+            const btnA = document.getElementById('btn-alumnos');
+            const btnN = document.getElementById('btn-notas');
+            if(t==='alumnos'){
+                btnA.classList.replace('text-gray-400','text-raspanti-bordo'); btnA.classList.add('bg-raspanti-crema');
+                btnN.classList.replace('text-raspanti-bordo','text-gray-400'); btnN.classList.remove('bg-raspanti-crema');
+            } else {
+                btnN.classList.replace('text-gray-400','text-raspanti-bordo'); btnN.classList.add('bg-raspanti-crema');
+                btnA.classList.replace('text-raspanti-bordo','text-gray-400'); btnA.classList.remove('bg-raspanti-crema');
                 renderNotas();
             }
         }
 
-        // Notas y Exámenes
+        function guardarAlumno() {
+            const data = DB.get();
+            const m = data.find(x => x.id === activeId);
+            m.alumnos.push({
+                ape: document.getElementById('input-alum-ape').value,
+                nom: document.getElementById('input-alum-nom').value,
+                notas: {}
+            });
+            m.alumnos.sort((a,b) => a.ape.localeCompare(b.ape));
+            DB.save(data);
+            closeModal('modal-alumno');
+            renderAlumnos();
+        }
+
+        function renderAlumnos() {
+            const m = DB.get().find(x => x.id === activeId);
+            const l = document.getElementById('lista-alumnos');
+            l.innerHTML = '';
+            m.alumnos.forEach((al, idx) => {
+                l.innerHTML += `<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-xs text-gray-500">${al.ape[0]}</div>
+                        <span class="font-bold text-gray-700 text-sm">${al.ape}, ${al.nom}</span>
+                    </div>
+                    <button onclick="delAlum(${idx})" class="text-gray-300 hover:text-red-500"><i data-lucide="x" class="w-4"></i></button>
+                </div>`;
+            });
+            lucide.createIcons();
+        }
+
+        function delAlum(idx) {
+            if(!confirm('¿Quitar?')) return;
+            const data = DB.get();
+            const m = data.find(x => x.id === activeId);
+            m.alumnos.splice(idx, 1);
+            DB.save(data);
+            renderAlumnos();
+        }
+
+        function guardarExamen() {
+            const data = DB.get();
+            const m = data.find(x => x.id === activeId);
+            m.examenes.push({
+                id: Date.now(),
+                nombre: document.getElementById('input-exam-nom').value,
+                fecha: document.getElementById('input-exam-date').value
+            });
+            DB.save(data);
+            closeModal('modal-examen');
+            renderNotas();
+        }
+
         function renderNotas() {
-            const mat = DB.getMateria(materiaActivaId);
-            const header = document.getElementById('header-notas');
+            const m = DB.get().find(x => x.id === activeId);
+            const head = document.getElementById('head-notas');
             const body = document.getElementById('body-notas');
-            const empty = document.getElementById('empty-notas');
-
-            // Reset headers
-            header.innerHTML = '<th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase bg-gray-50 sticky left-0 z-10 border-r border-gray-200">Alumno</th>';
             
-            if(mat.columnas.length === 0) {
-                empty.classList.remove('hidden');
-                body.innerHTML = '';
-                return;
-            }
-            empty.classList.add('hidden');
-
-            // Crear headers
-            mat.columnas.forEach(col => {
-                let fechaHtml = col.fecha ? `<br><span class="text-[9px] font-normal text-gray-400">${col.fecha.split('-').reverse().slice(0,2).join('/')}</span>` : '';
-                header.innerHTML += `<th class="px-3 py-3 text-center text-xs font-bold text-gray-500 uppercase bg-gray-50 min-w-[80px]">${col.nombre}${fechaHtml}</th>`;
+            // Headers
+            head.innerHTML = '<th class="p-3 sticky left-0 bg-gray-50">Alumno</th>';
+            m.examenes.forEach(e => {
+                const f = e.fecha ? e.fecha.split('-').reverse().slice(0,2).join('/') : '';
+                head.innerHTML += `<th class="p-3 text-center min-w-[80px] text-xs">${e.nombre}<br><span class="font-normal opacity-50">${f}</span></th>`;
             });
 
-            // Crear filas
+            // Body
             body.innerHTML = '';
-            mat.alumnos.forEach((al, alumIdx) => {
-                let html = `<td class="px-3 py-3 whitespace-nowrap text-sm font-bold text-gray-700 sticky left-0 bg-white border-r border-gray-100 z-10">${al.apellido}</td>`;
-                
-                mat.columnas.forEach((col, colIdx) => {
-                    const val = al.notas[col.id] || '';
-                    const colorInput = val && val < 4 ? 'bg-red-50 text-red-600' : 'bg-gray-50';
-                    html += `<td class="p-2 text-center border-b border-gray-50">
-                        <input type="number" class="w-12 p-1 text-center rounded border border-gray-200 ${colorInput} focus:outline-none focus:border-raspanti-dorado" 
-                        value="${val}" 
-                        onchange="guardarNota(${alumIdx}, '${col.id}', this.value)">
-                    </td>`;
+            m.alumnos.forEach((al, aIdx) => {
+                let row = `<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm truncate max-w-[120px]">${al.ape}, ${al.nom[0]}.</td>`;
+                m.examenes.forEach(e => {
+                    const val = al.notas[e.id] || '';
+                    const color = (val && val<4) ? 'text-red-500 bg-red-50' : 'text-gray-700';
+                    row += `<td class="p-2 text-center border-b"><input type="number" class="w-10 text-center p-1 rounded border ${color}" value="${val}" onchange="saveNota(${aIdx}, ${e.id}, this.value)"></td>`;
                 });
-                const tr = document.createElement('tr');
-                tr.innerHTML = html;
-                body.appendChild(tr);
+                row += '</tr>';
+                body.innerHTML += row;
             });
         }
 
-        document.getElementById('form-columna').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const mat = DB.getMateria(materiaActivaId);
-            mat.columnas.push({
-                id: Date.now().toString(),
-                nombre: document.getElementById('columna-nombre').value,
-                fecha: document.getElementById('columna-fecha').value
-            });
-            DB.updateMateria(mat);
-            document.getElementById('form-columna').reset();
-            closeModal('modal-columna');
-            renderNotas();
-        });
-
-        window.guardarNota = (alumIdx, colId, valor) => {
-            const mat = DB.getMateria(materiaActivaId);
-            mat.alumnos[alumIdx].notas[colId] = valor;
-            DB.updateMateria(mat);
-            // Renderizar de nuevo para actualizar colores si es necesario
-            renderNotas();
-        };
-
-
-        // --- DASHBOARD (RESUMEN) ---
-        function initDashboard() {
-            const list = DB.getMaterias();
-            const days = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-            const todayDate = new Date();
-            const todayName = days[todayDate.getDay()];
-            
-            document.getElementById('fecha-hoy').innerText = `${todayName}, ${todayDate.getDate()}/${todayDate.getMonth()+1}`;
-            
-            const cont = document.getElementById('lista-clases-hoy');
-            cont.innerHTML = '';
-
-            let hayClases = false;
-            list.forEach(m => {
-                // Verificar si cursa hoy
-                if(m.modalidad !== 'asincronico' && m.dia === todayName) {
-                    hayClases = true;
-                    cont.innerHTML += `<div class="flex items-center gap-2 mb-2"><div class="w-2 h-2 bg-raspanti-dorado rounded-full"></div> <strong>${m.nombre}</strong> (Clase)</div>`;
-                }
-                // Verificar si hay examen hoy
-                m.columnas.forEach(col => {
-                    if(col.fecha === todayDate.toISOString().split('T')[0]) {
-                        hayClases = true;
-                         cont.innerHTML += `<div class="flex items-center gap-2 mb-2 bg-red-900/30 p-2 rounded"><div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div> <strong>${m.nombre}</strong>: Examen ${col.nombre}</div>`;
-                    }
-                });
-            });
-
-            if(!hayClases) cont.innerHTML = '<span class="opacity-70">No tienes actividades hoy.</span>';
+        function saveNota(aIdx, eId, val) {
+            const data = DB.get();
+            const m = data.find(x => x.id === activeId);
+            m.alumnos[aIdx].notas[eId] = val;
+            DB.save(data);
+            renderNotas(); // Refrescar color
         }
 
-
-        // --- NAVIGACION ---
-        window.navigate = (view) => {
-            ['dashboard', 'materias', 'aula'].forEach(v => document.getElementById('view-'+v).classList.add('hidden'));
-            document.getElementById('view-'+view).classList.remove('hidden');
-            
-            if(view === 'materias') renderMaterias();
-            if(view === 'dashboard') initDashboard();
-
-            // Navbar
-            if(view === 'aula') document.getElementById('bottom-nav').classList.add('hidden');
-            else document.getElementById('bottom-nav').classList.remove('hidden');
-
-            // Iconos activos
-            const btnDash = document.getElementById('nav-dashboard');
-            const btnMat = document.getElementById('nav-materias');
-            if(view === 'dashboard') {
-                btnDash.classList.remove('opacity-50'); btnDash.querySelector('.icon-p').classList.add('bg-gray-100', 'text-raspanti-bordo');
-                btnMat.classList.add('opacity-50'); btnMat.querySelector('.icon-p').classList.remove('bg-gray-100', 'text-raspanti-bordo');
-            } else if(view === 'materias') {
-                btnMat.classList.remove('opacity-50'); btnMat.querySelector('.icon-p').classList.add('bg-gray-100', 'text-raspanti-bordo');
-                btnDash.classList.add('opacity-50'); btnDash.querySelector('.icon-p').classList.remove('bg-gray-100', 'text-raspanti-bordo');
-            }
-        };
-
-        window.cambiarTabAula = (tab) => {
-            document.querySelectorAll('.aula-tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById('content-'+tab).classList.remove('hidden');
-            
-            const btnA = document.getElementById('tab-alumnos');
-            const btnN = document.getElementById('tab-notas');
-            const activeClass = ['bg-raspanti-crema', 'text-raspanti-bordo'];
-            const inactiveClass = ['text-gray-400'];
-
-            if(tab === 'alumnos') {
-                btnA.classList.add(...activeClass); btnA.classList.remove(...inactiveClass);
-                btnN.classList.remove(...activeClass); btnN.classList.add(...inactiveClass);
-            } else {
-                btnN.classList.add(...activeClass); btnN.classList.remove(...inactiveClass);
-                btnA.classList.remove(...activeClass); btnA.classList.add(...inactiveClass);
-            }
-        };
-
-        window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
-        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
     </script>
 </body>
