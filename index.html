@@ -91,8 +91,7 @@
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <h3 class="font-bold text-gray-700 mb-3 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4 text-raspanti-dorado"></i> Planificación Semanal</h3>
-                    <div id="lista-semana" class="text-sm space-y-3">
-                        </div>
+                    <div id="lista-semana" class="text-sm space-y-3"></div>
                 </div>
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
@@ -127,7 +126,12 @@
                 </div>
                 
                 <div id="tab-crono" class="space-y-3">
-                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 text-xs text-blue-800 flex gap-2"><i data-lucide="info" class="w-4 h-4 shrink-0"></i><p>Toca el botón para cambiar modalidad. Escribe abajo el tema del día.</p></div>
+                    <div class="flex justify-between items-center">
+                        <p class="text-xs text-gray-500 font-bold ml-1">Agenda de Clases</p>
+                        <button onclick="openImportModal()" class="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded border border-green-200 font-bold flex items-center gap-1">
+                            <i data-lucide="file-spreadsheet" class="w-3 h-3"></i> IMPORTAR EXCEL
+                        </button>
+                    </div>
                     <div id="lista-cronograma" class="space-y-3"></div>
                 </div>
 
@@ -172,28 +176,27 @@
     </div>
 
     <div id="modal-tarea" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-4">Nueva Tarea</h3><input id="input-tarea-txt" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Descripción"><div class="flex gap-2"><button onclick="closeModal('modal-tarea')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarTarea()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
-    
     <div id="modal-materia" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-4" id="title-materia">Nueva Materia</h3><input type="hidden" id="edit-mat-id"><label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label><input id="input-mat-nombre" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Ej: Matemática"><label class="text-xs font-bold text-gray-500 ml-1">INICIO CURSADA</label><input type="date" id="input-mat-inicio" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold"><div class="grid grid-cols-2 gap-2 mb-4"><div><label class="text-xs font-bold text-gray-500 ml-1">DÍA</label><select id="input-mat-dia" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option></select></div><div><label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD</label><select id="input-mat-mod" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Hibrida">Mixta</option><option value="Presencial">Presencial</option><option value="Virtual">Virtual</option></select></div></div><div class="flex gap-2"><button onclick="closeModal('modal-materia')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarMateria()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
-    
-    <div id="modal-alumno" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 class="text-lg font-black text-raspanti-bordo mb-4" id="title-alumno">Nuevo Alumno</h3>
-            <input type="hidden" id="edit-alum-idx">
-            <div class="flex justify-center mb-4"><label for="input-alum-foto" class="avatar-upload group"><img id="preview-foto" src="" class="hidden"><div id="placeholder-foto" class="text-gray-400 text-center text-[10px] font-bold"><i data-lucide="camera" class="w-6 h-6 mx-auto mb-1"></i>Foto</div><input type="file" id="input-alum-foto" class="hidden" accept="image/*" onchange="previewImage(this)"></label></div>
-            <input id="input-alum-ape" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Apellido"><input id="input-alum-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Nombre">
-            <div class="flex gap-2"><button onclick="closeModal('modal-alumno')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarAlumno()" class="flex-1 py-3 bg-raspanti-dorado text-white rounded-lg font-bold shadow">Guardar</button></div>
-        </div>
-    </div>
-    
+    <div id="modal-alumno" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-4" id="title-alumno">Nuevo Alumno</h3><input type="hidden" id="edit-alum-idx"><div class="flex justify-center mb-4"><label for="input-alum-foto" class="avatar-upload group"><img id="preview-foto" src="" class="hidden"><div id="placeholder-foto" class="text-gray-400 text-center text-[10px] font-bold"><i data-lucide="camera" class="w-6 h-6 mx-auto mb-1"></i>Foto</div><input type="file" id="input-alum-foto" class="hidden" accept="image/*" onchange="previewImage(this)"></label></div><input id="input-alum-ape" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Apellido"><input id="input-alum-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Nombre"><div class="flex gap-2"><button onclick="closeModal('modal-alumno')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarAlumno()" class="flex-1 py-3 bg-raspanti-dorado text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-examen" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-4" id="title-examen">Nuevo Examen/TP</h3><input type="hidden" id="edit-exam-id"><input id="input-exam-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border font-bold" placeholder="Nombre"><label class="text-xs font-bold text-gray-500 ml-1">FECHA</label><input type="date" id="input-exam-date" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold"><div class="flex gap-2"><button onclick="closeModal('modal-examen')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarExamen()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-obs" class="fixed inset-0 bg-black/50 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-2">Observación</h3><p id="obs-alum-name" class="text-sm font-bold text-gray-500 mb-3"></p><textarea id="input-obs-txt" class="w-full p-3 bg-gray-50 rounded-lg border h-32 mb-4" placeholder="Escribe una observación..."></textarea><div class="flex gap-2"><button onclick="closeModal('modal-obs')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarObs()" class="flex-1 py-3 bg-raspanti-bordo text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-settings" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center"><h3 class="text-lg font-black text-raspanti-bordo mb-6">Configuración</h3><div class="bg-blue-50 p-4 rounded-xl mb-4 border border-blue-100"><i data-lucide="download" class="w-8 h-8 text-blue-500 mx-auto mb-2"></i><h4 class="font-bold text-blue-800">Copia de Seguridad</h4><button onclick="downloadBackup()" class="bg-blue-600 text-white w-full py-2 rounded-lg font-bold text-sm shadow mt-2">DESCARGAR</button></div><div class="bg-gray-50 p-4 rounded-xl mb-6 border border-gray-200"><i data-lucide="upload" class="w-8 h-8 text-gray-500 mx-auto mb-2"></i><h4 class="font-bold text-gray-700">Restaurar</h4><input type="file" id="file-restore" class="hidden" onchange="restoreBackup(this)"><button onclick="document.getElementById('file-restore').click()" class="bg-gray-200 text-gray-700 w-full py-2 rounded-lg font-bold text-sm mt-2">SELECCIONAR ARCHIVO</button></div><button onclick="closeModal('modal-settings')" class="block w-full mt-4 text-gray-400 text-sm font-bold">Cerrar</button></div></div>
     
+    <div id="modal-import" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative">
+            <button onclick="closeModal('modal-import')" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <h3 class="text-lg font-black text-raspanti-bordo mb-2">Importar Excel</h3>
+            <p class="text-xs text-gray-500 mb-4">Copia las columnas <strong>FECHA</strong> y <strong>CONTENIDO</strong> de tu Excel y pégalas aquí.</p>
+            <textarea id="input-import-text" class="w-full p-3 bg-gray-50 rounded-lg border h-40 text-xs font-mono mb-4" placeholder="Ej: 17/03/2025   Presentación..."></textarea>
+            <button onclick="processImport()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2"><i data-lucide="check" class="w-5 h-5"></i> PROCESAR</button>
+        </div>
+    </div>
+
     <div id="install-modal" class="fixed inset-0 z-[70] bg-black/60 hidden flex items-end sm:items-center justify-center backdrop-blur-sm"><div class="bg-white w-full sm:max-w-md rounded-t-[30px] sm:rounded-[30px] p-6 slide-up shadow-2xl relative"><button onclick="closeInstall()" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button><div class="flex items-center gap-4 mb-4"><div class="w-16 h-16 bg-raspanti-bordo rounded-2xl flex items-center justify-center border-4 border-raspanti-dorado shadow-md text-white font-black text-2xl">R</div><div><h3 class="font-bold text-lg leading-tight">Instalar App</h3><p class="text-xs text-gray-500">Mejor experiencia.</p></div></div><div id="install-ios" class="hidden space-y-3 text-sm text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100"><p>1. Toca <strong>Compartir</strong> <i data-lucide="share" class="w-4 h-4 text-blue-500"></i></p><p>2. <strong>"Agregar a Inicio"</strong> <i data-lucide="plus-square" class="w-4 h-4 text-gray-800"></i></p></div><div id="install-android" class="hidden"><button onclick="triggerInstall()" class="w-full bg-raspanti-bordo text-white py-4 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2"><i data-lucide="download" class="w-5 h-5"></i> INSTALAR</button></div></div></div>
 
     <script>
         // --- DB ---
-        const DB={get:()=>JSON.parse(localStorage.getItem('raspanti_v10'))||{materias:[], tareas:[], profileName:'Hola Profe'}, save:(d)=>localStorage.setItem('raspanti_v10',JSON.stringify(d))};
+        const DB={get:()=>JSON.parse(localStorage.getItem('raspanti_v11'))||{materias:[], tareas:[], profileName:'Hola Profe'}, save:(d)=>localStorage.setItem('raspanti_v11',JSON.stringify(d))};
         let activeId=null, activeDateISO=null, activeObsIdx=null, tempFoto=''; 
 
         // --- CORE ---
@@ -208,7 +211,7 @@
         function downloadBackup(){ const s="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(DB.get())); const n=document.createElement('a'); n.setAttribute("href",s); n.setAttribute("download","raspanti_backup.json"); document.body.appendChild(n); n.click(); n.remove(); }
         function restoreBackup(i){ const f=i.files[0]; if(!f)return; const r=new FileReader(); r.onload=function(e){try{const d=JSON.parse(e.target.result); if(!d.materias)throw new Error(); DB.save(d); alert("✅ Datos restaurados!"); location.reload();}catch(e){alert("❌ Archivo inválido.");}}; r.readAsText(f); }
 
-        // --- DASHBOARD (PLANNER INTEGRADO) ---
+        // --- DASHBOARD ---
         function initDash(){
             const d=new Date(), dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'], h=d.toISOString().split('T')[0];
             document.getElementById('fecha-hoy').innerText=`${dias[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}`;
@@ -219,33 +222,18 @@
             db.materias.forEach(m=>{ let t=m.cronograma?.[h]; if(t&&t!=='Sin Clase'){y=true; let c='bg-gray-400',x=''; if(t==='Presencial'){c='bg-red-500';x='(Inst.)';}else if(t==='Virtual'){c='bg-blue-400';x='(Zoom)';}else if(t==='Asincronico'){c='bg-yellow-400';x='(Campus)';} l.innerHTML+=`<div class="bg-white/10 p-3 rounded-lg flex items-center gap-3"><div class="w-3 h-3 ${c} rounded-full border border-white/20"></div><div><strong class="block text-sm">${m.nombre}</strong><span class="text-xs opacity-80 uppercase font-bold">${t} ${x}</span></div></div>`; } });
             if(!y)l.innerHTML='<span class="opacity-60 italic text-sm">Sin clases hoy.</span>';
             
-            // Planificación Semanal (NEW)
+            // Semanal
             const ls=document.getElementById('lista-semana'); ls.innerHTML=''; let ys=false;
-            // Calcular Lunes a Viernes de esta semana
-            let current = new Date(); 
-            const first = current.getDate() - current.getDay() + 1; // Lunes
-            let monday = new Date(current.setDate(first));
-            
-            for(let i=0; i<5; i++){ // Lun a Vie
-                let loopDate = new Date(monday); 
-                loopDate.setDate(monday.getDate() + i);
+            let current = new Date(); const first = current.getDate() - current.getDay() + 1; let monday = new Date(current.setDate(first));
+            for(let i=0; i<5; i++){
+                let loopDate = new Date(monday); loopDate.setDate(monday.getDate() + i);
                 let iso = loopDate.toISOString().split('T')[0];
                 let dayName = dias[loopDate.getDay()];
-                
                 db.materias.forEach(m => {
-                    // Check si hay planificacion (temas)
-                    if(m.temas && m.temas[iso]){
-                        ys=true;
-                        ls.innerHTML += `
-                        <div class="border-l-2 border-raspanti-dorado pl-3 py-1">
-                            <span class="text-xs font-bold text-gray-400 uppercase block">${dayName} - ${m.nombre}</span>
-                            <p class="text-sm font-medium text-gray-700">${m.temas[iso]}</p>
-                        </div>`;
-                    }
+                    if(m.temas && m.temas[iso]){ ys=true; ls.innerHTML += `<div class="border-l-2 border-raspanti-dorado pl-3 py-1"><span class="text-xs font-bold text-gray-400 uppercase block">${dayName} - ${m.nombre}</span><p class="text-sm font-medium text-gray-700">${m.temas[iso]}</p></div>`; }
                 });
             }
             if(!ys) ls.innerHTML = '<span class="text-xs text-gray-400 italic">Nada planificado esta semana.</span>';
-
             renderTareas();
         }
         function editProfileName(){const n = prompt("Ingresa tu nombre:", document.getElementById('dash-name').innerText); if(n){ const db=DB.get(); db.profileName=n; DB.save(db); initDash(); }}
@@ -270,7 +258,7 @@
         function renderMaterias(){const l=document.getElementById('lista-materias'); l.innerHTML=''; const db=DB.get(); document.getElementById('no-materias').classList.toggle('hidden',db.materias.length>0); db.materias.forEach(m=>{l.innerHTML+=`<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center"><div onclick="abrirAula(${m.id})" class="flex-1"><h3 class="font-bold text-gray-800">${m.nombre}</h3><div class="text-xs text-gray-400 font-bold uppercase mt-1">${m.dia} • ${m.modalidadBase}</div></div><div class="flex gap-1"><button onclick="openMateriaModal(${m.id})" class="text-gray-400 hover:text-blue-500 p-2"><i data-lucide="pencil" class="w-4"></i></button><button onclick="borrarMateria(${m.id})" class="text-gray-400 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-4"></i></button></div></div>`;}); lucide.createIcons();}
         function borrarMateria(id){if(confirm('¿Eliminar?')){const db=DB.get(); db.materias=db.materias.filter(m=>m.id!==id); DB.save(db); renderMaterias();}}
 
-        // --- AULA & PLANNER ---
+        // --- AULA & CRONOGRAMA ---
         function abrirAula(id){activeId=id; const m=DB.get().materias.find(x=>x.id===id); document.getElementById('aula-nombre').innerText=m.nombre; document.getElementById('aula-modalidad').innerText=m.modalidadBase; nav('aula'); setTab('crono');}
         function setTab(t){['crono','alumnos','notas'].forEach(x=>{document.getElementById('tab-'+x).classList.add('hidden'); document.getElementById('btn-'+x).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400';}); document.getElementById('tab-'+t).classList.remove('hidden'); document.getElementById('btn-'+t).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-raspanti-crema text-raspanti-bordo'; if(t==='crono')renderCrono(); if(t==='alumnos')renderAlum(); if(t==='notas')renderNotas();}
         
@@ -282,28 +270,54 @@
                 let b='bg-gray-100 text-gray-500', ic='help-circle';
                 if(st==='Presencial'){b='bg-red-100 text-red-700 border-red-200';ic='map-pin';}else if(st==='Virtual'){b='bg-blue-100 text-blue-700 border-blue-200';ic='video';}else if(st==='Asincronico'){b='bg-yellow-100 text-yellow-700 border-yellow-200';ic='book-open';}else if(st==='Sin Clase'){b='line-through opacity-50';ic='slash';}
                 
-                // PLANNER INPUT
                 const temaVal = (m.temas && m.temas[iso]) ? m.temas[iso] : '';
-                
-                l.innerHTML+=`
-                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-bold text-gray-700 text-sm w-12">${disp}</span>
-                        <button onclick="cycle('${iso}')" class="flex-1 ml-4 py-1 px-3 rounded-lg font-bold text-[10px] uppercase flex items-center justify-center gap-2 ${b} badge-transition"><i data-lucide="${ic}" class="w-3 h-3"></i> ${st}</button>
-                    </div>
-                    <input type="text" class="w-full text-sm bg-gray-50 p-2 rounded border border-transparent focus:bg-white focus:border-raspanti-dorado outline-none transition" placeholder="Escribe el tema..." value="${temaVal}" onchange="saveTema('${iso}', this.value)">
-                </div>`;
+                l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm"><div class="flex items-center justify-between mb-2"><span class="font-bold text-gray-700 text-sm w-12">${disp}</span><button onclick="cycle('${iso}')" class="flex-1 ml-4 py-1 px-3 rounded-lg font-bold text-[10px] uppercase flex items-center justify-center gap-2 ${b} badge-transition"><i data-lucide="${ic}" class="w-3 h-3"></i> ${st}</button></div><input type="text" class="w-full text-sm bg-gray-50 p-2 rounded border border-transparent focus:bg-white focus:border-raspanti-dorado outline-none transition" placeholder="Tema..." value="${temaVal}" onchange="saveTema('${iso}', this.value)"></div>`;
                 d.setDate(d.getDate()+7);
             } lucide.createIcons();
         }
         function cycle(iso){const db=DB.get(), m=db.materias.find(x=>x.id===activeId); if(!m.cronograma)m.cronograma={}; const sts=['Presencial','Virtual','Asincronico','Sin Clase'], c=m.cronograma[iso]||((m.modalidadBase==='Hibrida')?'Presencial':m.modalidadBase); m.cronograma[iso]=sts[(sts.indexOf(c)+1)%sts.length]; DB.save(db); renderCrono();}
-        
-        // SAVE TEMA (PLANNER)
-        function saveTema(iso, val){
-            const db=DB.get(), m=db.materias.find(x=>x.id===activeId);
-            if(!m.temas) m.temas={};
-            m.temas[iso] = val;
+        function saveTema(iso, val){ const db=DB.get(), m=db.materias.find(x=>x.id===activeId); if(!m.temas) m.temas={}; m.temas[iso] = val; DB.save(db); }
+
+        // --- IMPORTACIÓN EXCEL ---
+        function openImportModal() { document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('input-import-text').value=''; }
+        function processImport() {
+            const raw = document.getElementById('input-import-text').value;
+            if(!raw.trim()) { alert("Pega el contenido primero."); return; }
+            const lines = raw.split('\n');
+            const db = DB.get(); const m = db.materias.find(x=>x.id===activeId); if(!m.temas) m.temas = {};
+            let count = 0;
+
+            lines.forEach(line => {
+                const parts = line.split('\t'); // Excel usa tabs
+                if(parts.length >= 1) {
+                    // Try parsing date from parts[0]
+                    const dateRaw = parts[0].trim();
+                    // Regex dd/mm/yyyy or dd-mm-yyyy
+                    const match = dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/);
+                    if(match) {
+                        const day = match[1].padStart(2,'0');
+                        const month = match[2].padStart(2,'0');
+                        const year = match[3].length === 2 ? '20'+match[3] : match[3];
+                        const isoDate = `${year}-${month}-${day}`;
+                        
+                        // Content: Try part 1, if short try part 2 (skipping "Unit" column)
+                        let content = "";
+                        if(parts.length > 1) {
+                            if(parts[1].length < 4 && parts.length > 2) content = parts[2].trim();
+                            else content = parts[1].trim();
+                        }
+                        
+                        if(content) {
+                            m.temas[isoDate] = content;
+                            count++;
+                        }
+                    }
+                }
+            });
             DB.save(db);
+            alert(`✅ Se importaron ${count} fechas.`);
+            closeModal('modal-import');
+            renderCrono();
         }
 
         // --- TOMAR LISTA ---
@@ -316,10 +330,7 @@
             m.alumnos.forEach(al=>{
                 const st = statusMap ? (statusMap[al.id] || 'A') : 'P';
                 const avatar = al.foto ? `<img src="${al.foto}" class="avatar-small">` : `<div class="avatar-small bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">${al.ape[0]}</div>`;
-                c.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm">
-                    <div class="flex items-center gap-3">${avatar}<span class="font-bold text-gray-700 w-32 truncate">${al.ape}, ${al.nom}</span></div>
-                    <button id="btn-as-${al.id}" onclick="cycleAsist(${al.id})" class="btn-asist st-${st}">${st}</button>
-                </div>`;
+                c.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm"><div class="flex items-center gap-3">${avatar}<span class="font-bold text-gray-700 w-32 truncate">${al.ape}, ${al.nom}</span></div><button id="btn-as-${al.id}" onclick="cycleAsist(${al.id})" class="btn-asist st-${st}">${st}</button></div>`;
             });
         }
         function cycleAsist(uid){const btn=document.getElementById(`btn-as-${uid}`); const s=['P','T','J','A'], n=s[(s.indexOf(btn.innerText)+1)%s.length]; btn.className=`btn-asist st-${n}`; btn.innerText=n;}
@@ -333,10 +344,7 @@
             if(idx!==null){const m=DB.get().materias.find(x=>x.id===activeId).alumnos[idx]; document.getElementById('input-alum-ape').value=m.ape; document.getElementById('input-alum-nom').value=m.nom; if(m.foto){tempFoto=m.foto; document.getElementById('preview-foto').src=m.foto; document.getElementById('preview-foto').classList.remove('hidden'); document.getElementById('placeholder-foto').classList.add('hidden');}}
             else{document.getElementById('input-alum-ape').value=''; document.getElementById('input-alum-nom').value='';} openModal('modal-alumno');
         }
-        function guardarAlumno(){
-            const db=DB.get(), m=db.materias.find(x=>x.id===activeId), idx=document.getElementById('edit-alum-idx').value, d={ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, foto:tempFoto};
-            if(idx!==''){m.alumnos[idx]={...m.alumnos[idx],...d};}else{m.alumnos.push({id:Date.now(), ...d, notas:{}, obs:''});} m.alumnos.sort((a,b)=>a.ape.localeCompare(b.ape)); DB.save(db); closeModal('modal-alumno'); renderAlum();
-        }
+        function guardarAlumno(){const db=DB.get(), m=db.materias.find(x=>x.id===activeId), idx=document.getElementById('edit-alum-idx').value, d={ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, foto:tempFoto}; if(idx!==''){m.alumnos[idx]={...m.alumnos[idx],...d};}else{m.alumnos.push({id:Date.now(), ...d, notas:{}, obs:''});} m.alumnos.sort((a,b)=>a.ape.localeCompare(b.ape)); DB.save(db); closeModal('modal-alumno'); renderAlum();}
         function renderAlum(){
             const m=DB.get().materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML='';
             const fs=m.asistencias?Object.keys(m.asistencias):[];
@@ -345,17 +353,14 @@
                 const porc = fs.length>0 ? Math.round((p/fs.length)*100) : 100;
                 const avatar = al.foto ? `<img src="${al.foto}" class="avatar-small">` : `<div class="avatar-small bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">${al.ape[0]}</div>`;
                 const barColor = porc >= 75 ? 'bg-green-500' : (porc >= 60 ? 'bg-yellow-500' : 'bg-red-500');
-                const riskLabel = porc < 60 ? '<span class="text-red-500 text-[9px] font-black uppercase ml-1">RIESGO</span>' : '';
-                l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm">
-                    <div class="flex items-center gap-3 flex-1">${avatar}<div class="w-full pr-2"><span class="font-bold text-gray-700 text-sm block">${al.ape}, ${al.nom}</span><div class="flex justify-between items-center text-[10px] text-gray-400 mt-1"><span>Asistencia: ${porc}% ${riskLabel}</span></div><div class="progress-bar"><div class="progress-fill ${barColor}" style="width: ${porc}%"></div></div></div></div>
-                    <div class="flex gap-1"><button onclick="openObs(${i})" class="text-gray-400 hover:text-blue-500 p-1"><i data-lucide="message-circle" class="w-4 ${al.obs?'text-blue-500 fill-blue-100':''}"></i></button><button onclick="openAlumnoModal(${i})" class="text-gray-400 hover:text-blue-500 p-1"><i data-lucide="pencil" class="w-4"></i></button><button onclick="delAlum(${i})" class="text-gray-400 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-4"></i></button></div></div>`;
+                l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm"><div class="flex items-center gap-3 flex-1">${avatar}<div class="w-full pr-2"><span class="font-bold text-gray-700 text-sm block">${al.ape}, ${al.nom}</span><div class="flex justify-between items-center text-[10px] text-gray-400 mt-1"><span>Asistencia: ${porc}%</span></div><div class="progress-bar"><div class="progress-fill ${barColor}" style="width: ${porc}%"></div></div></div></div><div class="flex gap-1"><button onclick="openObs(${i})" class="text-gray-400 hover:text-blue-500 p-1"><i data-lucide="message-circle" class="w-4 ${al.obs?'text-blue-500 fill-blue-100':''}"></i></button><button onclick="openAlumnoModal(${i})" class="text-gray-400 hover:text-blue-500 p-1"><i data-lucide="pencil" class="w-4"></i></button><button onclick="delAlum(${i})" class="text-gray-400 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-4"></i></button></div></div>`;
             }); lucide.createIcons();
         }
         function delAlum(i){if(confirm('¿Quitar?')){const db=DB.get(); db.materias.find(x=>x.id===activeId).alumnos.splice(i,1); DB.save(db); renderAlum();}}
         function openObs(i){activeObsIdx=i; const m=DB.get().materias.find(x=>x.id===activeId).alumnos[i]; document.getElementById('obs-alum-name').innerText=`${m.ape}, ${m.nom}`; document.getElementById('input-obs-txt').value=m.obs||''; openModal('modal-obs');}
         function guardarObs(){const db=DB.get(); db.materias.find(x=>x.id===activeId).alumnos[activeObsIdx].obs=document.getElementById('input-obs-txt').value; DB.save(db); closeModal('modal-obs'); renderAlum();}
 
-        // --- NOTAS (EDIT) ---
+        // --- NOTAS ---
         function openExamModal(idx=null){document.getElementById('title-examen').innerText=idx!==null?'Editar':'Nuevo Examen'; document.getElementById('edit-exam-id').value=idx!==null?idx:''; if(idx!==null){const e=DB.get().materias.find(x=>x.id===activeId).examenes[idx]; document.getElementById('input-exam-nom').value=e.nombre; document.getElementById('input-exam-date').value=e.fecha;} else{document.getElementById('input-exam-nom').value='';} openModal('modal-examen');}
         function guardarExamen(){const db=DB.get(), m=db.materias.find(x=>x.id===activeId), idx=document.getElementById('edit-exam-id').value, d={nombre:document.getElementById('input-exam-nom').value, fecha:document.getElementById('input-exam-date').value}; if(idx!==''){m.examenes[idx]={...m.examenes[idx],...d};} else {m.examenes.push({id:Date.now(),...d});} DB.save(db); closeModal('modal-examen'); renderNotas();}
         function renderNotas(){const m=DB.get().materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); h.innerHTML='<th class="p-3 sticky left-0 bg-gray-50 text-xs font-bold text-gray-500">ALUMNO</th>'; m.examenes.forEach((e,i)=>h.innerHTML+=`<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500 uppercase cursor-pointer hover:text-blue-600" onclick="openExamModal(${i})">${e.nombre} <i data-lucide="pencil" class="w-3 inline"></i></th>`); h.innerHTML+='<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-700">PROM</th>'; b.innerHTML=''; m.alumnos.forEach((al,i)=>{let r=`<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm truncate max-w-[120px]">${al.ape}, ${al.nom[0]}.</td>`; let s=0,c=0; m.examenes.forEach(e=>{const v=al.notas[e.id]||''; if(v){s+=parseFloat(v);c++;} const cl=(v&&v<4)?'text-red-500 bg-red-50':''; r+=`<td class="p-2 border-b"><input type="number" class="w-10 p-1 rounded border ${cl} input-nota" value="${v}" onchange="saveNota(${i},${e.id},this.value)"></td>`;}); const avg=c>0?(s/c).toFixed(2):'-', cl=avg!=='-'?(avg>=7?'text-green-600':(avg<4?'text-red-500':'text-gray-500')):'text-gray-300'; r+=`<td class="p-2 text-center border-b font-black ${cl}">${avg}</td></tr>`; b.innerHTML+=r;}); lucide.createIcons();}
