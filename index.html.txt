@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Instituto Raspanti</title>
+    <style>
+        /* ESTILOS (La parte visual) */
+        body { font-family: sans-serif; margin: 0; background-color: #f4f4f4; }
+        
+        /* Encabezado con el Logo */
+        header {
+            background-color: #800000; /* Color bordó similar al institucional */
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        header img {
+            height: 50px; /* Tamaño del logo */
+            background-color: white;
+            border-radius: 50%; /* Logo redondo */
+            padding: 2px;
+        }
+        
+        /* El contenedor del formulario */
+        .container {
+            max-width: 500px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #555; }
+
+        /* Para mostrar mensajes */
+        #mensaje {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            display: none; /* Oculto al principio */
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="logo.png" alt="Logo Raspanti"> 
+        <h1>Nueva Materia</h1>
+    </header>
+
+    <div class="container">
+        <label for="nombreMateria">Nombre de la Materia:</label>
+        <input type="text" id="nombreMateria" placeholder="Ej: Práctica Profesional I">
+
+        <label for="modalidad">Modalidad de Cursada:</label>
+        <select id="modalidad" onchange="actualizarFormulario()">
+            <option value="presencial">Presencial (En el instituto)</option>
+            <option value="virtual">Virtual (Zoom/Meet)</option>
+            <option value="asincronico">Asincrónico (Campus Virtual)</option>
+        </select>
+
+        <div id="seccionHorarios">
+            <label for="dias">Día de Cursada:</label>
+            <select id="dias">
+                <option value="Lunes">Lunes</option>
+                <option value="Martes">Martes</option>
+                <option value="Miercoles">Miércoles</option>
+                <option value="Jueves">Jueves</option>
+                <option value="Viernes">Viernes</option>
+            </select>
+        </div>
+
+        <label for="asistencia">Requisito de Asistencia:</label>
+        <select id="asistencia">
+            <option value="60">60% (Regular)</option>
+            <option value="75">75% (Estándar)</option>
+            <option value="80">80% (Promoción)</option>
+        </select>
+
+        <button onclick="guardarMateria()">Guardar Materia</button>
+
+        <div id="mensaje"></div>
+    </div>
+
+    <script>
+        /* LÓGICA (El cerebro de la pantalla) */
+
+        // 1. Detectar cambio de modalidad para ocultar/mostrar horarios
+        function actualizarFormulario() {
+            var modalidad = document.getElementById('modalidad').value;
+            var seccionHorarios = document.getElementById('seccionHorarios');
+
+            if (modalidad === 'asincronico') {
+                seccionHorarios.style.display = 'none'; // Oculta los días si es asincrónico
+            } else {
+                seccionHorarios.style.display = 'block'; // Muestra los días si es presencial/virtual
+            }
+        }
+
+        // 2. Simular el Guardado
+        function guardarMateria() {
+            var nombre = document.getElementById('nombreMateria').value;
+            var modalidad = document.getElementById('modalidad').value;
+            var asistencia = document.getElementById('asistencia').value;
+            var mensajeDiv = document.getElementById('mensaje');
+
+            if(nombre === "") {
+                alert("Por favor, escribe el nombre de la materia.");
+                return;
+            }
+
+            // Aquí es donde en el futuro conectaremos con la base de datos real.
+            // Por ahora, le mostramos al usuario que el sistema "entendió".
+            var textoConfirmacion = "<strong>¡Guardado!</strong><br>";
+            textoConfirmacion += "Materia: " + nombre + "<br>";
+            textoConfirmacion += "Modalidad: " + modalidad.toUpperCase() + "<br>";
+            
+            if (modalidad === 'asincronico') {
+                textoConfirmacion += "Configuración: Se crearán recordatorios semanales.";
+            } else {
+                textoConfirmacion += "Configuración: Se controlará asistencia estricta del " + asistencia + "%.";
+            }
+
+            mensajeDiv.innerHTML = textoConfirmacion;
+            mensajeDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
