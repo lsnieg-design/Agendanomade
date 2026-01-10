@@ -256,8 +256,15 @@
             <button onclick="closeModal('modal-columna')" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
             <h3 class="text-xl font-black text-raspanti-bordo mb-4">Nueva Evaluación</h3>
             <form id="form-columna" class="space-y-4">
-                <input type="text" id="columna-nombre" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none" placeholder="Nombre (Ej: TP 1, Parcial)" required>
-                <button type="submit" class="w-full bg-raspanti-bordo text-white py-4 rounded-2xl font-black shadow-lg">CREAR COLUMNA</button>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase ml-2">Nombre</label>
+                    <input type="text" id="columna-nombre" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none" placeholder="Ej: 1° Parcial" required>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase ml-2">Fecha (Para agenda)</label>
+                    <input type="date" id="columna-fecha" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
+                </div>
+                <button type="submit" class="w-full bg-raspanti-bordo text-white py-4 rounded-2xl font-black shadow-lg">CREAR Y AGENDAR</button>
             </form>
         </div>
     </div>
@@ -468,12 +475,33 @@
             await db.collection("materias").doc(materiaActivaId).collection("estudiantes").add(data);
         });
 
-        document.getElementById('form-columna').addEventListener('submit', async (e) => {
+       document.getElementById('form-columna').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nom = document.getElementById('columna-nombre').value;
+            const fecha = document.getElementById('columna-fecha').value; // Capturamos la fecha
+            
             document.getElementById('form-columna').reset();
             closeModal('modal-columna');
-            await db.collection("materias").doc(materiaActivaId).collection("columnas_notas").add({ nombre: nom, createdAt: Date.now() });
+            
+            // Guardamos nombre Y fecha en la base de datos
+            await db.collection("materias").doc(materiaActivaId).collection("columnas_notas").add({ 
+                nombre: nom, 
+                fecha: fecha, 
+                createdAt: Date.now() 
+            });
+            
+            // TRUCO EXTRA: Si puso fecha, creamos también una TAREA automática en el inicio
+            if(fecha) {
+                // Buscamos el nombre de la materia actual para la alerta
+                const nombreMateria = document.getElementById('aula-titulo').innerText;
+                await db.collection("usuarios").doc(currentUser.uid).collection("tareas").add({
+                    titulo: `Examen: ${nom} (${nombreMateria})`,
+                    fecha: fecha,
+                    prioridad: 'high', // Prioridad Alta porque es examen
+                    completed: false,
+                    createdAt: Date.now()
+                });
+            }
         });
         
         document.getElementById('form-fecha').addEventListener('submit', async (e) => {
@@ -573,7 +601,16 @@
         function renderTablaNotas() {
             const headerRow = document.getElementById('header-notas'); const body = document.getElementById('body-notas'); const empty = document.getElementById('empty-notas');
             headerRow.innerHTML = '<th class="table-header w-32 sticky left-0 z-10 bg-gray-50 border-r border-gray-200">Alumno</th>';
-            columnasNotasCache.forEach(col => { headerRow.innerHTML += `<th class="table-header text-center min-w-[80px]">${col.nombre}</th>`; });
+            // Renderizamos las columnas dinámicas
+            columnasNotasCache.forEach(col => { 
+                // Formateamos la fecha si existe para que se vea bonita (dd/mm)
+                let fechaDisplay = '';
+                if(col.fecha) {
+                    const [y, m, d] = col.fecha.split('-');
+                    fechaDisplay = `<br><span class="text-[9px] text-gray-400 font-normal bg-gray-50 px-1 rounded border border-gray-200">${d}/${m}</span>`;
+                }
+                headerRow.innerHTML += `<th class="table-header text-center min-w-[80px] align-top">${col.nombre}${fechaDisplay}</th>`; 
+            });
             headerRow.innerHTML += '<th class="table-header text-center w-16 sticky right-0 z-10 bg-gray-100 border-l border-gray-200">Prom.</th>';
             if(columnasNotasCache.length === 0) { empty.classList.remove('hidden'); body.innerHTML = ''; return; }
             empty.classList.add('hidden'); body.innerHTML = '';
@@ -614,3 +651,4 @@
     </script>
 </body>
 </html>
+
