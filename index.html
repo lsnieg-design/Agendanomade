@@ -6,7 +6,6 @@
     <title>Raspanti Docente Cloud</title>
     
     <link rel="manifest" href="manifest.json">
-    
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -75,10 +74,10 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Estilos Formulario Retroalimentación */
-        .retro-label { font-size: 10px; font-weight: 800; color: #800020; text-transform: uppercase; margin-bottom: 3px; display: block; margin-top: 8px; }
-        .retro-select { width: 100%; padding: 8px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; font-weight: 600; color: #334155; outline: none; }
-        .retro-select:focus { border-color: #C5B358; background-color: white; }
-        .section-title { font-size: 11px; font-weight: 900; background: #f1f5f9; color: #475569; padding: 4px 8px; border-radius: 4px; margin-top: 15px; margin-bottom: 5px; letter-spacing: 0.5px; }
+        .retro-label { font-size: 9px; font-weight: 800; color: #800020; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 6px; letter-spacing: 0.5px; }
+        .retro-select { width: 100%; padding: 6px 8px; background-color: white; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; font-weight: 600; color: #334155; outline: none; }
+        .retro-select:focus { border-color: #C5B358; background-color: #FFFBEB; }
+        .section-title { font-size: 10px; font-weight: 900; background: #e2e8f0; color: #475569; padding: 3px 8px; border-radius: 4px; margin-top: 12px; margin-bottom: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
     </style>
 </head>
 <body class="h-screen flex flex-col text-slate-800 bg-slate-50">
@@ -148,17 +147,17 @@
             </div>
 
             <div id="view-retro" class="hidden fade-in space-y-4">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="flex items-center gap-3 mb-4 border-b border-gray-100 pb-3">
-                        <div class="p-2 bg-raspanti-dorado rounded-full text-white"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
-                        <div><h2 class="font-bold text-raspanti-bordo text-lg">Generador de Devoluciones</h2><p class="text-xs text-gray-500">Evaluación pedagógica asistida (Gemini)</p></div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-2">
+                        <div class="p-2 bg-raspanti-dorado rounded-full text-white"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Gemini)</p></div>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div class="grid grid-cols-2 gap-2 mb-2">
                         <div><label class="retro-label">ESTUDIANTE</label><input id="ia-nombre" class="retro-select" placeholder="Nombre"></div>
                         <div><label class="retro-label">FECHA</label><input id="ia-fecha" type="date" class="retro-select"></div>
                     </div>
-                    <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="grid grid-cols-2 gap-2 mb-2">
                         <div><label class="retro-label">MATERIA</label><input id="ia-materia" class="retro-select" placeholder="Materia"></div>
                         <div>
                             <label class="retro-label">INSTANCIA</label>
@@ -172,72 +171,135 @@
                         </div>
                     </div>
 
-                    <h3 class="text-xs font-black text-raspanti-bordo uppercase mb-2 mt-4 bg-gray-100 p-2 rounded text-center">Rúbrica de Evaluación</h3>
-
-                    <div class="section-title">1. APROPIACIÓN Y ANÁLISIS</div>
-                    <div>
-                        <label class="retro-label">Dominio Conceptual</label>
-                        <select id="crit-contenidos" class="retro-select">
-                            <option value="Excelente dominio y profundidad conceptual">Excelente dominio y profundidad</option>
-                            <option value="Muy buena comprensión, con precisiones">Muy buena comprensión</option>
-                            <option value="Comprensión general correcta">Bueno / Correcto</option>
-                            <option value="Confusiones conceptuales a revisar">Regular / Confuso</option>
-                            <option value="No se evidencian los contenidos mínimos">Insuficiente</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="retro-label">Mirada Crítica / Reflexión</label>
-                        <select id="crit-critica" class="retro-select">
-                            <option value="Problematiza y cuestiona con agudeza">Problematiza y cuestiona (Excelente)</option>
-                            <option value="Logra articular teoría y opinión personal">Articula teoría y opinión (Muy Bien)</option>
-                            <option value="Análisis correcto pero descriptivo">Correcto pero descriptivo (Bien)</option>
-                            <option value="Cuesta salir del sentido común o cita textual">Repite textos / Sentido común</option>
-                        </select>
-                    </div>
-
-                    <div class="section-title">2. PROCESO Y SUBJETIVIDAD</div>
-                    <div>
-                        <label class="retro-label">Creatividad / Voz Propia</label>
-                        <select id="crit-creatividad" class="retro-select">
-                            <option value="Trabajo muy original, con marca personal">Muy original / Marca personal</option>
-                            <option value="Buenas ideas propias integradas">Buenas ideas propias</option>
-                            <option value="Cumple correctamente el formato">Cumple formato estándar</option>
-                            <option value="Resolución estereotipada o mecánica">Estereotipado / Mecánico</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="retro-label">Preguntas / Indagación</label>
-                        <select id="crit-preguntas" class="retro-select">
-                            <option value="El trabajo abre nuevos interrogantes potentes">Abre nuevos interrogantes</option>
-                            <option value="Se formula preguntas pertinentes">Formula preguntas correctas</option>
-                            <option value="Cierra sentidos sin abrir preguntas">Cierra sentidos / Afirmativo</option>
-                        </select>
-                    </div>
-
-                    <div class="section-title">3. FORMA Y ENTREGA</div>
+                    <div class="section-title">1. DIMENSIÓN TEÓRICA Y PRÁCTICA</div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="retro-label">Redacción</label>
+                            <label class="retro-label">Dominio Conceptual</label>
+                            <select id="crit-contenidos" class="retro-select">
+                                <option value="Excelente profundidad">Excelente profundidad</option>
+                                <option value="Muy buena comprensión">Muy buena comprensión</option>
+                                <option value="Comprensión correcta">Bueno / Correcto</option>
+                                <option value="Confusiones a revisar">Regular / Confuso</option>
+                                <option value="Contenidos insuficientes">Insuficiente</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="retro-label">Vinculación Práctica</label>
+                            <select id="crit-practica" class="retro-select">
+                                <option value="Excelente articulación teoría-realidad">Excelente articulación</option>
+                                <option value="Logra relacionar conceptos">Logra relacionar</option>
+                                <option value="Relación escasa o forzada">Escasa / Forzada</option>
+                                <option value="Sin vínculo con la práctica">Sin vínculo práctico</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="section-title">2. PENSAMIENTO CRÍTICO</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="retro-label">Mirada Crítica</label>
+                            <select id="crit-critica" class="retro-select">
+                                <option value="Problematiza con agudeza">Problematiza (Excelente)</option>
+                                <option value="Articula opinión personal">Articula opinión (Muy Bien)</option>
+                                <option value="Correcto pero descriptivo">Descriptivo (Bien)</option>
+                                <option value="Sentido común / Repite">Sentido común</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="retro-label">Indagación/Preguntas</label>
+                            <select id="crit-preguntas" class="retro-select">
+                                <option value="Abre nuevos interrogantes potentes">Abre interrogantes</option>
+                                <option value="Formula preguntas pertinentes">Preguntas correctas</option>
+                                <option value="Cierra sentidos, no pregunta">No abre preguntas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="section-title">3. ESCRITURA ACADÉMICA</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="retro-label">Redacción y Sintaxis</label>
                             <select id="crit-redaccion" class="retro-select">
-                                <option value="Impecable y académica">Impecable</option>
-                                <option value="Clara y fluida">Clara</option>
-                                <option value="Con errores leves">Errores leves</option>
+                                <option value="Impecable y fluida">Impecable</option>
+                                <option value="Clara">Clara</option>
+                                <option value="Errores leves de cohesión">Errores leves</option>
                                 <option value="Confusa / Dificulta lectura">Confusa</option>
                             </select>
                         </div>
                         <div>
-                            <label class="retro-label">Entrega</label>
-                            <select id="crit-entrega" class="retro-select">
-                                <option value="En tiempo y forma">En tiempo y forma</option>
-                                <option value="Entrega fuera de término">Fuera de término</option>
-                                <option value="Formato no solicitado">Formato incorrecto</option>
+                            <label class="retro-label">Vocabulario Técnico</label>
+                            <select id="crit-vocabulario" class="retro-select">
+                                <option value="Preciso y específico de la materia">Preciso y específico</option>
+                                <option value="Uso correcto en general">Uso correcto</option>
+                                <option value="Coloquial o impreciso">Coloquial / Impreciso</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-1">
+                        <div>
+                            <label class="retro-label">Normas APA / Biblio</label>
+                            <select id="crit-apa" class="retro-select">
+                                <option value="Citas y referencias impecables">Citas impecables</option>
+                                <option value="Cita correctamente la mayoría">Citas correctas</option>
+                                <option value="Errores en formato de cita">Errores formato</option>
+                                <option value="No cita fuentes / Plagio involuntario">No cita fuentes</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="retro-label">Ortografía</label>
+                            <select id="crit-ortografia" class="retro-select">
+                                <option value="Sin errores">Sin errores</option>
+                                <option value="Algunos errores menores">Errores menores</option>
+                                <option value="Errores frecuentes">Errores frecuentes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="section-title">4. PROCESO Y PRESENTACIÓN</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="retro-label">Creatividad / Voz</label>
+                            <select id="crit-creatividad" class="retro-select">
+                                <option value="Muy original, marca personal">Muy original</option>
+                                <option value="Buenas ideas propias">Buenas ideas</option>
+                                <option value="Resolución estándar">Estándar</option>
+                                <option value="Mecánico o estereotipado">Mecánico</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="retro-label">Evolución Proceso</label>
+                            <select id="crit-evolucion" class="retro-select">
+                                <option value="Avance muy notable desde el inicio">Avance notable</option>
+                                <option value="Se observa crecimiento">Crecimiento sostenido</option>
+                                <option value="Mantiene el nivel (bueno)">Mantiene nivel</option>
+                                <option value="Estancamiento o retroceso">Estancamiento</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-1">
+                        <div>
+                            <label class="retro-label">Recursos/Soportes</label>
+                            <select id="crit-recursos" class="retro-select">
+                                <option value="Uso excelente de recursos (video/img)">Excelente uso recursos</option>
+                                <option value="Buenos soportes complementarios">Buenos soportes</option>
+                                <option value="Solo texto plano">Solo texto</option>
+                                <option value="Fallo en soportes (links rotos)">Fallo soportes</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="retro-label">Síntesis</label>
+                            <select id="crit-sintesis" class="retro-select">
+                                <option value="Poder de síntesis destacado">Gran síntesis</option>
+                                <option value="Adecuada">Adecuada</option>
+                                <option value="Reiterativo o extenso innecesariamente">Reiterativo</option>
+                                <option value="Demasiado breve/incompleto">Incompleto</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="mt-4">
                         <label class="retro-label">OBSERVACIÓN ESPECÍFICA (Opcional)</label>
-                        <textarea id="ia-obs-extra" class="retro-select h-16 resize-none" placeholder="Detalle puntual: te faltó citar a X, el video no se ve, etc."></textarea>
+                        <textarea id="ia-obs-extra" class="retro-select h-12 resize-none" placeholder="Detalle puntual: video, punto 2, etc."></textarea>
                     </div>
                     
                     <button onclick="generarDevolucion()" id="btn-generar" class="w-full bg-raspanti-bordo text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2 mt-4 hover:bg-red-900 transition"><i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN</button>
@@ -363,8 +425,8 @@
 
     <script>
         // --- 1. CONFIGURACIÓN (GOOGLE GEMINI) ---
-        // ¡PEGÁ ACÁ LA CLAVE QUE EMPIEZA CON "AIza..." DE TU FOTO!
-        const API_KEY = 'AIzaSyCQEcTXSIEntNpvH2xkzPtDah5muEYQ5zA';
+        // ¡PEGÁ ACÁ LA CLAVE QUE EMPIEZA CON "AIza..."!
+        const API_KEY = 'PEGAR_TU_CLAVE_GOOGLE_ACA';
         
         const firebaseConfig = {
             apiKey: "AIzaSyBpBjGm2jdqlearWnBiwn4jxjeby3nA0gk",
@@ -456,19 +518,27 @@
             if(v==='retro') document.getElementById('ia-fecha').value = new Date().toISOString().split('T')[0];
         }
 
-        // --- IA LOGIC (GEMINI ADAPTATION) ---
+        // --- IA LOGIC (GEMINI PRO FIX) ---
         async function generarDevolucion() {
+            // Recolectar datos
             const nombre = document.getElementById('ia-nombre').value;
             const materia = document.getElementById('ia-materia').value;
             const fecha = document.getElementById('ia-fecha').value;
             const instancia = document.getElementById('ia-instancia').value;
             
-            const critContenidos = document.getElementById('crit-contenidos').value;
-            const critCritica = document.getElementById('crit-critica').value;
-            const critCreatividad = document.getElementById('crit-creatividad').value;
-            const critPreguntas = document.getElementById('crit-preguntas').value;
-            const critRedaccion = document.getElementById('crit-redaccion').value;
-            const critEntrega = document.getElementById('crit-entrega').value;
+            const cContenidos = document.getElementById('crit-contenidos').value;
+            const cPractica = document.getElementById('crit-practica').value;
+            const cCritica = document.getElementById('crit-critica').value;
+            const cPreguntas = document.getElementById('crit-preguntas').value;
+            const cRedaccion = document.getElementById('crit-redaccion').value;
+            const cVocabulario = document.getElementById('crit-vocabulario').value;
+            const cApa = document.getElementById('crit-apa').value;
+            const cOrtografia = document.getElementById('crit-ortografia').value;
+            const cCreatividad = document.getElementById('crit-creatividad').value;
+            const cEvolucion = document.getElementById('crit-evolucion').value;
+            const cRecursos = document.getElementById('crit-recursos').value;
+            const cSintesis = document.getElementById('crit-sintesis').value;
+            
             const obsExtra = document.getElementById('ia-obs-extra').value;
 
             const btn = document.getElementById('btn-generar');
@@ -476,7 +546,6 @@
             const container = document.getElementById('ia-resultado-container');
 
             if(!nombre) { alert('Por favor, ingresá al menos el nombre del estudiante.'); return; }
-            // Validación simple para verificar que no quedó el placeholder
             if(API_KEY.includes('PEGAR_TU_CLAVE')) { alert('¡Falta la clave de Google!'); return; }
 
             btn.innerHTML = '<div class="loader"></div> Redactando...';
@@ -485,23 +554,29 @@
             const fullPrompt = `
             ${SYSTEM_PROMPT}
             
-            TAREA: Generá una devolución para el estudiante: ${nombre}.
+            TAREA: Generá una devolución para: ${nombre}.
             Materia: ${materia}. Fecha: ${fecha}. Instancia: ${instancia}.
             
-            EVALUACIÓN DETALLADA:
-            1. Apropiación de Contenidos: ${critContenidos}.
-            2. Mirada Crítica y Reflexión: ${critCritica}.
-            3. Creatividad y Voz Propia: ${critCreatividad}.
-            4. Capacidad de Indagación/Preguntas: ${critPreguntas}.
-            5. Redacción y Claridad: ${critRedaccion}.
-            6. Entrega y Formato: ${critEntrega}.
+            CRITERIOS OBSERVADOS:
+            - Contenidos: ${cContenidos}
+            - Vinculación Práctica: ${cPractica}
+            - Mirada Crítica: ${cCritica}
+            - Preguntas/Indagación: ${cPreguntas}
+            - Redacción: ${cRedaccion}
+            - Vocabulario Técnico: ${cVocabulario}
+            - Normas APA: ${cApa}
+            - Ortografía: ${cOrtografia}
+            - Creatividad: ${cCreatividad}
+            - Evolución: ${cEvolucion}
+            - Uso de Recursos: ${cRecursos}
+            - Síntesis: ${cSintesis}
             
-            OBSERVACIÓN ADICIONAL: "${obsExtra}"
+            DETALLE ADICIONAL DOCENTE: "${obsExtra}"
             `;
 
             try {
-                // LLAMADA A GOOGLE GEMINI API
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+                // MODELO CAMBIADO A GEMINI-PRO (Más compatible)
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
                 
                 const response = await fetch(url, {
                     method: 'POST',
