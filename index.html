@@ -67,16 +67,18 @@
         
         #canvas-container { touch-action: none; background: white; border-radius: 10px; overflow: hidden; height: 60vh; position: relative; border: 1px solid #e5e7eb; cursor: crosshair; }
         
-        /* Loading Cloud Indicator */
+        /* Status Cloud */
         #cloud-status { position: fixed; top: 10px; right: 10px; z-index: 100; font-size: 10px; font-weight: bold; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 5px; opacity: 0; transition: opacity 0.5s; pointer-events: none;}
-        .saving { color: #d97706; } /* Amarillo */
-        .saved { color: #16a34a; } /* Verde */
+        .saving { color: #d97706; }
+        .saved { color: #16a34a; }
         
-        /* Markdown IA Styles */
-        .prose h3 { font-weight: bold; margin-top: 10px; color: #800020; }
-        .prose p { margin-bottom: 10px; line-height: 1.5; }
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #800020; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Estilos Formulario Retroalimentación */
+        .retro-label { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 2px; display: block; }
+        .retro-select { width: 100%; padding: 8px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #334155; outline: none; }
+        .retro-select:focus { border-color: #C5B358; background-color: white; }
     </style>
 </head>
 <body class="h-screen flex flex-col text-slate-800 bg-slate-50">
@@ -147,22 +149,102 @@
 
             <div id="view-retro" class="hidden fade-in space-y-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="flex items-center gap-3 mb-4">
+                    <div class="flex items-center gap-3 mb-4 border-b border-gray-100 pb-3">
                         <div class="p-2 bg-raspanti-dorado rounded-full text-white"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
-                        <div><h2 class="font-bold text-raspanti-bordo">Asistente de Devoluciones</h2><p class="text-xs text-gray-500">Generá feedback pedagógico.</p></div>
+                        <div><h2 class="font-bold text-raspanti-bordo text-lg">Generador de Devoluciones</h2><p class="text-xs text-gray-500">Evaluación pedagógica asistida</p></div>
                     </div>
-                    <label class="text-xs font-bold text-gray-500 uppercase ml-1">Nombre del Estudiante</label>
-                    <input id="ia-nombre" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border font-bold text-sm" placeholder="Ej: Ana">
-                    <label class="text-xs font-bold text-gray-500 uppercase ml-1">Lo positivo / Logros</label>
-                    <textarea id="ia-positivo" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border text-sm h-20" placeholder="¿Qué hizo bien? ¿Qué conceptos entendió?"></textarea>
-                    <label class="text-xs font-bold text-gray-500 uppercase ml-1">A mejorar / Observaciones</label>
-                    <textarea id="ia-mejorar" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border text-sm h-20" placeholder="¿Qué falta profundizar? ¿Qué sugerencia le das?"></textarea>
-                    <button onclick="generarDevolucion()" id="btn-generar" class="w-full bg-raspanti-bordo text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2"><i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN</button>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="retro-label">ESTUDIANTE</label>
+                            <input id="ia-nombre" class="retro-select" placeholder="Nombre">
+                        </div>
+                         <div>
+                            <label class="retro-label">FECHA</label>
+                            <input id="ia-fecha" type="date" class="retro-select">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <label class="retro-label">MATERIA</label>
+                            <input id="ia-materia" class="retro-select" placeholder="Materia">
+                        </div>
+                        <div>
+                            <label class="retro-label">INSTANCIA</label>
+                            <select id="ia-instancia" class="retro-select">
+                                <option value="Trabajo Práctico">Trabajo Práctico</option>
+                                <option value="Parcial Presencial">Parcial Presencial</option>
+                                <option value="Examen Final">Examen Final</option>
+                                <option value="Ensayo">Ensayo</option>
+                                <option value="Entrega de Proceso">Entrega de Proceso</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xs font-black text-raspanti-bordo uppercase mb-2 mt-4 bg-gray-100 p-1 rounded">Rúbrica de Evaluación</h3>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="retro-label">1. APROPIACIÓN DE CONTENIDOS (TEORÍA)</label>
+                            <select id="crit-contenidos" class="retro-select">
+                                <option value="Excelente dominio y profundidad conceptual">Excelente dominio y profundidad</option>
+                                <option value="Muy buena comprensión, con precisiones">Muy buena comprensión</option>
+                                <option value="Comprensión general correcta">Bueno / Correcto</option>
+                                <option value="Confusiones conceptuales a revisar">Regular / Confuso</option>
+                                <option value="No se evidencian los contenidos mínimos">Insuficiente</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="retro-label">2. ARTICULACIÓN / ANÁLISIS</label>
+                            <select id="crit-analisis" class="retro-select">
+                                <option value="Excelente capacidad de relacionar autores y práctica">Excelente articulación</option>
+                                <option value="Logra buenas relaciones entre conceptos">Muy buena relación</option>
+                                <option value="Análisis correcto pero algo descriptivo">Bueno / Descriptivo</option>
+                                <option value="Falta profundidad en el análisis">Falta profundidad</option>
+                                <option value="Solo repite textos sin análisis propio">Sin análisis propio</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="retro-label">3. CLARIDAD Y REDACCIÓN</label>
+                            <select id="crit-redaccion" class="retro-select">
+                                <option value="Impecable, uso de vocabulario técnico preciso">Impecable y técnico</option>
+                                <option value="Muy clara y fluida">Muy clara</option>
+                                <option value="Correcta, se entiende la idea">Correcta</option>
+                                <option value="Algunos errores de cohesión/gramática">Errores leves</option>
+                                <option value="Dificultades serias para expresar ideas">Dificultades de expresión</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="retro-label">4. CUMPLIMIENTO DE CONSIGNAS</label>
+                            <select id="crit-consigna" class="retro-select">
+                                <option value="Responde a todo lo solicitado con creces">Completo y exhaustivo</option>
+                                <option value="Responde a todo lo solicitado">Completo</option>
+                                <option value="Faltó desarrollar algún punto menor">Falta detalle menor</option>
+                                <option value="Consignas incompletas">Incompleto</option>
+                                <option value="No responde a lo solicitado">Fuera de tema</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="retro-label">OBSERVACIÓN ESPECÍFICA / DETALLE (Opcional)</label>
+                        <textarea id="ia-obs-extra" class="retro-select h-16 resize-none" placeholder="Ej: Te faltó citar a Piaget; recordá entregar a tiempo..."></textarea>
+                    </div>
+                    
+                    <button onclick="generarDevolucion()" id="btn-generar" class="w-full bg-raspanti-bordo text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2 mt-4 hover:bg-red-900 transition"><i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN</button>
                 </div>
+
                 <div id="ia-resultado-container" class="hidden bg-white p-5 rounded-2xl shadow-lg border-2 border-raspanti-dorado relative">
-                    <h3 class="font-bold text-gray-700 mb-2">Respuesta Sugerida:</h3>
-                    <div id="ia-output" class="prose text-sm text-gray-600 mb-4 bg-gray-50 p-3 rounded-lg border border-gray-100 min-h-[100px]"></div>
-                    <button onclick="copiarIA()" class="w-full bg-gray-100 text-gray-600 py-2 rounded-lg font-bold text-xs flex justify-center items-center gap-2 hover:bg-gray-200"><i data-lucide="copy" class="w-4 h-4"></i> COPIAR TEXTO</button>
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-gray-700">Borrador (Editable):</h3>
+                        <span class="text-[10px] text-gray-400">Tocá para editar</span>
+                    </div>
+                    
+                    <textarea id="ia-output" class="w-full h-64 p-3 bg-yellow-50 text-gray-700 text-sm leading-relaxed border border-gray-200 rounded-lg outline-none focus:border-raspanti-dorado resize-none font-sans"></textarea>
+                    
+                    <button onclick="copiarIA()" class="w-full bg-gray-800 text-white py-3 rounded-lg font-bold text-xs flex justify-center items-center gap-2 mt-3 hover:bg-black">
+                        <i data-lucide="copy" class="w-4 h-4"></i> COPIAR TEXTO FINAL
+                    </button>
                 </div>
             </div>
 
@@ -233,7 +315,7 @@
         <nav id="navbar" class="fixed bottom-0 w-full bg-white border-t border-gray-200 h-16 flex justify-around items-center z-30 pb-safe-bottom shadow-[0_-5px_10px_rgba(0,0,0,0.05)]">
             <button onclick="nav('dashboard')" id="nav-dash" class="flex flex-col items-center text-raspanti-bordo w-full justify-center"><i data-lucide="layout-dashboard" class="w-5 mb-1"></i><span class="text-[9px] font-bold">INICIO</span></button>
             <button onclick="nav('calendario')" id="nav-cal" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="calendar" class="w-5 mb-1"></i><span class="text-[9px] font-bold">CALENDARIO</span></button>
-            <button onclick="nav('retro')" id="nav-ret" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="sparkles" class="w-5 mb-1"></i><span class="text-[9px] font-bold">IA PROFE</span></button>
+            <button onclick="nav('retro')" id="nav-ret" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="sparkles" class="w-5 mb-1"></i><span class="text-[9px] font-bold">RETRO</span></button>
             <button onclick="nav('materias')" id="nav-mat" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="book" class="w-5 mb-1"></i><span class="text-[9px] font-bold">MATERIAS</span></button>
             <button onclick="nav('cuaderno')" id="nav-cua" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="notebook" class="w-5 mb-1"></i><span class="text-[9px] font-bold">CUADERNO</span></button>
         </nav>
@@ -288,17 +370,14 @@
         firebase.initializeApp(firebaseConfig);
         const dbCloud = firebase.firestore();
         const auth = firebase.auth();
-        const CLOUD_DOC_ID = 'datos_profesor'; // ID único para el documento en la nube
+        const CLOUD_DOC_ID = 'datos_profesor';
         
-        // Autenticación anónima para permitir lectura/escritura
         auth.signInAnonymously().catch(error => console.error("Error Auth:", error));
 
         function showCloudStatus(msg, type='saving') {
             const el = document.getElementById('cloud-status');
             const txt = document.getElementById('cloud-text');
-            el.style.opacity = '1';
-            txt.innerText = msg;
-            txt.className = type;
+            el.style.opacity = '1'; txt.innerText = msg; txt.className = type;
             setTimeout(() => { el.style.opacity = '0'; }, 3000);
         }
 
@@ -309,47 +388,38 @@
                 if (doc.exists) {
                     const cloudData = doc.data();
                     const localData = JSON.parse(localStorage.getItem('raspanti_v18') || '{}');
-                    // Si la nube tiene fecha de modificación más nueva (o si local no tiene fecha), actualizamos
                     if (!localData.lastMod || (cloudData.lastMod && cloudData.lastMod > localData.lastMod)) {
                         localStorage.setItem('raspanti_v18', JSON.stringify(cloudData));
-                        console.log("Datos actualizados desde la nube");
-                        location.reload(); // Recarga simple para reflejar cambios
+                        location.reload();
                     }
                 }
                 showCloudStatus('Al día', 'saved');
-            } catch (e) {
-                console.error("Error sync:", e);
-            }
+            } catch (e) { console.error("Error sync:", e); }
         }
 
         function saveToCloud(data) {
-            data.lastMod = Date.now(); // Marca de tiempo para conflictos
+            data.lastMod = Date.now();
             showCloudStatus('Guardando...', 'saving');
             dbCloud.collection('raspanti_data').doc(CLOUD_DOC_ID).set(data)
                 .then(() => showCloudStatus('Guardado', 'saved'))
                 .catch((e) => showCloudStatus('Error', 'saving'));
         }
 
-        // --- 3. IA SYSTEM ---
+        // --- 3. IA SYSTEM (NUEVA LÓGICA) ---
         const SYSTEM_PROMPT = `
-        Sos una docente de Nivel Superior experta en creatividad y procesos de aprendizaje. 
-        Tu tono debe ser:
-        - **Argentino pero profesional:** Usá "podés", "tenés", "observo", pero evitá el lunfardo callejero ("che", "re copado", "mal").
-        - **Pedagógico y constructivo:** Valorá el proceso, hacé preguntas que inviten a la reflexión (metacognición) y sugerí mejoras de forma amorosa pero técnica.
-        - **Estructura:** Empezá saludando por el nombre, da una devolución del contenido y la creatividad, hacé preguntas disparadoras y cerrá alentando.
+        Sos Lucía Snieg, Lic. Prof. en Educación Especial y docente de Nivel Superior.
+        Tu objetivo es redactar retroalimentaciones pedagógicas completas, cálidas y constructivas basadas en los criterios que te paso.
         
-        IMPORTANTE: Al final de todo el texto, dejá dos espacios y firmá exactamente así:
-        LUCIA SNIEG
-        Lic. Prof. Educación Especial
+        ESTILO:
+        - Tono: Profesional pero cercano (Argentino: "podés", "tenés", "observé", "fijate").
+        - Estructura: Saludo, valoración general, desglose de los puntos fuertes y débiles, sugerencias de mejora y cierre motivador.
+        - Firma: Al final, dejá dos espacios y poné tu firma: LUCIA SNIEG - Lic. Prof. Educación Especial.
         `;
 
-        // --- 4. DATABASE LOCAL + CLOUD WRAPPER ---
+        // --- 4. DATABASE WRAPPER ---
         const DB={
             get:()=>JSON.parse(localStorage.getItem('raspanti_v18'))||{materias:[], tareas:[], eventos:{}, notas:[], profileName:'Hola Profe'}, 
-            save:(d)=>{
-                localStorage.setItem('raspanti_v18',JSON.stringify(d));
-                saveToCloud(d); // TRIGGER CLOUD SAVE
-            }
+            save:(d)=>{ localStorage.setItem('raspanti_v18',JSON.stringify(d)); saveToCloud(d); }
         };
 
         let activeId=null, activeDateISO=null, activeObsIdx=null, tempFoto='', activeCalISO=null, activeNoteId=null;
@@ -359,8 +429,7 @@
         if(localStorage.getItem('raspanti_logged')){
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-content').classList.remove('hidden');
-            initDash();
-            syncFromCloud(); // SYNC AL INICIO
+            initDash(); syncFromCloud();
         }
 
         function login(){localStorage.setItem('raspanti_logged','true');location.reload();}
@@ -375,24 +444,48 @@
             });
             document.getElementById('navbar').style.display=(v==='aula'||v==='lista')?'none':'flex';
             if(v==='dashboard') initDash(); if(v==='materias') renderMaterias(); if(v==='calendario') renderCalendar(currentMonth, currentYear); if(v==='cuaderno') renderNotesList();
+            if(v==='retro') document.getElementById('ia-fecha').value = new Date().toISOString().split('T')[0];
         }
 
-        // --- IA LOGIC ---
+        // --- IA LOGIC (FORMULARIO DOCENTE) ---
         async function generarDevolucion() {
+            // Recolectar datos del formulario
             const nombre = document.getElementById('ia-nombre').value;
-            const positivo = document.getElementById('ia-positivo').value;
-            const mejorar = document.getElementById('ia-mejorar').value;
+            const materia = document.getElementById('ia-materia').value;
+            const fecha = document.getElementById('ia-fecha').value;
+            const instancia = document.getElementById('ia-instancia').value;
+            
+            const critContenidos = document.getElementById('crit-contenidos').value;
+            const critAnalisis = document.getElementById('crit-analisis').value;
+            const critRedaccion = document.getElementById('crit-redaccion').value;
+            const critConsigna = document.getElementById('crit-consigna').value;
+            const obsExtra = document.getElementById('ia-obs-extra').value;
+
             const btn = document.getElementById('btn-generar');
             const output = document.getElementById('ia-output');
             const container = document.getElementById('ia-resultado-container');
 
-            if(!nombre || !positivo) { alert('Por favor, completa al menos el nombre y los aspectos positivos.'); return; }
-            if(API_KEY === 'PEGAR_TU_CLAVE_DE_OPENAI_ACA') { alert('¡Falta la clave API! Edita el código y pon tu clave en la variable API_KEY.'); return; }
+            if(!nombre) { alert('Por favor, ingresá al menos el nombre del estudiante.'); return; }
+            if(API_KEY === 'PEGAR_TU_CLAVE_DE_OPENAI_ACA') { alert('¡Falta la clave API!'); return; }
 
-            btn.innerHTML = '<div class="loader"></div> Generando...';
+            btn.innerHTML = '<div class="loader"></div> Redactando...';
             btn.disabled = true;
 
-            const userPrompt = `Estudiante: ${nombre}. \nLo positivo: ${positivo}. \nA mejorar/Observar: ${mejorar}. \nGenerá una devolución siguiendo tu rol.`;
+            // Construcción del Prompt detallado
+            const userPrompt = `
+            Generá una devolución para el estudiante: ${nombre}.
+            Materia: ${materia}. Fecha: ${fecha}. Instancia: ${instancia}.
+            
+            CRITERIOS EVALUADOS:
+            1. Apropiación de Contenidos: ${critContenidos}.
+            2. Análisis y Articulación: ${critAnalisis}.
+            3. Redacción y Claridad: ${critRedaccion}.
+            4. Cumplimiento de Consignas: ${critConsigna}.
+            
+            OBSERVACIÓN ADICIONAL DEL DOCENTE: "${obsExtra}"
+            
+            Redactá el texto completo, cohesionado y listo para enviar.
+            `;
 
             try {
                 const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -405,13 +498,20 @@
                 });
                 const data = await response.json();
                 if(data.error) throw new Error(data.error.message);
-                const texto = data.choices[0].message.content;
-                output.innerHTML = marked.parse(texto);
+                
+                // Poner texto plano en el textarea para editar
+                output.value = data.choices[0].message.content; 
                 container.classList.remove('hidden');
+                // Auto-scroll al resultado
+                container.scrollIntoView({ behavior: 'smooth' });
+
             } catch (error) { alert('Error al generar: ' + error.message); } 
             finally { btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN'; btn.disabled = false; lucide.createIcons(); }
         }
-        function copiarIA() { const text = document.getElementById('ia-output').innerText; navigator.clipboard.writeText(text).then(() => alert('Copiado al portapapeles')); }
+        function copiarIA() { 
+            const text = document.getElementById('ia-output').value; 
+            navigator.clipboard.writeText(text).then(() => alert('Copiado al portapapeles')); 
+        }
 
         // --- DASHBOARD ---
         function initDash(){
