@@ -425,8 +425,8 @@
 
     <script>
         // --- 1. CONFIGURACIÓN (GOOGLE GEMINI) ---
-        // ¡PEGÁ ACÁ LA CLAVE QUE EMPIEZA CON "AIza..."!
-        const API_KEY = 'AIzaSyDhazwoLgb0ST1zvYXFjj_phrR7CyNTGvU';
+        // ¡IMPORTANTE: USÁ LA OTRA CLAVE DE TU FOTO, LA DE ARRIBA!
+        const API_KEY = 'AIzaSyBOTt8wiuveaBsttTMpVwQBafxJ05P4IhE'; 
         
         const firebaseConfig = {
             apiKey: "AIzaSyBpBjGm2jdqlearWnBiwn4jxjeby3nA0gk",
@@ -518,7 +518,7 @@
             if(v==='retro') document.getElementById('ia-fecha').value = new Date().toISOString().split('T')[0];
         }
 
-        // --- IA LOGIC (GEMINI PRO FIX) ---
+        // --- IA LOGIC (GEMINI 1.5 FLASH) ---
         async function generarDevolucion() {
             // Recolectar datos
             const nombre = document.getElementById('ia-nombre').value;
@@ -526,6 +526,7 @@
             const fecha = document.getElementById('ia-fecha').value;
             const instancia = document.getElementById('ia-instancia').value;
             
+            // Criterios Recolectados
             const cContenidos = document.getElementById('crit-contenidos').value;
             const cPractica = document.getElementById('crit-practica').value;
             const cCritica = document.getElementById('crit-critica').value;
@@ -575,8 +576,8 @@
             `;
 
             try {
-                // MODELO CAMBIADO A GEMINI-PRO (Más compatible)
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
+                // USAMOS GEMINI 1.5 FLASH (EL ESTÁNDAR NUEVO)
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
                 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -729,4 +730,3 @@
     </script>
 </body>
 </html>
-
