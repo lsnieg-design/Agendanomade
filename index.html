@@ -296,6 +296,16 @@
                             </select>
                         </div>
                     </div>
+                    
+                    <div class="grid grid-cols-1 gap-2 mt-1">
+                        <div>
+                            <label class="retro-label">Entrega (Tiempo)</label>
+                            <select id="crit-entrega" class="retro-select">
+                                <option value="En tiempo y forma">En tiempo y forma</option>
+                                <option value="Entrega fuera de término">Fuera de término</option>
+                            </select>
+                        </div>
+                    </div>
 
                     <div class="mt-4">
                         <label class="retro-label">OBSERVACIÓN ESPECÍFICA (Opcional)</label>
@@ -425,7 +435,7 @@
 
     <script>
         // --- 1. CONFIGURACIÓN (GOOGLE GEMINI) ---
-        // ¡IMPORTANTE: USÁ LA OTRA CLAVE DE TU FOTO, LA DE ARRIBA!
+        // ¡IMPORTANTE: PEGA TU CLAVE NUEVA AQUÍ (la que termina en ...4IhE)!
         const API_KEY = 'AIzaSyBOTt8wiuveaBsttTMpVwQBafxJ05P4IhE'; 
         
         const firebaseConfig = {
@@ -539,6 +549,7 @@
             const cEvolucion = document.getElementById('crit-evolucion').value;
             const cRecursos = document.getElementById('crit-recursos').value;
             const cSintesis = document.getElementById('crit-sintesis').value;
+            const cEntrega = document.getElementById('crit-entrega').value;
             
             const obsExtra = document.getElementById('ia-obs-extra').value;
 
@@ -571,6 +582,7 @@
             - Evolución: ${cEvolucion}
             - Uso de Recursos: ${cRecursos}
             - Síntesis: ${cSintesis}
+            - Entrega: ${cEntrega}
             
             DETALLE ADICIONAL DOCENTE: "${obsExtra}"
             `;
