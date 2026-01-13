@@ -28,7 +28,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -76,9 +75,10 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Estilos Formulario Retroalimentación */
-        .retro-label { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 2px; display: block; }
-        .retro-select { width: 100%; padding: 8px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #334155; outline: none; }
+        .retro-label { font-size: 10px; font-weight: 800; color: #800020; text-transform: uppercase; margin-bottom: 3px; display: block; margin-top: 8px; }
+        .retro-select { width: 100%; padding: 8px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; font-weight: 600; color: #334155; outline: none; }
         .retro-select:focus { border-color: #C5B358; background-color: white; }
+        .section-title { font-size: 11px; font-weight: 900; background: #f1f5f9; color: #475569; padding: 4px 8px; border-radius: 4px; margin-top: 15px; margin-bottom: 5px; letter-spacing: 0.5px; }
     </style>
 </head>
 <body class="h-screen flex flex-col text-slate-800 bg-slate-50">
@@ -151,84 +151,93 @@
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex items-center gap-3 mb-4 border-b border-gray-100 pb-3">
                         <div class="p-2 bg-raspanti-dorado rounded-full text-white"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
-                        <div><h2 class="font-bold text-raspanti-bordo text-lg">Generador de Devoluciones</h2><p class="text-xs text-gray-500">Evaluación pedagógica asistida</p></div>
+                        <div><h2 class="font-bold text-raspanti-bordo text-lg">Generador de Devoluciones</h2><p class="text-xs text-gray-500">Evaluación pedagógica asistida (Gemini)</p></div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-3 mb-3">
-                        <div>
-                            <label class="retro-label">ESTUDIANTE</label>
-                            <input id="ia-nombre" class="retro-select" placeholder="Nombre">
-                        </div>
-                         <div>
-                            <label class="retro-label">FECHA</label>
-                            <input id="ia-fecha" type="date" class="retro-select">
-                        </div>
+                        <div><label class="retro-label">ESTUDIANTE</label><input id="ia-nombre" class="retro-select" placeholder="Nombre"></div>
+                        <div><label class="retro-label">FECHA</label><input id="ia-fecha" type="date" class="retro-select"></div>
                     </div>
                     <div class="grid grid-cols-2 gap-3 mb-4">
-                        <div>
-                            <label class="retro-label">MATERIA</label>
-                            <input id="ia-materia" class="retro-select" placeholder="Materia">
-                        </div>
+                        <div><label class="retro-label">MATERIA</label><input id="ia-materia" class="retro-select" placeholder="Materia"></div>
                         <div>
                             <label class="retro-label">INSTANCIA</label>
                             <select id="ia-instancia" class="retro-select">
+                                <option value="Parcial Domiciliario">Parcial Domiciliario</option>
                                 <option value="Trabajo Práctico">Trabajo Práctico</option>
                                 <option value="Parcial Presencial">Parcial Presencial</option>
                                 <option value="Examen Final">Examen Final</option>
-                                <option value="Ensayo">Ensayo</option>
                                 <option value="Entrega de Proceso">Entrega de Proceso</option>
                             </select>
                         </div>
                     </div>
 
-                    <h3 class="text-xs font-black text-raspanti-bordo uppercase mb-2 mt-4 bg-gray-100 p-1 rounded">Rúbrica de Evaluación</h3>
+                    <h3 class="text-xs font-black text-raspanti-bordo uppercase mb-2 mt-4 bg-gray-100 p-2 rounded text-center">Rúbrica de Evaluación</h3>
 
-                    <div class="space-y-3">
+                    <div class="section-title">1. APROPIACIÓN Y ANÁLISIS</div>
+                    <div>
+                        <label class="retro-label">Dominio Conceptual</label>
+                        <select id="crit-contenidos" class="retro-select">
+                            <option value="Excelente dominio y profundidad conceptual">Excelente dominio y profundidad</option>
+                            <option value="Muy buena comprensión, con precisiones">Muy buena comprensión</option>
+                            <option value="Comprensión general correcta">Bueno / Correcto</option>
+                            <option value="Confusiones conceptuales a revisar">Regular / Confuso</option>
+                            <option value="No se evidencian los contenidos mínimos">Insuficiente</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="retro-label">Mirada Crítica / Reflexión</label>
+                        <select id="crit-critica" class="retro-select">
+                            <option value="Problematiza y cuestiona con agudeza">Problematiza y cuestiona (Excelente)</option>
+                            <option value="Logra articular teoría y opinión personal">Articula teoría y opinión (Muy Bien)</option>
+                            <option value="Análisis correcto pero descriptivo">Correcto pero descriptivo (Bien)</option>
+                            <option value="Cuesta salir del sentido común o cita textual">Repite textos / Sentido común</option>
+                        </select>
+                    </div>
+
+                    <div class="section-title">2. PROCESO Y SUBJETIVIDAD</div>
+                    <div>
+                        <label class="retro-label">Creatividad / Voz Propia</label>
+                        <select id="crit-creatividad" class="retro-select">
+                            <option value="Trabajo muy original, con marca personal">Muy original / Marca personal</option>
+                            <option value="Buenas ideas propias integradas">Buenas ideas propias</option>
+                            <option value="Cumple correctamente el formato">Cumple formato estándar</option>
+                            <option value="Resolución estereotipada o mecánica">Estereotipado / Mecánico</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="retro-label">Preguntas / Indagación</label>
+                        <select id="crit-preguntas" class="retro-select">
+                            <option value="El trabajo abre nuevos interrogantes potentes">Abre nuevos interrogantes</option>
+                            <option value="Se formula preguntas pertinentes">Formula preguntas correctas</option>
+                            <option value="Cierra sentidos sin abrir preguntas">Cierra sentidos / Afirmativo</option>
+                        </select>
+                    </div>
+
+                    <div class="section-title">3. FORMA Y ENTREGA</div>
+                    <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="retro-label">1. APROPIACIÓN DE CONTENIDOS (TEORÍA)</label>
-                            <select id="crit-contenidos" class="retro-select">
-                                <option value="Excelente dominio y profundidad conceptual">Excelente dominio y profundidad</option>
-                                <option value="Muy buena comprensión, con precisiones">Muy buena comprensión</option>
-                                <option value="Comprensión general correcta">Bueno / Correcto</option>
-                                <option value="Confusiones conceptuales a revisar">Regular / Confuso</option>
-                                <option value="No se evidencian los contenidos mínimos">Insuficiente</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="retro-label">2. ARTICULACIÓN / ANÁLISIS</label>
-                            <select id="crit-analisis" class="retro-select">
-                                <option value="Excelente capacidad de relacionar autores y práctica">Excelente articulación</option>
-                                <option value="Logra buenas relaciones entre conceptos">Muy buena relación</option>
-                                <option value="Análisis correcto pero algo descriptivo">Bueno / Descriptivo</option>
-                                <option value="Falta profundidad en el análisis">Falta profundidad</option>
-                                <option value="Solo repite textos sin análisis propio">Sin análisis propio</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="retro-label">3. CLARIDAD Y REDACCIÓN</label>
+                            <label class="retro-label">Redacción</label>
                             <select id="crit-redaccion" class="retro-select">
-                                <option value="Impecable, uso de vocabulario técnico preciso">Impecable y técnico</option>
-                                <option value="Muy clara y fluida">Muy clara</option>
-                                <option value="Correcta, se entiende la idea">Correcta</option>
-                                <option value="Algunos errores de cohesión/gramática">Errores leves</option>
-                                <option value="Dificultades serias para expresar ideas">Dificultades de expresión</option>
+                                <option value="Impecable y académica">Impecable</option>
+                                <option value="Clara y fluida">Clara</option>
+                                <option value="Con errores leves">Errores leves</option>
+                                <option value="Confusa / Dificulta lectura">Confusa</option>
                             </select>
                         </div>
                         <div>
-                            <label class="retro-label">4. CUMPLIMIENTO DE CONSIGNAS</label>
-                            <select id="crit-consigna" class="retro-select">
-                                <option value="Responde a todo lo solicitado con creces">Completo y exhaustivo</option>
-                                <option value="Responde a todo lo solicitado">Completo</option>
-                                <option value="Faltó desarrollar algún punto menor">Falta detalle menor</option>
-                                <option value="Consignas incompletas">Incompleto</option>
-                                <option value="No responde a lo solicitado">Fuera de tema</option>
+                            <label class="retro-label">Entrega</label>
+                            <select id="crit-entrega" class="retro-select">
+                                <option value="En tiempo y forma">En tiempo y forma</option>
+                                <option value="Entrega fuera de término">Fuera de término</option>
+                                <option value="Formato no solicitado">Formato incorrecto</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="mt-4">
-                        <label class="retro-label">OBSERVACIÓN ESPECÍFICA / DETALLE (Opcional)</label>
-                        <textarea id="ia-obs-extra" class="retro-select h-16 resize-none" placeholder="Ej: Te faltó citar a Piaget; recordá entregar a tiempo..."></textarea>
+                        <label class="retro-label">OBSERVACIÓN ESPECÍFICA (Opcional)</label>
+                        <textarea id="ia-obs-extra" class="retro-select h-16 resize-none" placeholder="Detalle puntual: te faltó citar a X, el video no se ve, etc."></textarea>
                     </div>
                     
                     <button onclick="generarDevolucion()" id="btn-generar" class="w-full bg-raspanti-bordo text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2 mt-4 hover:bg-red-900 transition"><i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN</button>
@@ -353,7 +362,8 @@
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN ---
+        // --- 1. CONFIGURACIÓN (GOOGLE GEMINI) ---
+        // ¡PEGÁ ACÁ LA CLAVE QUE EMPIEZA CON "AIza..." DE TU FOTO!
         const API_KEY = 'AIzaSyCQEcTXSIEntNpvH2xkzPtDah5muEYQ5zA';
         
         const firebaseConfig = {
@@ -405,13 +415,12 @@
                 .catch((e) => showCloudStatus('Error', 'saving'));
         }
 
-        // --- 3. IA SYSTEM (NUEVA LÓGICA) ---
+        // --- 3. IA SYSTEM (GEMINI) ---
         const SYSTEM_PROMPT = `
         Sos Lucía Snieg, Lic. Prof. en Educación Especial y docente de Nivel Superior.
-        Tu objetivo es redactar retroalimentaciones pedagógicas completas, cálidas y constructivas basadas en los criterios que te paso.
-        
+        Tu objetivo es redactar retroalimentaciones pedagógicas completas, cálidas y constructivas.
         ESTILO:
-        - Tono: Profesional pero cercano (Argentino: "podés", "tenés", "observé", "fijate").
+        - Tono: Profesional pero cercano (Argentino: "podés", "tenés", "observé").
         - Estructura: Saludo, valoración general, desglose de los puntos fuertes y débiles, sugerencias de mejora y cierre motivador.
         - Firma: Al final, dejá dos espacios y poné tu firma: LUCIA SNIEG - Lic. Prof. Educación Especial.
         `;
@@ -447,18 +456,19 @@
             if(v==='retro') document.getElementById('ia-fecha').value = new Date().toISOString().split('T')[0];
         }
 
-        // --- IA LOGIC (FORMULARIO DOCENTE) ---
+        // --- IA LOGIC (GEMINI ADAPTATION) ---
         async function generarDevolucion() {
-            // Recolectar datos del formulario
             const nombre = document.getElementById('ia-nombre').value;
             const materia = document.getElementById('ia-materia').value;
             const fecha = document.getElementById('ia-fecha').value;
             const instancia = document.getElementById('ia-instancia').value;
             
             const critContenidos = document.getElementById('crit-contenidos').value;
-            const critAnalisis = document.getElementById('crit-analisis').value;
+            const critCritica = document.getElementById('crit-critica').value;
+            const critCreatividad = document.getElementById('crit-creatividad').value;
+            const critPreguntas = document.getElementById('crit-preguntas').value;
             const critRedaccion = document.getElementById('crit-redaccion').value;
-            const critConsigna = document.getElementById('crit-consigna').value;
+            const critEntrega = document.getElementById('crit-entrega').value;
             const obsExtra = document.getElementById('ia-obs-extra').value;
 
             const btn = document.getElementById('btn-generar');
@@ -466,54 +476,66 @@
             const container = document.getElementById('ia-resultado-container');
 
             if(!nombre) { alert('Por favor, ingresá al menos el nombre del estudiante.'); return; }
-            if(API_KEY === 'PEGAR_TU_CLAVE_DE_OPENAI_ACA') { alert('¡Falta la clave API!'); return; }
+            // Validación simple para verificar que no quedó el placeholder
+            if(API_KEY.includes('PEGAR_TU_CLAVE')) { alert('¡Falta la clave de Google!'); return; }
 
             btn.innerHTML = '<div class="loader"></div> Redactando...';
             btn.disabled = true;
 
-            // Construcción del Prompt detallado
-            const userPrompt = `
-            Generá una devolución para el estudiante: ${nombre}.
+            const fullPrompt = `
+            ${SYSTEM_PROMPT}
+            
+            TAREA: Generá una devolución para el estudiante: ${nombre}.
             Materia: ${materia}. Fecha: ${fecha}. Instancia: ${instancia}.
             
-            CRITERIOS EVALUADOS:
+            EVALUACIÓN DETALLADA:
             1. Apropiación de Contenidos: ${critContenidos}.
-            2. Análisis y Articulación: ${critAnalisis}.
-            3. Redacción y Claridad: ${critRedaccion}.
-            4. Cumplimiento de Consignas: ${critConsigna}.
+            2. Mirada Crítica y Reflexión: ${critCritica}.
+            3. Creatividad y Voz Propia: ${critCreatividad}.
+            4. Capacidad de Indagación/Preguntas: ${critPreguntas}.
+            5. Redacción y Claridad: ${critRedaccion}.
+            6. Entrega y Formato: ${critEntrega}.
             
-            OBSERVACIÓN ADICIONAL DEL DOCENTE: "${obsExtra}"
-            
-            Redactá el texto completo, cohesionado y listo para enviar.
+            OBSERVACIÓN ADICIONAL: "${obsExtra}"
             `;
 
             try {
-                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                // LLAMADA A GOOGLE GEMINI API
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+                
+                const response = await fetch(url, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        model: "gpt-4o-mini",
-                        messages: [ { role: "system", content: SYSTEM_PROMPT }, { role: "user", content: userPrompt } ]
+                        contents: [{
+                            parts: [{ text: fullPrompt }]
+                        }]
                     })
                 });
+
                 const data = await response.json();
-                if(data.error) throw new Error(data.error.message);
                 
-                // Poner texto plano en el textarea para editar
-                output.value = data.choices[0].message.content; 
+                if(data.error) throw new Error(data.error.message);
+                if(!data.candidates || !data.candidates[0].content) throw new Error("No hubo respuesta de la IA");
+
+                output.value = data.candidates[0].content.parts[0].text; 
                 container.classList.remove('hidden');
-                // Auto-scroll al resultado
                 container.scrollIntoView({ behavior: 'smooth' });
 
-            } catch (error) { alert('Error al generar: ' + error.message); } 
-            finally { btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN'; btn.disabled = false; lucide.createIcons(); }
+            } catch (error) { 
+                alert('Error al generar con Gemini: ' + error.message); 
+            } finally { 
+                btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN'; 
+                btn.disabled = false; 
+                lucide.createIcons(); 
+            }
         }
         function copiarIA() { 
             const text = document.getElementById('ia-output').value; 
             navigator.clipboard.writeText(text).then(() => alert('Copiado al portapapeles')); 
         }
 
-        // --- DASHBOARD ---
+        // --- DASHBOARD Y FUNCIONES EXISTENTES ---
         function initDash(){
             const d=new Date(), dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'], h=d.toISOString().split('T')[0];
             document.getElementById('fecha-hoy').innerText=`${dias[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}`;
@@ -632,6 +654,3 @@
     </script>
 </body>
 </html>
-
-
-
