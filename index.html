@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Raspanti Docente Cloud</title>
+    <title>Raspanti Docente + IA</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
@@ -27,13 +27,14 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
     <style>
-        body { background-color: #F8FAFC; -webkit-tap-highlight-color: transparent; font-family: system-ui, sans-serif; overscroll-behavior: none; }
+        body { background-color: #F8FAFC; font-family: system-ui, sans-serif; overscroll-behavior: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .badge-transition { transition: all 0.2s ease; }
         .badge-transition:active { transform: scale(0.9); }
@@ -65,7 +66,6 @@
         
         #canvas-container { touch-action: none; background: white; border-radius: 10px; overflow: hidden; height: 60vh; position: relative; border: 1px solid #e5e7eb; cursor: crosshair; }
         
-        /* Status Cloud */
         #cloud-status { position: fixed; top: 10px; right: 10px; z-index: 100; font-size: 10px; font-weight: bold; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 5px; opacity: 0; transition: opacity 0.5s; pointer-events: none;}
         .saving { color: #d97706; }
         .saved { color: #16a34a; }
@@ -78,8 +78,6 @@
         .retro-select { width: 100%; padding: 6px 8px; background-color: white; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; font-weight: 600; color: #334155; outline: none; }
         .retro-select:focus { border-color: #C5B358; background-color: #FFFBEB; }
         .section-title { font-size: 10px; font-weight: 900; background: #e2e8f0; color: #475569; padding: 3px 8px; border-radius: 4px; margin-top: 12px; margin-bottom: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
-        
-        /* Debug Box */
         .debug-box { background: #fee2e2; border: 2px solid #ef4444; color: #991b1b; padding: 10px; border-radius: 8px; font-size: 10px; font-family: monospace; margin-top: 10px; white-space: pre-wrap; }
     </style>
 </head>
@@ -153,7 +151,7 @@
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-2">
                         <div class="p-2 bg-raspanti-dorado rounded-full text-white"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
-                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Gemini V1 Stable)</p></div>
+                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Gemini 1.5)</p></div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-2">
@@ -440,7 +438,8 @@
 
     <script>
         // --- 1. CONFIGURACIÓN (CLAVE 4IhE) ---
-        const API_KEY = 'AIzaSyBOTt8wiuveaBsttTMpVwQBafxJ05P4IhE'; 
+        // ¡IMPORTANTE: PEGA TU CLAVE NUEVA AQUÍ!
+        const API_KEY = 'AIzaSyA--tY3eKlFqXQzaZWowOjfQHcNslC53l0'; 
         
         const firebaseConfig = {
             apiKey: "AIzaSyBpBjGm2jdqlearWnBiwn4jxjeby3nA0gk",
@@ -491,7 +490,7 @@
                 .catch((e) => showCloudStatus('Error', 'saving'));
         }
 
-        // --- 3. IA SYSTEM ---
+        // --- 3. IA SYSTEM (GEMINI) ---
         const SYSTEM_PROMPT = `
         Sos Lucía Snieg, Lic. Prof. en Educación Especial y docente de Nivel Superior.
         Tu objetivo es redactar retroalimentaciones pedagógicas completas, cálidas y constructivas.
@@ -531,7 +530,7 @@
             if(v==='retro') document.getElementById('ia-fecha').value = new Date().toISOString().split('T')[0];
         }
 
-        // --- IA LOGIC (GEMINI PRO V1.0 STABLE) ---
+        // --- IA LOGIC (SISTEMA DE PRECISIÓN MILIMÉTRICA) ---
         async function generarDevolucion() {
             const nombre = document.getElementById('ia-nombre').value;
             const materia = document.getElementById('ia-materia').value;
@@ -563,7 +562,7 @@
 
             const CLEAN_KEY = API_KEY.trim();
 
-            btn.innerHTML = '<div class="loader"></div> Escribiendo...';
+            btn.innerHTML = '<div class="loader"></div> Conectando...';
             btn.disabled = true;
             debugLog.classList.add('hidden');
             debugLog.innerText = '';
@@ -576,41 +575,56 @@
             NOTA ADICIONAL: "${obsExtra}"
             `;
 
-            // USAMOS LA VERSIÓN V1 ESTABLE (No Beta) CON GEMINI-PRO
-            const modelUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${CLEAN_KEY}`;
+            // LISTA DE MODELOS (USANDO LA CLAVE NUEVA 4IhE)
+            // PRUEBA CADA UNO HASTA QUE UNO RESPONDA.
+            const attempts = [
+                { model: 'gemini-1.5-flash', version: 'v1beta' },
+                { model: 'gemini-1.5-flash-001', version: 'v1beta' },
+                { model: 'gemini-1.5-flash-002', version: 'v1beta' },
+                { model: 'gemini-1.5-pro', version: 'v1beta' },
+                { model: 'gemini-1.0-pro', version: 'v1beta' }
+            ];
 
-            try {
-                const response = await fetch(modelUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] })
-                });
+            let success = false;
+            let lastError = "";
 
-                const data = await response.json();
+            for (const attempt of attempts) {
+                try {
+                    console.log(`Intentando ${attempt.model}...`);
+                    const url = `https://generativelanguage.googleapis.com/${attempt.version}/models/${attempt.model}:generateContent?key=${CLEAN_KEY}`;
+                    
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] })
+                    });
 
-                if (!response.ok) {
-                    throw new Error(`Error ${response.status}: ${data.error?.message || response.statusText}`);
+                    const data = await response.json();
+
+                    if (data.error) throw new Error(data.error.message);
+                    if (!data.candidates || !data.candidates[0].content) throw new Error("Sin respuesta");
+
+                    output.value = data.candidates[0].content.parts[0].text; 
+                    container.classList.remove('hidden');
+                    container.scrollIntoView({ behavior: 'smooth' });
+                    success = true;
+                    break; 
+
+                } catch (error) {
+                    lastError = error.message;
+                    console.warn(`Falló ${attempt.model}:`, error);
                 }
-
-                if (!data.candidates || !data.candidates[0].content) {
-                    throw new Error("Google respondió pero sin contenido (Blocked?).");
-                }
-
-                // ÉXITO
-                output.value = data.candidates[0].content.parts[0].text; 
-                container.classList.remove('hidden');
-                container.scrollIntoView({ behavior: 'smooth' });
-
-            } catch (error) {
-                // MOSTRAR EL ERROR EN ROJO PARA DIAGNÓSTICO
-                debugLog.innerText = `FALLO TÉCNICO:\n${error.message}\n\nSi ves esto, pasame captura.`;
-                debugLog.classList.remove('hidden');
-                alert('Ocurrió un error. Mirá el recuadro rojo abajo del botón.');
-            } finally {
-                btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN'; 
-                btn.disabled = false; 
-                lucide.createIcons(); 
             }
+
+            if (!success) {
+                debugLog.innerText = `ERROR FINAL:\n${lastError}\n\nRevisá que la API 'Generative Language API' esté habilitada en Google Cloud Console para este proyecto.`;
+                debugLog.classList.remove('hidden');
+                alert('No se pudo conectar. Mirá el detalle rojo abajo.');
+            }
+
+            btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN'; 
+            btn.disabled = false; 
+            lucide.createIcons(); 
         }
 
         function copiarIA() { 
