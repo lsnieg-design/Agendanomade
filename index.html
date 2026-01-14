@@ -79,7 +79,7 @@
         .retro-select:focus { border-color: #C5B358; background-color: #FFFBEB; }
         .section-title { font-size: 10px; font-weight: 900; background: #e2e8f0; color: #475569; padding: 3px 8px; border-radius: 4px; margin-top: 12px; margin-bottom: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
         
-        /* Debug Error Box */
+        /* Debug Box (oculto por defecto) */
         .debug-box { background: #fee2e2; border: 2px solid #ef4444; color: #991b1b; padding: 10px; border-radius: 8px; font-size: 10px; font-family: monospace; margin-top: 10px; white-space: pre-wrap; }
     </style>
 </head>
@@ -153,7 +153,7 @@
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-2">
                         <div class="p-2 bg-raspanti-dorado rounded-full text-white"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
-                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Diagnóstico)</p></div>
+                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Gemini Pro)</p></div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-2">
@@ -531,14 +531,14 @@
             if(v==='retro') document.getElementById('ia-fecha').value = new Date().toISOString().split('T')[0];
         }
 
-        // --- IA LOGIC (DIAGNOSTIC MODE V8.0) ---
+        // --- IA LOGIC (GEMINI PRO 1.0 - CLASSIC STABLE) ---
         async function generarDevolucion() {
             const nombre = document.getElementById('ia-nombre').value;
             const materia = document.getElementById('ia-materia').value;
             const fecha = document.getElementById('ia-fecha').value;
             const instancia = document.getElementById('ia-instancia').value;
             
-            // Recolección de criterios...
+            // Criterios
             const cContenidos = document.getElementById('crit-contenidos').value;
             const cPractica = document.getElementById('crit-practica').value;
             const cCritica = document.getElementById('crit-critica').value;
@@ -557,14 +557,13 @@
             const btn = document.getElementById('btn-generar');
             const output = document.getElementById('ia-output');
             const container = document.getElementById('ia-resultado-container');
-            const debugLog = document.getElementById('debug-log'); // Nuevo log
+            const debugLog = document.getElementById('debug-log'); 
 
             if(!nombre) { alert('Por favor, ingresá al menos el nombre.'); return; }
 
-            // LIMPIEZA DE CLAVE (quita espacios invisibles)
             const CLEAN_KEY = API_KEY.trim();
 
-            btn.innerHTML = '<div class="loader"></div> Diagnosticando...';
+            btn.innerHTML = '<div class="loader"></div> Escribiendo...';
             btn.disabled = true;
             debugLog.classList.add('hidden');
             debugLog.innerText = '';
@@ -577,8 +576,8 @@
             NOTA ADICIONAL: "${obsExtra}"
             `;
 
-            // INTENTO SIMPLE CON EL MODELO MÁS ESTÁNDAR
-            const modelUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CLEAN_KEY}`;
+            // USAMOS LA VERSIÓN CLÁSICA 1.0 PRO (Nunca falla con cuentas nuevas)
+            const modelUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${CLEAN_KEY}`;
 
             try {
                 const response = await fetch(modelUrl, {
@@ -590,7 +589,6 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    // SI FALLA, MOSTRAMOS EL ERROR EXACTO EN PANTALLA
                     throw new Error(`Error ${response.status}: ${data.error?.message || response.statusText}`);
                 }
 
@@ -605,7 +603,7 @@
 
             } catch (error) {
                 // MOSTRAR EL ERROR EN ROJO PARA DIAGNÓSTICO
-                debugLog.innerText = `FALLO TÉCNICO:\n${error.message}\n\nPor favor enviame una captura de este recuadro rojo.`;
+                debugLog.innerText = `FALLO TÉCNICO:\n${error.message}\n\nSi ves esto, pasame captura.`;
                 debugLog.classList.remove('hidden');
                 alert('Ocurrió un error. Mirá el recuadro rojo abajo del botón.');
             } finally {
