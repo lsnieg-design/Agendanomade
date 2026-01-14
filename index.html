@@ -150,7 +150,7 @@
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-2">
                         <div class="p-2 bg-raspanti-dorado rounded-full text-white"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
-                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Gemini 1.5 Flash)</p></div>
+                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Auto-Detect)</p></div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-2">
@@ -435,7 +435,7 @@
 
     <script>
         // --- 1. CONFIGURACIÓN (GOOGLE GEMINI) ---
-        // ¡IMPORTANTE: PEGÁ TU CLAVE NUEVA AQUÍ!
+        // ¡ESTA ES TU CLAVE ACTIVA (la que termina en 4IhE)!
         const API_KEY = 'AIzaSyBOTt8wiuveaBsttTMpVwQBafxJ05P4IhE'; 
         
         const firebaseConfig = {
@@ -528,7 +528,7 @@
             if(v==='retro') document.getElementById('ia-fecha').value = new Date().toISOString().split('T')[0];
         }
 
-        // --- IA LOGIC (GEMINI 1.5 FLASH) ---
+        // --- IA LOGIC (SMART RETRY SYSTEM V6.0) ---
         async function generarDevolucion() {
             // Recolectar datos
             const nombre = document.getElementById('ia-nombre').value;
@@ -550,7 +550,6 @@
             const cRecursos = document.getElementById('crit-recursos').value;
             const cSintesis = document.getElementById('crit-sintesis').value;
             const cEntrega = document.getElementById('crit-entrega').value;
-            
             const obsExtra = document.getElementById('ia-obs-extra').value;
 
             const btn = document.getElementById('btn-generar');
@@ -558,9 +557,8 @@
             const container = document.getElementById('ia-resultado-container');
 
             if(!nombre) { alert('Por favor, ingresá al menos el nombre del estudiante.'); return; }
-            if(API_KEY.includes('PEGAR_TU_CLAVE')) { alert('¡Falta la clave de Google!'); return; }
 
-            btn.innerHTML = '<div class="loader"></div> Redactando...';
+            btn.innerHTML = '<div class="loader"></div> Probando modelos...';
             btn.disabled = true;
 
             const fullPrompt = `
@@ -587,37 +585,55 @@
             DETALLE ADICIONAL DOCENTE: "${obsExtra}"
             `;
 
-            try {
-                // USAMOS GEMINI 1.5 FLASH (EL ESTÁNDAR NUEVO)
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-                
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: fullPrompt }]
-                        }]
-                    })
-                });
+            // LISTA DE MODELOS PARA PROBAR EN ORDEN (SISTEMA AUTO-RETRY)
+            const modelsToTry = [
+                'gemini-1.5-flash',
+                'gemini-pro',
+                'gemini-1.0-pro'
+            ];
 
-                const data = await response.json();
-                
-                if(data.error) throw new Error(data.error.message);
-                if(!data.candidates || !data.candidates[0].content) throw new Error("No hubo respuesta de la IA");
+            let success = false;
 
-                output.value = data.candidates[0].content.parts[0].text; 
-                container.classList.remove('hidden');
-                container.scrollIntoView({ behavior: 'smooth' });
+            for (const model of modelsToTry) {
+                try {
+                    console.log(`Intentando con modelo: ${model}...`);
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`;
+                    
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: fullPrompt }] }]
+                        })
+                    });
 
-            } catch (error) { 
-                alert('Error al generar con Gemini: ' + error.message); 
-            } finally { 
-                btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN'; 
-                btn.disabled = false; 
-                lucide.createIcons(); 
+                    const data = await response.json();
+
+                    if (data.error) throw new Error(data.error.message);
+                    if (!data.candidates || !data.candidates[0].content) throw new Error("Sin respuesta");
+
+                    // ÉXITO
+                    output.value = data.candidates[0].content.parts[0].text; 
+                    container.classList.remove('hidden');
+                    container.scrollIntoView({ behavior: 'smooth' });
+                    success = true;
+                    break; // Salimos del bucle porque funcionó
+
+                } catch (error) {
+                    console.warn(`Falló ${model}:`, error);
+                    // Si falla, el bucle sigue al siguiente modelo
+                }
             }
+
+            if (!success) {
+                alert('Lo siento, todos los modelos de IA están ocupados o fallaron. Revisá tu conexión o intentá más tarde.');
+            }
+
+            btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN'; 
+            btn.disabled = false; 
+            lucide.createIcons(); 
         }
+
         function copiarIA() { 
             const text = document.getElementById('ia-output').value; 
             navigator.clipboard.writeText(text).then(() => alert('Copiado al portapapeles')); 
@@ -742,4 +758,3 @@
     </script>
 </body>
 </html>
-
