@@ -151,7 +151,7 @@
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-2">
                         <div class="p-2 bg-raspanti-dorado rounded-full text-white"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
-                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica</p></div>
+                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Gemini 1.5 Flash)</p></div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-2">
@@ -437,8 +437,8 @@
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN (CLAVE 4IhE) ---
-        const API_KEY = 'AIzaSyBOTt8wiuveaBsttTMpVwQBafxJ05P4IhE'; 
+        // --- 1. CONFIGURACIÓN (PEGAR CLAVE DE "PROYECTO NUEVO" AQUÍ) ---
+        const API_KEY = 'AIzaSyDq7ZWT2lOxEppfIkIA0TxpCJQ-qNA2Hn0'; 
         
         const firebaseConfig = {
             apiKey: "AIzaSyBpBjGm2jdqlearWnBiwn4jxjeby3nA0gk",
@@ -489,7 +489,7 @@
                 .catch((e) => showCloudStatus('Error', 'saving'));
         }
 
-        // --- 3. IA SYSTEM ---
+        // --- 3. IA SYSTEM (GEMINI) ---
         const SYSTEM_PROMPT = `
         Sos Lucía Snieg, Lic. Prof. en Educación Especial y docente de Nivel Superior.
         Tu objetivo es redactar retroalimentaciones pedagógicas completas, cálidas y constructivas.
@@ -529,14 +529,13 @@
             if(v==='retro') document.getElementById('ia-fecha').value = new Date().toISOString().split('T')[0];
         }
 
-        // --- IA LOGIC (MODO "TANQUE" - PRUEBA TODOS) ---
+        // --- IA LOGIC (GEMINI 1.5 FLASH + NUEVO PROYECTO) ---
         async function generarDevolucion() {
             const nombre = document.getElementById('ia-nombre').value;
             const materia = document.getElementById('ia-materia').value;
             const fecha = document.getElementById('ia-fecha').value;
             const instancia = document.getElementById('ia-instancia').value;
             
-            // Criterios
             const cContenidos = document.getElementById('crit-contenidos').value;
             const cPractica = document.getElementById('crit-practica').value;
             const cCritica = document.getElementById('crit-critica').value;
@@ -559,8 +558,12 @@
 
             if(!nombre) { alert('Por favor, ingresá al menos el nombre del estudiante.'); return; }
 
-            // LIMPIEZA DE CLAVE
             const CLEAN_KEY = API_KEY.trim();
+
+            if (CLEAN_KEY.includes('PEGAR_TU_CLAVE')) {
+                alert('¡Falta la clave! Acordate de crear una clave en un PROYECTO NUEVO y pegarla al final del código.');
+                return;
+            }
 
             btn.innerHTML = '<div class="loader"></div> Conectando...';
             btn.disabled = true;
@@ -575,57 +578,34 @@
             NOTA ADICIONAL: "${obsExtra}"
             `;
 
-            // LISTA DE MODELOS (ORDEN DE ATAQUE)
-            // 1. Flash (Rápido)
-            // 2. Pro 1.5 (Potente)
-            // 3. Pro 1.0 (Clásico/Legacy) <-- Este suele ser el salvavidas
-            const attempts = [
-                { url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CLEAN_KEY}`, name: 'Flash 1.5' },
-                { url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${CLEAN_KEY}`, name: 'Pro 1.5' },
-                { url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${CLEAN_KEY}`, name: 'Pro 1.0 Beta' },
-                // Último recurso: V1 Estable (sin beta)
-                { url: `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${CLEAN_KEY}`, name: 'Gemini Pro V1' }
-            ];
+            // USAMOS GEMINI 1.5 FLASH (EL ESTÁNDAR PARA PROYECTOS NUEVOS)
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CLEAN_KEY}`;
 
-            let success = false;
-            let lastError = "";
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] })
+                });
 
-            for (const attempt of attempts) {
-                try {
-                    console.log(`Probando ${attempt.name}...`);
-                    const response = await fetch(attempt.url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] })
-                    });
+                const data = await response.json();
 
-                    const data = await response.json();
+                if (data.error) throw new Error(data.error.message);
+                if (!data.candidates || !data.candidates[0].content) throw new Error("Sin respuesta de texto.");
 
-                    if (data.error) throw new Error(data.error.message);
-                    if (!data.candidates || !data.candidates[0].content) throw new Error("Sin respuesta de texto.");
+                output.value = data.candidates[0].content.parts[0].text; 
+                container.classList.remove('hidden');
+                container.scrollIntoView({ behavior: 'smooth' });
 
-                    // ÉXITO
-                    output.value = data.candidates[0].content.parts[0].text; 
-                    container.classList.remove('hidden');
-                    container.scrollIntoView({ behavior: 'smooth' });
-                    success = true;
-                    break; 
-
-                } catch (error) {
-                    console.warn(`${attempt.name} falló:`, error);
-                    lastError = error.message;
-                }
-            }
-
-            if (!success) {
-                debugLog.innerText = `ERROR FINAL:\n${lastError}\n\nRevisá que la API 'Generative Language API' esté habilitada en Google Cloud Console.`;
+            } catch (error) {
+                debugLog.innerText = `ERROR:\n${error.message}`;
                 debugLog.classList.remove('hidden');
-                alert('No se pudo conectar. Mirá el detalle rojo abajo.');
+                alert('Hubo un error. Si dice 404, asegurate de que la clave sea de un PROYECTO NUEVO.');
+            } finally {
+                btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN'; 
+                btn.disabled = false; 
+                lucide.createIcons(); 
             }
-
-            btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN'; 
-            btn.disabled = false; 
-            lucide.createIcons(); 
         }
 
         function copiarIA() { 
