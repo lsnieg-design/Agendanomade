@@ -531,102 +531,7 @@
         }
 
         // --- IA LOGIC (SISTEMA DE PRECISIÓN MILIMÉTRICA) ---
-        async function generarDevolucion() {
-            const nombre = document.getElementById('ia-nombre').value;
-            const materia = document.getElementById('ia-materia').value;
-            const fecha = document.getElementById('ia-fecha').value;
-            const instancia = document.getElementById('ia-instancia').value;
-            
-            // Criterios
-            const cContenidos = document.getElementById('crit-contenidos').value;
-            const cPractica = document.getElementById('crit-practica').value;
-            const cCritica = document.getElementById('crit-critica').value;
-            const cPreguntas = document.getElementById('crit-preguntas').value;
-            const cRedaccion = document.getElementById('crit-redaccion').value;
-            const cVocabulario = document.getElementById('crit-vocabulario').value;
-            const cApa = document.getElementById('crit-apa').value;
-            const cOrtografia = document.getElementById('crit-ortografia').value;
-            const cCreatividad = document.getElementById('crit-creatividad').value;
-            const cEvolucion = document.getElementById('crit-evolucion').value;
-            const cRecursos = document.getElementById('crit-recursos').value;
-            const cSintesis = document.getElementById('crit-sintesis').value;
-            const cEntrega = document.getElementById('crit-entrega').value;
-            const obsExtra = document.getElementById('ia-obs-extra').value;
-
-            const btn = document.getElementById('btn-generar');
-            const output = document.getElementById('ia-output');
-            const container = document.getElementById('ia-resultado-container');
-            const debugLog = document.getElementById('debug-log'); 
-
-            if(!nombre) { alert('Por favor, ingresá al menos el nombre.'); return; }
-
-            const CLEAN_KEY = API_KEY.trim();
-
-            btn.innerHTML = '<div class="loader"></div> Conectando...';
-            btn.disabled = true;
-            debugLog.classList.add('hidden');
-            debugLog.innerText = '';
-
-            const fullPrompt = `
-            ${SYSTEM_PROMPT}
-            TAREA: Generá una devolución para: ${nombre}.
-            Materia: ${materia}. Fecha: ${fecha}. Instancia: ${instancia}.
-            CRITERIOS: ${cContenidos}, ${cPractica}, ${cCritica}, ${cPreguntas}, ${cRedaccion}, ${cVocabulario}, ${cApa}, ${cOrtografia}, ${cCreatividad}, ${cEvolucion}, ${cRecursos}, ${cSintesis}, ${cEntrega}.
-            NOTA ADICIONAL: "${obsExtra}"
-            `;
-
-            // LISTA DE MODELOS (USANDO LA CLAVE NUEVA 4IhE)
-            // PRUEBA CADA UNO HASTA QUE UNO RESPONDA.
-            const attempts = [
-                { model: 'gemini-1.5-flash', version: 'v1beta' },
-                { model: 'gemini-1.5-flash-001', version: 'v1beta' },
-                { model: 'gemini-1.5-flash-002', version: 'v1beta' },
-                { model: 'gemini-1.5-pro', version: 'v1beta' },
-                { model: 'gemini-1.0-pro', version: 'v1beta' }
-            ];
-
-            let success = false;
-            let lastError = "";
-
-            for (const attempt of attempts) {
-                try {
-                    console.log(`Intentando ${attempt.model}...`);
-                    const url = `https://generativelanguage.googleapis.com/${attempt.version}/models/${attempt.model}:generateContent?key=${CLEAN_KEY}`;
-                    
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.error) throw new Error(data.error.message);
-                    if (!data.candidates || !data.candidates[0].content) throw new Error("Sin respuesta");
-
-                    output.value = data.candidates[0].content.parts[0].text; 
-                    container.classList.remove('hidden');
-                    container.scrollIntoView({ behavior: 'smooth' });
-                    success = true;
-                    break; 
-
-                } catch (error) {
-                    lastError = error.message;
-                    console.warn(`Falló ${attempt.model}:`, error);
-                }
-            }
-
-            if (!success) {
-                debugLog.innerText = `ERROR FINAL:\n${lastError}\n\nRevisá que la API 'Generative Language API' esté habilitada en Google Cloud Console para este proyecto.`;
-                debugLog.classList.remove('hidden');
-                alert('No se pudo conectar. Mirá el detalle rojo abajo.');
-            }
-
-            btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN'; 
-            btn.disabled = false; 
-            lucide.createIcons(); 
-        }
-
+       
         function copiarIA() { 
             const text = document.getElementById('ia-output').value; 
             navigator.clipboard.writeText(text).then(() => alert('Copiado al portapapeles')); 
@@ -751,3 +656,4 @@
     </script>
 </body>
 </html>
+
