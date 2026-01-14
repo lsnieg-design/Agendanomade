@@ -78,6 +78,9 @@
         .retro-select { width: 100%; padding: 6px 8px; background-color: white; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; font-weight: 600; color: #334155; outline: none; }
         .retro-select:focus { border-color: #C5B358; background-color: #FFFBEB; }
         .section-title { font-size: 10px; font-weight: 900; background: #e2e8f0; color: #475569; padding: 3px 8px; border-radius: 4px; margin-top: 12px; margin-bottom: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
+        
+        /* Debug Error Box */
+        .debug-box { background: #fee2e2; border: 2px solid #ef4444; color: #991b1b; padding: 10px; border-radius: 8px; font-size: 10px; font-family: monospace; margin-top: 10px; white-space: pre-wrap; }
     </style>
 </head>
 <body class="h-screen flex flex-col text-slate-800 bg-slate-50">
@@ -150,7 +153,7 @@
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-2">
                         <div class="p-2 bg-raspanti-dorado rounded-full text-white"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
-                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Modo Auto-Retry)</p></div>
+                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Diagnóstico)</p></div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-2">
@@ -313,6 +316,8 @@
                     </div>
                     
                     <button onclick="generarDevolucion()" id="btn-generar" class="w-full bg-raspanti-bordo text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2 mt-4 hover:bg-red-900 transition"><i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN</button>
+                    
+                    <div id="debug-log" class="hidden debug-box"></div>
                 </div>
 
                 <div id="ia-resultado-container" class="hidden bg-white p-5 rounded-2xl shadow-lg border-2 border-raspanti-dorado relative">
@@ -435,7 +440,7 @@
 
     <script>
         // --- 1. CONFIGURACIÓN (CLAVE 4IhE) ---
-        const API_KEY = 'AIzaSyBOTt8wiuveaBsttTMpVwQBafxJ05P4IhE';
+        const API_KEY = 'AIzaSyBOTt8wiuveaBsttTMpVwQBafxJ05P4IhE'; 
         
         const firebaseConfig = {
             apiKey: "AIzaSyBpBjGm2jdqlearWnBiwn4jxjeby3nA0gk",
@@ -486,7 +491,7 @@
                 .catch((e) => showCloudStatus('Error', 'saving'));
         }
 
-        // --- 3. IA SYSTEM (GEMINI) ---
+        // --- 3. IA SYSTEM ---
         const SYSTEM_PROMPT = `
         Sos Lucía Snieg, Lic. Prof. en Educación Especial y docente de Nivel Superior.
         Tu objetivo es redactar retroalimentaciones pedagógicas completas, cálidas y constructivas.
@@ -526,14 +531,14 @@
             if(v==='retro') document.getElementById('ia-fecha').value = new Date().toISOString().split('T')[0];
         }
 
-        // --- IA LOGIC (SISTEMA DE AUTO-RETRY) ---
+        // --- IA LOGIC (DIAGNOSTIC MODE V8.0) ---
         async function generarDevolucion() {
             const nombre = document.getElementById('ia-nombre').value;
             const materia = document.getElementById('ia-materia').value;
             const fecha = document.getElementById('ia-fecha').value;
             const instancia = document.getElementById('ia-instancia').value;
             
-            // Criterios
+            // Recolección de criterios...
             const cContenidos = document.getElementById('crit-contenidos').value;
             const cPractica = document.getElementById('crit-practica').value;
             const cCritica = document.getElementById('crit-critica').value;
@@ -552,81 +557,62 @@
             const btn = document.getElementById('btn-generar');
             const output = document.getElementById('ia-output');
             const container = document.getElementById('ia-resultado-container');
+            const debugLog = document.getElementById('debug-log'); // Nuevo log
 
-            if(!nombre) { alert('Por favor, ingresá al menos el nombre del estudiante.'); return; }
+            if(!nombre) { alert('Por favor, ingresá al menos el nombre.'); return; }
 
-            btn.innerHTML = '<div class="loader"></div> Probando modelos...';
+            // LIMPIEZA DE CLAVE (quita espacios invisibles)
+            const CLEAN_KEY = API_KEY.trim();
+
+            btn.innerHTML = '<div class="loader"></div> Diagnosticando...';
             btn.disabled = true;
+            debugLog.classList.add('hidden');
+            debugLog.innerText = '';
 
             const fullPrompt = `
             ${SYSTEM_PROMPT}
-            
             TAREA: Generá una devolución para: ${nombre}.
             Materia: ${materia}. Fecha: ${fecha}. Instancia: ${instancia}.
-            
-            CRITERIOS OBSERVADOS:
-            - Contenidos: ${cContenidos}
-            - Vinculación Práctica: ${cPractica}
-            - Mirada Crítica: ${cCritica}
-            - Preguntas/Indagación: ${cPreguntas}
-            - Redacción: ${cRedaccion}
-            - Vocabulario Técnico: ${cVocabulario}
-            - Normas APA: ${cApa}
-            - Ortografía: ${cOrtografia}
-            - Creatividad: ${cCreatividad}
-            - Evolución: ${cEvolucion}
-            - Uso de Recursos: ${cRecursos}
-            - Síntesis: ${cSintesis}
-            - Entrega: ${cEntrega}
-            
-            DETALLE ADICIONAL DOCENTE: "${obsExtra}"
+            CRITERIOS: ${cContenidos}, ${cPractica}, ${cCritica}, ${cPreguntas}, ${cRedaccion}, ${cVocabulario}, ${cApa}, ${cOrtografia}, ${cCreatividad}, ${cEvolucion}, ${cRecursos}, ${cSintesis}, ${cEntrega}.
+            NOTA ADICIONAL: "${obsExtra}"
             `;
 
-            // LISTA DE MODELOS A PROBAR EN ORDEN
-            // 1. Flash (Rápido) -> 2. Pro (Estándar) -> 3. Pro V1 (Estable viejo)
-            const attempts = [
-                { model: 'gemini-1.5-flash', version: 'v1beta' },
-                { model: 'gemini-1.5-pro', version: 'v1beta' },
-                { model: 'gemini-pro', version: 'v1beta' },
-                { model: 'gemini-pro', version: 'v1' } // El salvavidas
-            ];
+            // INTENTO SIMPLE CON EL MODELO MÁS ESTÁNDAR
+            const modelUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CLEAN_KEY}`;
 
-            let success = false;
+            try {
+                const response = await fetch(modelUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] })
+                });
 
-            for (const attempt of attempts) {
-                try {
-                    console.log(`Intentando ${attempt.model} (${attempt.version})...`);
-                    const url = `https://generativelanguage.googleapis.com/${attempt.version}/models/${attempt.model}:generateContent?key=${API_KEY}`;
-                    
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] })
-                    });
+                const data = await response.json();
 
-                    const data = await response.json();
-
-                    if (data.error) throw new Error(data.error.message);
-                    if (!data.candidates || !data.candidates[0].content) throw new Error("Sin respuesta");
-
-                    output.value = data.candidates[0].content.parts[0].text; 
-                    container.classList.remove('hidden');
-                    container.scrollIntoView({ behavior: 'smooth' });
-                    success = true;
-                    break; // ¡Éxito! Salimos del bucle.
-
-                } catch (error) {
-                    console.warn(`Falló ${attempt.model}:`, error);
+                if (!response.ok) {
+                    // SI FALLA, MOSTRAMOS EL ERROR EXACTO EN PANTALLA
+                    throw new Error(`Error ${response.status}: ${data.error?.message || response.statusText}`);
                 }
-            }
 
-            if (!success) {
-                alert('Lo siento, todos los modelos de IA fallaron. Revisá tu conexión o intentá más tarde.');
-            }
+                if (!data.candidates || !data.candidates[0].content) {
+                    throw new Error("Google respondió pero sin contenido (Blocked?).");
+                }
 
-            btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN'; 
-            btn.disabled = false; 
-            lucide.createIcons(); 
+                // ÉXITO
+                output.value = data.candidates[0].content.parts[0].text; 
+                container.classList.remove('hidden');
+                container.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                // MOSTRAR EL ERROR EN ROJO PARA DIAGNÓSTICO
+                debugLog.innerText = `FALLO TÉCNICO:\n${error.message}\n\nPor favor enviame una captura de este recuadro rojo.`;
+                debugLog.classList.remove('hidden');
+                alert('Ocurrió un error. Mirá el recuadro rojo abajo del botón.');
+            } finally {
+                btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN'; 
+                btn.disabled = false; 
+                lucide.createIcons(); 
+            }
         }
 
         function copiarIA() { 
