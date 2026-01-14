@@ -27,6 +27,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -151,7 +152,7 @@
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-2">
                         <div class="p-2 bg-raspanti-dorado rounded-full text-white"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
-                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Gemini 1.5 Flash)</p></div>
+                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Gemini Pro)</p></div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-2">
@@ -437,8 +438,9 @@
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN (PEGAR CLAVE DE "PROYECTO NUEVO" AQUÍ) ---
-        const API_KEY = 'AIzaSyDq7ZWT2lOxEppfIkIA0TxpCJQ-qNA2Hn0'; 
+        // --- 1. CONFIGURACIÓN (CLAVE DE PROYECTO NUEVO) ---
+        // ¡PEGÁ ACÁ LA CLAVE NUEVA DEL PROYECTO NUEVO!
+        const API_KEY = 'PEGAR_TU_CLAVE_NUEVA_ACA'; 
         
         const firebaseConfig = {
             apiKey: "AIzaSyBpBjGm2jdqlearWnBiwn4jxjeby3nA0gk",
