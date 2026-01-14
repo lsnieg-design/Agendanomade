@@ -6,7 +6,6 @@
     <title>Raspanti Docente Cloud</title>
     
     <link rel="manifest" href="manifest.json">
-    
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -34,7 +33,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
     <style>
-        body { background-color: #F8FAFC; -webkit-tap-highlight-color: transparent; font-family: system-ui, sans-serif; overscroll-behavior: none; }
+        body { background-color: #F8FAFC; font-family: system-ui, sans-serif; overscroll-behavior: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .badge-transition { transition: all 0.2s ease; }
         .badge-transition:active { transform: scale(0.9); }
@@ -66,7 +65,6 @@
         
         #canvas-container { touch-action: none; background: white; border-radius: 10px; overflow: hidden; height: 60vh; position: relative; border: 1px solid #e5e7eb; cursor: crosshair; }
         
-        /* Status Cloud */
         #cloud-status { position: fixed; top: 10px; right: 10px; z-index: 100; font-size: 10px; font-weight: bold; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 5px; opacity: 0; transition: opacity 0.5s; pointer-events: none;}
         .saving { color: #d97706; }
         .saved { color: #16a34a; }
@@ -79,6 +77,9 @@
         .retro-select { width: 100%; padding: 6px 8px; background-color: white; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; font-weight: 600; color: #334155; outline: none; }
         .retro-select:focus { border-color: #C5B358; background-color: #FFFBEB; }
         .section-title { font-size: 10px; font-weight: 900; background: #e2e8f0; color: #475569; padding: 3px 8px; border-radius: 4px; margin-top: 12px; margin-bottom: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
+        
+        /* Debug Box */
+        .debug-box { background: #fee2e2; border: 2px solid #ef4444; color: #991b1b; padding: 10px; border-radius: 8px; font-size: 10px; font-family: monospace; margin-top: 10px; white-space: pre-wrap; }
     </style>
 </head>
 <body class="h-screen flex flex-col text-slate-800 bg-slate-50">
@@ -151,7 +152,7 @@
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-2">
                         <div class="p-2 bg-raspanti-dorado rounded-full text-white"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
-                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Gemini 1.5 Flash)</p></div>
+                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Gemini Flash)</p></div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-2">
@@ -315,6 +316,7 @@
                     
                     <button onclick="generarDevolucion()" id="btn-generar" class="w-full bg-raspanti-bordo text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2 mt-4 hover:bg-red-900 transition"><i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN</button>
                     
+                    <div id="debug-log" class="hidden debug-box"></div>
                 </div>
 
                 <div id="ia-resultado-container" class="hidden bg-white p-5 rounded-2xl shadow-lg border-2 border-raspanti-dorado relative">
@@ -436,8 +438,8 @@
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN (CLAVE 4IhE) ---
-        // ¡IMPORTANTE: USA LA CLAVE DE TU FOTO QUE TERMINA EN ...53l0!
+        // --- 1. CONFIGURACIÓN (TU CLAVE NUEVA 53l0) ---
+        // ESTA ES LA CLAVE QUE ME ACABAS DE PASAR
         const API_KEY = 'AIzaSyA--tY3eKlFqXQzaZWowOjfQHcNslC53l0'; 
         
         const firebaseConfig = {
@@ -489,7 +491,7 @@
                 .catch((e) => showCloudStatus('Error', 'saving'));
         }
 
-        // --- 3. IA SYSTEM ---
+        // --- 3. IA SYSTEM (GEMINI) ---
         const SYSTEM_PROMPT = `
         Sos Lucía Snieg, Lic. Prof. en Educación Especial y docente de Nivel Superior.
         Tu objetivo es redactar retroalimentaciones pedagógicas completas, cálidas y constructivas.
@@ -529,7 +531,7 @@
             if(v==='retro') document.getElementById('ia-fecha').value = new Date().toISOString().split('T')[0];
         }
 
-        // --- IA LOGIC (VERSIÓN V1 ESTABLE - GEMINI PRO + FLASH 1.5) ---
+        // --- IA LOGIC (GEMINI 1.5 FLASH + FALLBACK TO PRO) ---
         async function generarDevolucion() {
             const nombre = document.getElementById('ia-nombre').value;
             const materia = document.getElementById('ia-materia').value;
@@ -557,8 +559,9 @@
             const container = document.getElementById('ia-resultado-container');
             const debugLog = document.getElementById('debug-log');
 
-            if(!nombre) { alert('Por favor, ingresá al menos el nombre.'); return; }
+            if(!nombre) { alert('Por favor, ingresá al menos el nombre del estudiante.'); return; }
 
+            // LIMPIEZA DE CLAVE (quita espacios invisibles)
             const CLEAN_KEY = API_KEY.trim();
 
             btn.innerHTML = '<div class="loader"></div> Conectando...';
@@ -574,7 +577,7 @@
             NOTA ADICIONAL: "${obsExtra}"
             `;
 
-            // Lógica "Tanque": Prueba primero el rápido (Flash), si falla, usa el clásico (Pro V1)
+            // PRUEBA EL MODELO MÁS MODERNO (FLASH) Y SI FALLA PRUEBA EL CLÁSICO (PRO)
             const attempts = [
                 { url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CLEAN_KEY}`, name: 'Flash 1.5' },
                 { url: `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${CLEAN_KEY}`, name: 'Gemini Pro V1' }
@@ -583,19 +586,29 @@
             let success = false;
             let lastError = "";
 
+            // Temporizador de seguridad (15 seg)
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error("Tiempo de espera agotado (15s)")), 15000)
+            );
+
             for (const attempt of attempts) {
                 try {
                     console.log(`Probando ${attempt.name}...`);
-                    const response = await fetch(attempt.url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] })
-                    });
+                    
+                    // Carrera entre la petición y el reloj de arena
+                    const response = await Promise.race([
+                        fetch(attempt.url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] })
+                        }),
+                        timeoutPromise
+                    ]);
 
                     const data = await response.json();
 
                     if (data.error) throw new Error(data.error.message);
-                    if (!data.candidates || !data.candidates[0].content) throw new Error("Sin respuesta de texto.");
+                    if (!data.candidates || !data.candidates[0].content) throw new Error("Sin respuesta de texto (Posible bloqueo de seguridad).");
 
                     // ÉXITO
                     output.value = data.candidates[0].content.parts[0].text; 
@@ -611,7 +624,7 @@
             }
 
             if (!success) {
-                debugLog.innerText = `ERROR FINAL:\n${lastError}\n\nRevisá que la API 'Generative Language API' esté habilitada en Google Cloud Console.`;
+                debugLog.innerText = `ERROR FINAL:\n${lastError}\n\nRevisá que la API 'Generative Language API' esté habilitada en Google Cloud Console para este proyecto.`;
                 debugLog.classList.remove('hidden');
                 alert('No se pudo conectar. Mirá el detalle rojo abajo.');
             }
