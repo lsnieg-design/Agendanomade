@@ -150,7 +150,7 @@
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-2">
                         <div class="p-2 bg-raspanti-dorado rounded-full text-white"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
-                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Gemini)</p></div>
+                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Gemini 1.5 Flash)</p></div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-2">
@@ -435,9 +435,8 @@
 
     <script>
         // --- 1. CONFIGURACIÓN (GOOGLE GEMINI) ---
-        // ¡IMPORTANTE: PEGA TU CLAVE NUEVA AQUÍ (la que termina en ...4IhE)!
-        const API_KEY = 'AIzaSyBOTt8wiuveaBsttTMpVwQBafxJ05P4IhE';
- 
+        // ¡IMPORTANTE: PEGÁ TU CLAVE NUEVA AQUÍ!
+        const API_KEY = 'PEGAR_TU_CLAVE_GOOGLE_ACA'; 
         
         const firebaseConfig = {
             apiKey: "AIzaSyBpBjGm2jdqlearWnBiwn4jxjeby3nA0gk",
@@ -590,8 +589,7 @@
 
             try {
                 // USAMOS GEMINI 1.5 FLASH (EL ESTÁNDAR NUEVO)
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
-
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
                 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -744,4 +742,3 @@
     </script>
 </body>
 </html>
-
