@@ -436,9 +436,9 @@
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN (CLAVE 53l0 - GEMINI 1.5 FLASH) ---
-        // ¡PEGÁ ACÁ LA CLAVE QUE TERMINA EN ...53l0!
-        const API_KEY = 'AIzaSyA--tY3eKlFqXQzaZWowOjfQHcNslC53l0'; 
+        // --- 1. CONFIGURACIÓN (PEGAR CLAVE DE "PROYECTO NUEVO" AQUÍ) ---
+        // ¡IMPORTANTE: Usá la clave recién creada en el proyecto limpio!
+        const API_KEY = 'PEGAR_TU_CLAVE_NUEVA_ACA'; 
         
         const firebaseConfig = {
             apiKey: "AIzaSyBpBjGm2jdqlearWnBiwn4jxjeby3nA0gk",
@@ -529,7 +529,7 @@
             if(v==='retro') document.getElementById('ia-fecha').value = new Date().toISOString().split('T')[0];
         }
 
-        // --- IA LOGIC (GEMINI 1.5 FLASH - VERSIÓN DEFINITIVA) ---
+        // --- IA LOGIC (GEMINI 1.5 FLASH + NUEVO PROYECTO) ---
         async function generarDevolucion() {
             const nombre = document.getElementById('ia-nombre').value;
             const materia = document.getElementById('ia-materia').value;
@@ -558,8 +558,12 @@
 
             if(!nombre) { alert('Por favor, ingresá al menos el nombre del estudiante.'); return; }
 
-            // Limpieza de clave
             const CLEAN_KEY = API_KEY.trim();
+
+            if (CLEAN_KEY.includes('PEGAR_TU_CLAVE')) {
+                alert('¡Falta la clave! Acordate de crear una clave en un PROYECTO NUEVO y pegarla al final del código.');
+                return;
+            }
 
             btn.innerHTML = '<div class="loader"></div> Conectando...';
             btn.disabled = true;
@@ -574,7 +578,7 @@
             NOTA ADICIONAL: "${obsExtra}"
             `;
 
-            // USAMOS GEMINI 1.5 FLASH (EL ESTÁNDAR)
+            // USAMOS GEMINI 1.5 FLASH (EL ESTÁNDAR PARA PROYECTOS NUEVOS)
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CLEAN_KEY}`;
 
             try {
@@ -596,7 +600,7 @@
             } catch (error) {
                 debugLog.innerText = `ERROR:\n${error.message}`;
                 debugLog.classList.remove('hidden');
-                alert('Hubo un error. Revisá el recuadro rojo abajo.');
+                alert('Hubo un error. Si dice 404, asegurate de que la clave sea de un PROYECTO NUEVO.');
             } finally {
                 btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN'; 
                 btn.disabled = false; 
