@@ -72,7 +72,6 @@
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #800020; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Estilos Formulario Retroalimentación */
         .retro-label { font-size: 9px; font-weight: 800; color: #800020; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 6px; letter-spacing: 0.5px; }
         .retro-select { width: 100%; padding: 6px 8px; background-color: white; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; font-weight: 600; color: #334155; outline: none; }
         .retro-select:focus { border-color: #C5B358; background-color: #FFFBEB; }
@@ -150,7 +149,7 @@
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-2">
                         <div class="p-2 bg-raspanti-dorado rounded-full text-white"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
-                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Gemini 1.5 Flash)</p></div>
+                        <div><h2 class="font-bold text-raspanti-bordo text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Gemini Flash)</p></div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-2">
@@ -436,9 +435,9 @@
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN (PEGAR CLAVE DE "PROYECTO NUEVO" AQUÍ) ---
-        // ¡IMPORTANTE: Usá la clave recién creada en el proyecto limpio!
-        const API_KEY = 'AIzaSyDS9Tw3_TRLCOu1q7ywcGNHTpY9ta9BzAk'; 
+        // --- 1. CONFIGURACIÓN (CLAVE 53l0 - GEMINI 1.5 FLASH) ---
+        // ¡IMPORTANTE: PEGA TU CLAVE NUEVA AQUÍ!
+        const API_KEY = 'AIzaSyA--tY3eKlFqXQzaZWowOjfQHcNslC53l0'; 
         
         const firebaseConfig = {
             apiKey: "AIzaSyBpBjGm2jdqlearWnBiwn4jxjeby3nA0gk",
@@ -504,6 +503,133 @@
             save:(d)=>{ localStorage.setItem('raspanti_v18',JSON.stringify(d)); saveToCloud(d); }
         };
 
+        // --- DATOS PRECARGADOS ---
+        const materiasData = [
+            {
+                id: 1741000000000, 
+                nombre: "Reflexión Filosófica de la Educación",
+                dia: "Lunes",
+                modalidadBase: "Presencial",
+                fechaInicio: "2026-03-16",
+                planificacion: {
+                     "2026-03-16": { tema: "PRESENTACIÓN de la materia", biblio: "Lectura programa", actClase: "Acuerdos didácticos" },
+                     "2026-03-23": { tema: "FERIADO", biblio: "-", actClase: "-" },
+                     "2026-03-30": { tema: "¿Qué es la Filosofía de la educación?", biblio: "Kohan + Juego de preguntas", actClase: "Escritura a partir de imágenes" },
+                     "2026-04-06": { tema: "Filosofía de la educación como filosofía práctica", biblio: "Fernandez", actClase: "Recorrido por la institución" },
+                     "2026-04-13": { tema: "Poder y saber: diciplinamiento de la subjetividad", biblio: "Vigilar y Castigar (Foucault)", actClase: "" },
+                     "2026-04-20": { tema: "Pedagogía del oprimido/Pedagogía liberadora", biblio: "Freire + Material cátedra", actClase: "Libro 'La caja'" },
+                     "2026-04-27": { tema: "El maestro ignorante - Ranciere", biblio: "Una aventura intelectual (Ranciere)", actClase: "Darse cuenta skliar" },
+                     "2026-05-04": { tema: "Filosofía de la experiencia", biblio: "Pensamiento y Educación Dewey", actClase: "Eso no se hace?" },
+                     "2026-05-11": { tema: "Pedagogía de la pregunta", biblio: "Freire (2013) + Furman", actClase: "Poesía Neruda" },
+                     "2026-05-18": { tema: "Encuentro resumen de corrientes de la FE", biblio: "-", actClase: "Cuadro + Juego Quizziz + Consignas TP Final" },
+                     "2026-05-25": { tema: "Enseñanza poderosa: desafíos para una educación emancipadora", biblio: "Mariana Maggio Cap 2", actClase: "Expresión corporal + Ficha lo memorable" },
+                     "2026-06-01": { tema: "Nuevo rol o nueva identidad docente en la era digital", biblio: "Isabel Achard (2020)", actClase: "" },
+                     "2026-06-08": { tema: "¿Cómo llevar la filosofía al aula?", biblio: "Brenifier, O. (2012) Cap 1", actClase: "" },
+                     "2026-06-15": { tema: "FERIADO", biblio: "-", actClase: "-" },
+                     "2026-06-22": { tema: "¿Cómo llevar la filosofía al aula?", biblio: "Material cátedra + Cuadernillos", actClase: "" },
+                     "2026-06-29": { tema: "Dia de elaboración de trabajos finales", biblio: "-", actClase: "Taller en clase" },
+                     "2026-07-06": { tema: "Presentación trabajos finales", biblio: "-", actClase: "Exposición" }
+                },
+                cronograma: { "2026-03-23": "Sin Clase", "2026-05-25": "Sin Clase", "2026-06-15": "Sin Clase" },
+                alumnos: [], examenes: []
+            },
+            {
+                id: 1741000000001,
+                nombre: "Cultura Digital y Educación",
+                dia: "Miércoles",
+                modalidadBase: "Virtual",
+                fechaInicio: "2026-03-18",
+                planificacion: {
+                    "2026-03-18": { tema: "Presentación de materia+modalidad", biblio: "", actClase: "" },
+                    "2026-03-25": { tema: "Comunidades de aprendizaje", biblio: "Schwartzman, G. (2002)", actClase: "" },
+                    "2026-04-01": { tema: "Concepciones de enseñanza", biblio: "Jordi Adelle (2012)", actClase: "Multiple choice" },
+                    "2026-04-08": { tema: "Aprender y enseñar con las TICs + Formularios", biblio: "Cesar Coll (2008)", actClase: "Multiple choice" },
+                    "2026-04-15": { tema: "TICs como eje transversal", biblio: "Buenos Aires Provincia (2018)", actClase: "Multiple choice" },
+                    "2026-04-22": { tema: "Huellas digitales + Ciudadanía digital", biblio: "UNICEF (2017)", actClase: "Sin actividad" },
+                    "2026-04-29": { tema: "Cultura digital vs Cultura escolar", biblio: "Jorge A. Huergo (2001)", actClase: "Sin actividad" },
+                    "2026-05-06": { tema: "Consignas parcial 1", biblio: "", actClase: "" },
+                    "2026-05-13": { tema: "Enseñanza poderosa", biblio: "Mariana Maggio (2012) Cap 2", actClase: "" },
+                    "2026-05-20": { tema: "Rol e identidad docente en la era digital", biblio: "Isabel Achard (2020)", actClase: "Entrega PARCIAL 1" },
+                    "2026-05-27": { tema: "Inclusión de las tecnologías en el aula", biblio: "Merla González y Yáñez Encizo (2016)", actClase: "" },
+                    "2026-06-03": { tema: "Gamificación", biblio: "Material cátedra", actClase: "" },
+                    "2026-06-10": { tema: "El diseño de cursos virtuales", biblio: "Maggio (2012) Cap 3 y 4 + Moreira (2020)", actClase: "" },
+                    "2026-06-17": { tema: "Encuentro de cierre", biblio: "", actClase: "" },
+                    "2026-06-24": { tema: "Devoluciones y cierre de notas", biblio: "", actClase: "" }
+                },
+                cronograma: { "2026-03-18": "Sincronico", "2026-04-15": "Sincronico", "2026-05-13": "Sincronico", "2026-06-17": "Sincronico" },
+                alumnos: [], examenes: []
+            },
+            {
+                id: 1741000000002,
+                nombre: "ESI (Educación Sexual Integral)",
+                dia: "Miércoles",
+                modalidadBase: "Virtual",
+                fechaInicio: "2026-08-12",
+                planificacion: {
+                    "2026-08-12": { tema: "Presentación de la materia", biblio: "Presentación docentes y propuesta", actClase: "" },
+                    "2026-08-19": { tema: "¿Qué es la ESI? Enfoque tradicional vs integral", biblio: "Ley 26.150 + Guía Min. Educación", actClase: "Mural colaborativo" },
+                    "2026-08-26": { tema: "Preconceptos y resistencias comunes", biblio: "Ley 26.150 + Guía", actClase: "Mitos y Verdades" },
+                    "2026-09-02": { tema: "Historia, leyes y documentos oficiales", biblio: "Grosman & Mancini (2018) + Genially", actClase: "" },
+                    "2026-09-09": { tema: "Consideraciones filosóficas y teológicas", biblio: "Hugo", actClase: "" },
+                    "2026-09-16": { tema: "Las tres puertas de entrada a la ESI", biblio: "Plataforma ESI", actClase: "Juego interactivo" },
+                    "2026-09-23": { tema: "Ejes transversales de la ESI", biblio: "Plataforma ESI", actClase: "Foro de reflexión" },
+                    "2026-09-30": { tema: "Construcción de identidad y rol escuela", biblio: "Morgade (2011) + Jelin (2002)", actClase: "Video + Mural" },
+                    "2026-10-07": { tema: "Prevención del abuso y cuidado del cuerpo", biblio: "Cuaderno ESI Nº 5 + Carta Francisco", actClase: "" },
+                    "2026-10-14": { tema: "Encuentro de apropiación de contenidos", biblio: "Intercambios", actClase: "" },
+                    "2026-10-21": { tema: "Consignas TFI final", biblio: "Cuaderno ESI Nº 3 y 6", actClase: "Consignas trabajo final" },
+                    "2026-10-28": { tema: "Diversidad sexual y de género", biblio: "Cuaderno ESI Nº 3 + Ley 26.150", actClase: "Consignas trabajo final" },
+                    "2026-11-04": { tema: "La ESI como compromiso pedagógico", biblio: "Maggio (2020) + UNESCO", actClase: "" },
+                    "2026-11-11": { tema: "Encuentro de cierre", biblio: "", actClase: "" },
+                    "2026-11-18": { tema: "Devoluciones y cierre de notas", biblio: "", actClase: "" }
+                },
+                cronograma: { "2026-08-12": "Sincronico", "2026-09-16": "Sincronico", "2026-10-21": "Sincronico", "2026-11-18": "Sincronico" },
+                alumnos: [], examenes: []
+            },
+            {
+                id: 1741000000003,
+                nombre: "Medios y Recursos Didácticos",
+                dia: "Lunes",
+                modalidadBase: "Presencial",
+                fechaInicio: "2026-08-10",
+                planificacion: {
+                    "2026-08-10": { tema: "Presentación. Conceptualización medios y recursos", biblio: "Uso material didáctico y TICs", actClase: "Juego comecocos + Padlet" },
+                    "2026-08-17": { tema: "FERIADO", biblio: "-", actClase: "-" },
+                    "2026-08-24": { tema: "Paradigmas utilización de medios", biblio: "Herrero", actClase: "Clasificar ejemplos" },
+                    "2026-08-31": { tema: "Concepción de medios: impresos, audiovisuales", biblio: "Fainholc", actClase: "Recorrido y análisis + Consignas Parcial" },
+                    "2026-09-07": { tema: "Concepciones de enseñanza", biblio: "Jordi Adelle (2012)", actClase: "Viñetas + Pizarrón" },
+                    "2026-09-14": { tema: "Cultura escolar vs. cultura mediática", biblio: "Huergo (2001)", actClase: "Flipbook + Entrega Parcial" },
+                    "2026-09-21": { tema: "Día del Estudiante", biblio: "-", actClase: "-" },
+                    "2026-09-28": { tema: "Mirada crítica sobre la educación", biblio: "García + Achard + Moreira", actClase: "Mapa viviente + Entrega real" },
+                    "2026-10-05": { tema: "Tecnología educativa. Gamificación", biblio: "Serra + Material cátedra", actClase: "Búsqueda del tesoro + Consignas 2° Parcial" },
+                    "2026-10-12": { tema: "FERIADO", biblio: "-", actClase: "-" },
+                    "2026-10-19": { tema: "¿De qué hablamos cuando hablamos de discapacidad?", biblio: "Material cátedra", actClase: "" },
+                    "2026-10-26": { tema: "Discapacidad visual y auditiva", biblio: "Material cátedra", actClase: "" },
+                    "2026-11-02": { tema: "Discapacidad neuromotora intelectual y TES", biblio: "Alonso et al. (2019)", actClase: "Entrega Parcial + Consignas TP Final" },
+                    "2026-11-09": { tema: "DUA. Diseño Universal del Aprendizaje", biblio: "Material cátedra", actClase: "" },
+                    "2026-11-16": { tema: "ENCUENTRO DE CIERRE", biblio: "-", actClase: "Entrega trabajos finales" },
+                    "2026-11-23": { tema: "FERIADO", biblio: "-", actClase: "-" },
+                    "2026-11-30": { tema: "Coloquios trabajos finales", biblio: "-", actClase: "Coloquios" }
+                },
+                cronograma: { "2026-08-17": "Sin Clase", "2026-09-21": "Sin Clase", "2026-10-12": "Sin Clase", "2026-11-23": "Sin Clase" },
+                alumnos: [], examenes: []
+            }
+        ];
+
+        function preloadMaterias() {
+            const db = DB.get();
+            let changed = false;
+            materiasData.forEach(mNew => {
+                if (!db.materias.some(m => m.nombre === mNew.nombre)) {
+                    db.materias.push(mNew);
+                    changed = true;
+                }
+            });
+            if (changed) {
+                DB.save(db);
+                console.log("Materias precargadas.");
+            }
+        }
+
         let activeId=null, activeDateISO=null, activeObsIdx=null, tempFoto='', activeCalISO=null, activeNoteId=null;
         let currentMonth=new Date().getMonth(), currentYear=new Date().getFullYear();
 
@@ -511,10 +637,15 @@
         if(localStorage.getItem('raspanti_logged')){
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-content').classList.remove('hidden');
+            preloadMaterias();
             initDash(); syncFromCloud();
         }
 
-        function login(){localStorage.setItem('raspanti_logged','true');location.reload();}
+        function login(){
+            localStorage.setItem('raspanti_logged','true');
+            preloadMaterias();
+            location.reload();
+        }
         function logout(){localStorage.removeItem('raspanti_logged');location.reload();}
         
         function nav(v){
@@ -699,7 +830,7 @@
         function openImportModal() { document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('input-import-text').value=''; }
         function processImport() { const raw = document.getElementById('input-import-text').value; if(!raw.trim()) { alert("Pega el contenido."); return; } const lines = raw.split('\n'); const db = DB.get(); const m = db.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion = {}; let count = 0; lines.forEach(line => { const parts = line.split('\t'); if(parts.length >= 1) { const dateRaw = parts[0].trim(); const match = dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/); if(match) { const day = match[1].padStart(2,'0'); const month = match[2].padStart(2,'0'); const year = match[3].length === 2 ? '20'+match[3] : match[3]; const isoDate = `${year}-${month}-${day}`; let idx = 1; if(parts[idx] && parts[idx].trim().length < 3 && !isNaN(parseInt(parts[idx]))) idx++; const tema = parts[idx] ? parts[idx].trim() : ""; const biblio = parts[idx+1] ? parts[idx+1].trim() : ""; const actClase = parts[idx+2] ? parts[idx+2].trim() : ""; const actTarea = parts[idx+3] ? parts[idx+3].trim() : ""; if(tema) { m.planificacion[isoDate] = { tema, biblio, actClase, actTarea }; count++; } } } }); DB.save(db); alert(`✅ Se importaron ${count} clases.`); closeModal('modal-import'); renderCrono(); }
         function iniciarTomaLista(){const h=new Date().toISOString().split('T')[0]; document.getElementById('input-fecha-lista').value=h; cambiarFechaLista(h); nav('lista');}
-        function cambiarFechaLista(iso){activeDateISO=iso; const m=DB.get().materias.find(x=>x.id===activeId), c=document.getElementById('lista-check-container'); document.getElementById('lista-modalidad-badge').innerText=m.cronograma?.[iso]||((m.modalidadBase==='Hibrida')?'Presencial':m.modalidadBase); c.innerHTML=''; if(m.alumnos.length===0){c.innerHTML='<p class="text-center text-gray-400 mt-10">Sin alumnos.</p>';return;} let statusMap = m.asistencias?.[iso]; if(Array.isArray(statusMap)) { statusMap = null; } m.alumnos.forEach(al=>{const st = statusMap ? (statusMap[al.id] || 'A') : 'P'; const avatar = al.foto ? `<img src="${al.foto}" class="avatar-small">` : `<div class="avatar-small bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">${al.ape[0]}</div>`; c.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm"><div class="flex items-center gap-3">${avatar}<span class="font-bold text-gray-700 w-32 truncate">${al.ape}, ${al.nom}</span></div><button id="btn-as-${al.id}" onclick="cycleAsist(${al.id})" class="btn-asist st-${st}">${st}</button></div>`;});}
+        function cambiarFechaLista(iso){activeDateISO=iso; const m=DB.get().materias.find(x=>x.id===activeId), c=document.getElementById('lista-check-container'); document.getElementById('lista-modalidad-badge').innerText=m.cronograma?.[iso]||((m.modalidadBase==='Hibrida')?'Presencial':m.modalidadBase); c.innerHTML=''; if(m.alumnos.length===0){c.innerHTML='<p class="text-center text-gray-400 mt-10">Sin alumnos.</p>';return;} let statusMap = m.asistencias?.[iso]; if(Array.isArray(statusMap)) { statusMap = null; } m.alumnos.forEach(al=>{const st = statusMap ? (statusMap[al.id] || 'A') : 'P'; const avatar = al.foto ? `<img src="${al.foto}" class="avatar-small">` : `<div class="avatar-small bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">${al.ape[0]}</div>`; c.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm"><div class="flex items-center gap-3 flex-1">${avatar}<span class="font-bold text-gray-700 w-32 truncate">${al.ape}, ${al.nom}</span></div><button id="btn-as-${al.id}" onclick="cycleAsist(${al.id})" class="btn-asist st-${st}">${st}</button></div>`;});}
         function cycleAsist(uid){const btn=document.getElementById(`btn-as-${uid}`); const s=['P','T','J','A'], n=s[(s.indexOf(btn.innerText)+1)%s.length]; btn.className=`btn-asist st-${n}`; btn.innerText=n;}
         function guardarLista(){const db=DB.get(), m=db.materias.find(x=>x.id===activeId); if(!m.asistencias)m.asistencias={}; const map={}; m.alumnos.forEach(al=>{map[al.id]=document.getElementById(`btn-as-${al.id}`).innerText;}); m.asistencias[activeDateISO]=map; DB.save(db); alert('✅ Guardado'); nav('aula'); setTab('alumnos');}
         function cancelarLista(){nav('aula');}
@@ -732,4 +863,3 @@
     </script>
 </body>
 </html>
-
