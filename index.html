@@ -81,7 +81,7 @@
 
     <div id="auth-screen" class="fixed inset-0 login-bg z-50 flex flex-col items-center justify-center p-6 text-center text-white fade-in">
         <div class="mb-6 drop-shadow-xl">
-            <img src="logo.png" alt="Nómade Logo" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green">
+            <img src="nomade.png" alt="Nómade Logo" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green">
         </div>
         <h1 class="text-3xl font-black uppercase mb-1 tracking-widest text-white">NÓMADE</h1>
         <p class="text-nomade-green text-sm mb-10 font-medium tracking-wide uppercase">Agenda Docente</p>
@@ -89,12 +89,12 @@
         <div class="w-full max-w-xs space-y-4">
             <div class="relative">
                 <i data-lucide="user" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
-                <input type="text" id="login-user" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition" placeholder="Usuario">
+                
             </div>
             <div class="relative">
                 <i data-lucide="lock" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
-                <input type="password" id="login-pass" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition" placeholder="Contraseña">
-            </div>
+                <input type="password" id="login-pass" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-gold outline-none transition text-center" placeholder="Contraseña">
+    </div>
             
             <button onclick="handleLogin()" id="btn-login" class="bg-nomade-green text-white w-full py-4 rounded-xl font-bold shadow-lg hover:bg-teal-600 transition tracking-widest mt-2 transform active:scale-95">INGRESAR</button>
             <p id="login-msg" class="text-xs mt-4 h-4 text-red-300 font-bold"></p>
@@ -373,40 +373,48 @@
         });
 
         async function handleLogin() {
-            // LÓGICA DE USUARIO NÓMADE (user -> user@nomade.app)
-            let userInput = document.getElementById('login-user').value.trim();
-            const pass = document.getElementById('login-pass').value;
-            const msg = document.getElementById('login-msg');
+    let userInput = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-pass').value;
+    const msg = document.getElementById('login-msg');
 
-            if(!userInput || !pass) return;
+    if(!userInput || !pass) return;
 
-            // Si no tiene @, le agregamos el dominio falso para que Firebase lo tome
-            let email = userInput;
-            if(!email.includes('@')) {
-                email = userInput + '@nomade.app';
-            }
+    // TRUCO: Si no tiene @, le inventamos un mail falso para que Firebase acepte
+    let email = userInput;
+    if (!email.includes('@')) {
+        email = userInput + '@nomade.app';
+    }
 
-            msg.innerText = "Conectando...";
+    msg.innerText = "Verificando...";
 
-            try {
-                await auth.signInWithEmailAndPassword(email, pass);
-            } catch (err) {
-                // DETECCIÓN INTELIGENTE DE PRIMER LOGIN (ADMIN)
-                if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-login-credentials' || err.code === 'auth/invalid-credential') {
-                     if(confirm("Usuario no encontrado. ¿Registrar como ADMIN NÓMADE?")) {
-                         try {
-                            const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                            await dbCloud.collection('users').doc(cred.user.uid).set({ email: email, role: 'admin', name: 'Admin Nómade' });
-                            // Solo carga tus materias si sos vos (o el primer admin)
-                            await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: materiasData, tareas: [], notas: [], eventos: {} });
-                            location.reload();
-                         } catch(e2) { msg.innerText = e2.message; }
-                     } else {
-                        msg.innerText = "Credenciales incorrectas.";
-                     }
-                } else { msg.innerText = "Error: " + err.message; }
-            }
+    try {
+        await auth.signInWithEmailAndPassword(email, pass);
+    } catch (err) {
+        // Si no existe, sugerimos crear el ADMIN
+        if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials') {
+             if(confirm("Usuario no encontrado. ¿Es tu primera vez? \n\nCrear cuenta de ADMINISTRADOR para: " + userInput)) {
+                 try {
+                    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                    // Guardamos que es ADMIN
+                    await dbCloud.collection('users').doc(cred.user.uid).set({ 
+                        email: email, 
+                        role: 'admin', 
+                        name: 'Admin Nómade' 
+                    });
+                    // Le cargamos las materias por defecto
+                    await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: materiasData });
+                    location.reload();
+                 } catch(e2) { 
+                     msg.innerText = "Error al crear: " + e2.message; 
+                 }
+             } else {
+                msg.innerText = "Usuario o contraseña incorrectos.";
+             }
+        } else {
+            msg.innerText = "Error: " + err.message;
         }
+    }
+}
 
         function logout() { auth.signOut(); location.reload(); }
 
@@ -426,26 +434,52 @@
 
         // --- ADMIN PANEL ---
         async function crearUsuarioDocente() {
-            let uName = document.getElementById('new-user-username').value.trim();
-            const p = document.getElementById('new-user-pass').value;
-            const n = document.getElementById('new-user-fullname').value;
-            
-            if(!uName || !p) return alert("Faltan datos");
-            
-            // Convertir usuario a email fake
-            let e = uName;
-            if(!e.includes('@')) e += '@nomade.app';
+    // 1. Obtener datos del formulario Admin
+    // (Asegurate de que los ID en el HTML coincidan: new-user-email, new-user-pass, new-user-name)
+    // Nota: en el HTML podés cambiar el placeholder de "Email" a "Usuario Nuevo"
+    
+    let uInput = document.getElementById('new-user-email').value.trim(); 
+    const pass = document.getElementById('new-user-pass').value;
+    const name = document.getElementById('new-user-name').value;
 
-            try {
-                const secAuth = secondaryApp.auth();
-                const cred = await secAuth.createUserWithEmailAndPassword(e, p);
-                await dbCloud.collection('users').doc(cred.user.uid).set({ email: e, name: n, role: 'docente' });
-                await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: [], tareas: [], notas: [], eventos: {} });
-                secAuth.signOut();
-                alert(`Usuario ${uName} creado exitosamente`); 
-                loadAdminList();
-            } catch(e) { alert(e.message); }
+    if(!uInput || !pass) return alert("Faltan datos");
+
+    // TRUCO: Convertir usuario a email
+    let email = uInput;
+    if (!email.includes('@')) {
+        email = uInput + '@nomade.app';
+    }
+
+    try {
+        const secAuth = secondaryApp.auth();
+        const cred = await secAuth.createUserWithEmailAndPassword(email, pass);
+        
+        // Guardar en base de datos
+        await dbCloud.collection('users').doc(cred.user.uid).set({ 
+            email: email, 
+            name: name, 
+            role: 'docente' // ROL DOCENTE (NO ADMIN)
+        });
+        
+        // Al docente nuevo le creamos la agenda VACÍA (sin tus materias)
+        await dbCloud.collection('app_data').doc(cred.user.uid).set({ 
+            materias: [], 
+            tareas: [], 
+            notas: [] 
+        });
+
+        secAuth.signOut();
+        alert(`✅ Usuario "${uInput}" creado con éxito.`);
+        loadAdminList(); // Recargar lista
+        
+    } catch(e) {
+        if(e.code === 'auth/email-already-in-use') {
+            alert("❌ Ese NOMBRE DE USUARIO ya está en uso. Elegí otro.");
+        } else {
+            alert("Error: " + e.message);
         }
+    }
+}
 
         async function loadAdminList() {
             const list = document.getElementById('admin-user-list');
@@ -720,6 +754,167 @@
         function clearCanvas(){ctx.fillStyle="white";ctx.fillRect(0,0,canvas.width,canvas.height);}
 
         lucide.createIcons();
+        // --- PEGAR AL FINAL DEL SCRIPT PARA RECUPERAR FUNCIONES ---
+
+// 1. CÁLCULO DE CRONOGRAMA REAL (16 SEMANAS CON FECHAS)
+function renderCrono(){
+    const m = userData.materias.find(x => x.id === activeId);
+    if(!m) return;
+    const l = document.getElementById('lista-cronograma'); 
+    l.innerHTML = ''; 
+
+    // Mapa de días a números JS
+    const map = {'Domingo':0,'Lunes':1,'Martes':2,'Miércoles':3,'Jueves':4,'Viernes':5,'Sábado':6};
+    const targetDay = map[m.dia];
+    
+    // Buscar el primer día de cursada
+    let d = new Date(m.fechaInicio + 'T12:00:00'); // Forzar mediodía para evitar problemas de zona horaria
+    while(d.getDay() !== targetDay) {
+        d.setDate(d.getDate() + 1);
+    }
+
+    // Generar 16 clases
+    for(let i=0; i<16; i++){
+        const iso = d.toISOString().split('T')[0];
+        const displayDate = `${d.getDate()}/${d.getMonth()+1}`;
+        
+        // Estado de la clase (Presencial, Virtual, etc)
+        let st = m.cronograma?.[iso] || ((m.modalidadBase==='Hibrida')?'Presencial':m.modalidadBase);
+        if(m.modalidadBase === 'Virtual') st = 'Virtual';
+        
+        // Estilos según estado
+        let badgeClass = 'bg-gray-100 text-gray-500';
+        let icon = 'circle';
+        if(st.startsWith('Presenc')) { badgeClass='bg-raspanti-bordo text-white'; icon='map-pin'; }
+        else if(st.startsWith('Virt') || st.startsWith('Sinc')) { badgeClass='bg-blue-600 text-white'; icon='video'; }
+        else if(st.startsWith('Asinc')) { badgeClass='bg-yellow-100 text-yellow-800'; icon='book-open'; }
+        else if(st === 'Sin Clase') { badgeClass='line-through opacity-40'; icon='slash'; }
+
+        // Datos precargados
+        const plan = m.planificacion?.[iso] || {};
+        const tema = typeof plan === 'string' ? plan : (plan.tema || '');
+        const act = plan.actClase ? `<div class="text-[10px] text-blue-600 mt-1">📝 ${plan.actClase}</div>` : '';
+
+        l.innerHTML += `
+        <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-2">
+            <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-gray-700 text-sm">${displayDate}</span>
+                <button onclick="cycle('${iso}')" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${badgeClass} transition hover:scale-105">${st}</button>
+            </div>
+            <div class="relative">
+                <input type="text" class="w-full text-sm bg-gray-50 p-2 rounded border border-transparent focus:bg-white focus:border-raspanti-dorado outline-none transition" 
+                       placeholder="Tema del día..." 
+                       value="${tema}" 
+                       onchange="saveTemaSimple('${iso}', this.value)">
+                ${act}
+                <button onclick="openClaseDetail('${iso}')" class="absolute right-2 top-2 text-gray-400 hover:text-blue-500"><i data-lucide="maximize-2" class="w-4 h-4"></i></button>
+            </div>
+        </div>`;
+        
+        // Avanzar una semana
+        d.setDate(d.getDate() + 7);
+    }
+    lucide.createIcons();
+}
+
+function cycle(iso){
+    const m = userData.materias.find(x => x.id === activeId);
+    if(!m.cronograma) m.cronograma = {};
+    
+    const states = ['Presencial', 'Virtual', 'Sincronico', 'Asincronico', 'Sin Clase'];
+    const current = m.cronograma[iso] || m.modalidadBase;
+    
+    // Buscar siguiente estado
+    let nextIdx = (states.indexOf(current) + 1) % states.length;
+    m.cronograma[iso] = states[nextIdx];
+    
+    saveData();
+    renderCrono();
+}
+
+function saveTemaSimple(iso, val) {
+    const m = userData.materias.find(x => x.id === activeId);
+    if(!m.planificacion) m.planificacion = {};
+    if(!m.planificacion[iso]) m.planificacion[iso] = {};
+    
+    // Si era string, lo convertimos a objeto
+    if(typeof m.planificacion[iso] === 'string') m.planificacion[iso] = { tema: m.planificacion[iso] };
+    
+    m.planificacion[iso].tema = val;
+    saveData();
+}
+
+// 2. EXPORTACIÓN REAL A EXCEL (CSV)
+function exportarExcel(){
+    const m = userData.materias.find(x => x.id === activeId);
+    if(!m) return;
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "APELLIDO,NOMBRE,% ASISTENCIA,PROMEDIO\n";
+
+    // Calcular fechas de asistencia para las columnas (Opcional, acá simplificado)
+    m.alumnos.forEach(alum => {
+        // Calcular promedio
+        let suma = 0, cant = 0;
+        if(alum.notas) {
+            Object.values(alum.notas).forEach(n => {
+                if(n && !isNaN(n)) { suma += parseFloat(n); cant++; }
+            });
+        }
+        const prom = cant > 0 ? (suma/cant).toFixed(2) : '-';
+
+        // Calcular asistencia
+        // (Lógica simplificada: contar P sobre total de clases registradas)
+        let asistencias = 0; // Placeholder
+        
+        csvContent += `${alum.ape},${alum.nom},${asistencias}%,${prom}\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `Planilla_${m.nombre}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+}
+
+// 3. GENERACIÓN DE PDF CON TABLAS
+function generarPDF(){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const m = userData.materias.find(x => x.id === activeId);
+
+    // Título
+    doc.setFontSize(18);
+    doc.setTextColor(20, 78, 126); // Azul Nómade
+    doc.text(`Planilla: ${m.nombre}`, 14, 20);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Docente: ${document.getElementById('dash-name').innerText} | Generado por Nómade`, 14, 28);
+
+    // Tabla de Alumnos
+    const headers = [['Apellido', 'Nombre', 'Promedio']];
+    const body = m.alumnos.map(a => {
+        let suma = 0, cant = 0;
+        if(a.notas) Object.values(a.notas).forEach(n => { if(n) { suma+=parseFloat(n); cant++; }});
+        const prom = cant>0 ? (suma/cant).toFixed(2) : '-';
+        return [a.ape, a.nom, prom];
+    });
+
+    doc.autoTable({
+        startY: 35,
+        head: headers,
+        body: body,
+        theme: 'grid',
+        headStyles: { fillColor: [20, 78, 126] }
+    });
+
+    doc.save(`Planilla_${m.nombre}.pdf`);
+}
+
     </script>
 </body>
 </html>
+
