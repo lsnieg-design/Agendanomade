@@ -377,44 +377,53 @@
             const pass = document.getElementById('login-pass').value;
             const msg = document.getElementById('login-msg');
 
-            if(!userInput || !pass) return;
+            if (!userInput || !pass) return;
 
-            // TRUCO: Convertir a email fake
+            // TRUCO: Convertir a email
             let email = userInput;
             if (!email.includes('@')) { email = userInput + '@nomade.app'; }
 
-            msg.innerText = "Verificando...";
+            msg.innerText = "Procesando...";
 
+            // --- LLAVE MAESTRA PARA ADMI ---
+            if (userInput === 'admi' && pass === 'adminomade') {
+                try {
+                    // Intentamos entrar
+                    await auth.signInWithEmailAndPassword(email, pass);
+                } catch (err) {
+                    // Si da error (ej: usuario no existe), LO CREAMOS A LA FUERZA
+                    try {
+                        const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                        // Le damos permisos de Admin
+                        await dbCloud.collection('users').doc(cred.user.uid).set({ 
+                            email: email, 
+                            role: 'admin', 
+                            name: 'Admin Nómade' 
+                        });
+                        // Le cargamos las materias
+                        await dbCloud.collection('app_data').doc(cred.user.uid).set({ 
+                            materias: materiasData, 
+                            eventos: {}, 
+                            tareas: [], 
+                            notas: [] 
+                        });
+                        // Recargamos para entrar
+                        location.reload();
+                    } catch (e2) {
+                        msg.innerText = "Error crítico: " + e2.message;
+                    }
+                }
+                return; // Cortamos acá para que no siga ejecutando
+            }
+
+            // --- LOGIN NORMAL PARA OTROS USUARIOS ---
             try {
-                // Intento login normal
                 await auth.signInWithEmailAndPassword(email, pass);
             } catch (err) {
-                // SI EL USUARIO ES "admi" y la PASS es "adminomade", creamos la cuenta sin preguntar
-                if((userInput === 'admi' && pass === 'adminomade') || (err.code === 'auth/user-not-found')) {
-                     
-                     // Si es la cuenta maestra, la creamos silenciosamente
-                     if(userInput === 'admi' && pass === 'adminomade') {
-                         try {
-                            const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                            await dbCloud.collection('users').doc(cred.user.uid).set({ email: email, role: 'admin', name: 'Admin Nómade' });
-                            await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: materiasData, eventos: {}, tareas: [], notas: [] });
-                            location.reload();
-                         } catch(e2) { 
-                             // Si falla al crear (ej: ya existe pero dio error de pass antes), avisar error real
-                             if(e2.code === 'auth/email-already-in-use') {
-                                 msg.innerText = "Contraseña incorrecta.";
-                             } else {
-                                 msg.innerText = e2.message;
-                             }
-                         }
-                     } else {
-                         // Si es otro usuario y no existe
-                         msg.innerText = "Usuario no encontrado.";
-                     }
-                } else if(err.code === 'auth/wrong-password' || err.code === 'auth/invalid-login-credentials') {
-                    msg.innerText = "Contraseña incorrecta.";
+                if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+                    msg.innerText = "Usuario o contraseña incorrectos.";
                 } else {
-                    msg.innerText = "Error: " + err.message;
+                    msg.innerText = "Error: " + err.code;
                 }
             }
         }
@@ -956,3 +965,4 @@
     </script>
 </body>
 </html>
+
