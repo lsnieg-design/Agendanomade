@@ -391,32 +391,42 @@
 
     try {
         await auth.signInWithEmailAndPassword(email, pass);
-    } catch (err) {
-        // Si no existe, sugerimos crear el ADMIN
-        if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials') {
-             if(confirm("Usuario no encontrado. ¿Es tu primera vez? \n\nCrear cuenta de ADMINISTRADOR para: " + userInput)) {
-                 try {
-                    const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                    // Guardamos que es ADMIN
-                    await dbCloud.collection('users').doc(cred.user.uid).set({ 
-                        email: email, 
-                        role: 'admin', 
-                        name: 'Admin Nómade' 
-                    });
-                    // Le cargamos las materias por defecto
-                    await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: materiasData });
-                    location.reload();
-                 } catch(e2) { 
-                     msg.innerText = "Error al crear: " + e2.message; 
-                 }
-             } else {
-                msg.innerText = "Usuario o contraseña incorrectos.";
-             }
-        } else {
-            msg.innerText = "Error: " + err.message;
-        }
-    }
-}
+                } catch (err) {
+                console.error("Error Login:", err.code, err.message); // Para ver en consola
+                
+                // Si el usuario no existe o las credenciales son invalidas (Firebase cambió los códigos hace poco)
+                if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials') {
+                     
+                     // PREGUNTA CLAVE
+                     if(confirm(`El usuario "${userInput}" no existe.\n\n¿Querés registrarte ahora como ADMINISTRADOR?`)) {
+                         try {
+                            const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                            
+                            // Guardamos que es ADMIN
+                            await dbCloud.collection('users').doc(cred.user.uid).set({ 
+                                email: email, 
+                                role: 'admin', 
+                                name: 'Admin Nómade' 
+                            });
+                            
+                            // Le cargamos las materias por defecto
+                            await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: materiasData, tareas: [], notas: [], eventos: {} });
+                            
+                            alert("¡Bienvenida! Cuenta creada. Entrando...");
+                            location.reload();
+
+                         } catch(e2) { 
+                             alert("Error al crear cuenta: " + e2.message); 
+                         }
+                     } else {
+                        msg.innerText = "Usuario no encontrado.";
+                     }
+                } else {
+                    // Otros errores (ej: password incorrecto en cuenta existente)
+                    msg.innerText = "Error: " + err.code;
+                }
+            }
+
 
         function logout() { auth.signOut(); location.reload(); }
 
@@ -919,5 +929,6 @@ function generarPDF(){
     </script>
 </body>
 </html>
+
 
 
