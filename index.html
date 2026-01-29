@@ -79,7 +79,7 @@
 
     <div id="cloud-status"><i data-lucide="cloud" class="w-3 h-3"></i> <span id="cloud-text">Sincronizado</span></div>
 
-        <div id="auth-screen" class="fixed inset-0 login-bg z-50 flex flex-col items-center justify-center p-6 text-center text-white fade-in">
+    <div id="auth-screen" class="fixed inset-0 login-bg z-50 flex flex-col items-center justify-center p-6 text-center text-white fade-in">
         <div class="mb-6 drop-shadow-xl">
             <img src="nomade.png" alt="Nómade Logo" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green">
         </div>
@@ -91,7 +91,6 @@
                 <i data-lucide="user" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
                 <input type="text" id="login-user" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Usuario">
             </div>
-
             <div class="relative">
                 <i data-lucide="lock" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
                 <input type="password" id="login-pass" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Contraseña">
@@ -106,7 +105,6 @@
             <a href="https://www.somosnomade.com.ar" target="_blank" class="text-nomade-green font-bold text-xs hover:underline">www.somosnomade.com.ar</a>
         </div>
     </div>
-
 
     <div id="app-content" class="flex flex-col h-full hidden relative">
         <header class="bg-nomade-blue text-white p-4 flex justify-between items-center shadow-md z-20 pt-safe-top">
@@ -316,7 +314,7 @@
 
     <div id="modal-settings" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center"><h3 class="text-lg font-black text-nomade-blue mb-6">Configuración</h3><button onclick="logout()" class="bg-red-50 text-red-600 w-full py-3 rounded-lg font-bold text-sm shadow mb-2">CERRAR SESIÓN</button><button onclick="closeModal('modal-settings')" class="block w-full mt-4 text-gray-400 text-sm font-bold">Cerrar</button></div></div>
     <div id="modal-new-nota" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4">Nueva Nota</h3><input id="new-nota-title" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Título"><label class="text-xs font-bold text-gray-500 mb-2 block">TIPO DE NOTA</label><div class="grid grid-cols-2 gap-3 mb-4"><button onclick="createNote('text')" class="p-4 bg-blue-50 rounded-xl border border-blue-100 flex flex-col items-center gap-2 hover:bg-blue-100"><i data-lucide="type" class="w-6 h-6 text-blue-600"></i><span class="text-xs font-bold text-blue-800">TEXTO</span></button><button onclick="createNote('draw')" class="p-4 bg-purple-50 rounded-xl border border-purple-100 flex flex-col items-center gap-2 hover:bg-purple-100"><i data-lucide="pen-tool" class="w-6 h-6 text-purple-600"></i><span class="text-xs font-bold text-purple-800">DIBUJO</span></button></div><button onclick="closeModal('modal-new-nota')" class="w-full text-gray-400 text-sm font-bold">Cancelar</button></div></div>
-    <div id="modal-cal-event" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-2" id="event-date-title">--/--</h3><p class="text-xs text-gray-500 mb-4">Agenda del día:</p><div id="day-events-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div><div class="border-t pt-4"><input id="new-event-text" class="w-full p-2 bg-gray-50 rounded border mb-2" placeholder="Agregar evento..."><div class="flex gap-2"><button onclick="closeModal('modal-cal-event')" class="flex-1 py-2 text-gray-500 font-bold text-xs">CERRAR</button><button onclick="addCalendarEvent()" class="flex-1 py-2 bg-nomade-green text-white rounded font-bold text-xs">AGREGAR</button></div></div></div></div>
+    <div id="modal-cal-event" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-2" id="event-date-title">--/--</h3><p class="text-xs text-gray-500 mb-4">Agenda del día:</p><div id="day-events-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div><div class="border-t pt-4"><input id="new-event-text" class="w-full p-2 bg-gray-50 rounded border mb-2" placeholder="Agregar evento..."><div class="flex gap-2"><button onclick="closeModal('modal-cal-event')" class="flex-1 py-2 text-gray-500 font-bold text-xs">CERRAR</button><button onclick="addCalendarEvent()" class="flex-1 py-2 bg-nomade-green text-white rounded font-bold text-xs">AGREGAR</button></div></div></div></div>
     <div id="modal-tarea" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4">Nueva Tarea</h3><input id="input-tarea-txt" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Descripción"><div class="flex gap-2"><button onclick="closeModal('modal-tarea')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarTarea()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-materia" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4" id="title-materia">Nueva Materia</h3><input type="hidden" id="edit-mat-id"><label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label><input id="input-mat-nombre" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Ej: Matemática"><label class="text-xs font-bold text-gray-500 ml-1">INICIO CURSADA</label><input type="date" id="input-mat-inicio" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold"><div class="grid grid-cols-2 gap-2 mb-4"><div><label class="text-xs font-bold text-gray-500 ml-1">DÍA</label><select id="input-mat-dia" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option></select></div><div><label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD</label><select id="input-mat-mod" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Hibrida">Mixta</option><option value="Presencial">Presencial</option><option value="Virtual">Virtual</option></select></div></div><div class="flex gap-2"><button onclick="closeModal('modal-materia')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarMateria()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-alumno" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4" id="title-alumno">Nuevo Alumno</h3><input type="hidden" id="edit-alum-idx"><div class="flex justify-center mb-4"><label for="input-alum-foto" class="avatar-upload group"><img id="preview-foto" src="" class="hidden"><div id="placeholder-foto" class="text-gray-400 text-center text-[10px] font-bold"><i data-lucide="camera" class="w-6 h-6 mx-auto mb-1"></i>Foto</div><input type="file" id="input-alum-foto" class="hidden" accept="image/*" onchange="previewImage(this)"></label></div><input id="input-alum-ape" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Apellido"><input id="input-alum-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Nombre"><div class="flex gap-2"><button onclick="closeModal('modal-alumno')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarAlumno()" class="flex-1 py-3 bg-nomade-green text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
@@ -335,8 +333,7 @@
             projectId: "raspanti-app",
             storageBucket: "raspanti-app.firebasestorage.app",
             messagingSenderId: "898404256450",
-            appId: "1:898404256450:web:8ba27e3350b8efb22c095b",
-            measurementId: "G-QMMLBB5NJM"
+            appId: "1:898404256450:web:8ba27e3350b8efb22c095b"
         };
 
         const app = firebase.initializeApp(firebaseConfig);
@@ -375,7 +372,7 @@
         });
 
         async function handleLogin() {
-    let userInput = document.getElementById('login-email').value.trim();
+    let userInput = document.getElementById('login-user').value.trim();
     const pass = document.getElementById('login-pass').value;
     const msg = document.getElementById('login-msg');
 
@@ -391,42 +388,32 @@
 
     try {
         await auth.signInWithEmailAndPassword(email, pass);
-                } catch (err) {
-                console.error("Error Login:", err.code, err.message); // Para ver en consola
-                
-                // Si el usuario no existe o las credenciales son invalidas (Firebase cambió los códigos hace poco)
-                if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials') {
-                     
-                     // PREGUNTA CLAVE
-                     if(confirm(`El usuario "${userInput}" no existe.\n\n¿Querés registrarte ahora como ADMINISTRADOR?`)) {
-                         try {
-                            const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                            
-                            // Guardamos que es ADMIN
-                            await dbCloud.collection('users').doc(cred.user.uid).set({ 
-                                email: email, 
-                                role: 'admin', 
-                                name: 'Admin Nómade' 
-                            });
-                            
-                            // Le cargamos las materias por defecto
-                            await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: materiasData, tareas: [], notas: [], eventos: {} });
-                            
-                            alert("¡Bienvenida! Cuenta creada. Entrando...");
-                            location.reload();
-
-                         } catch(e2) { 
-                             alert("Error al crear cuenta: " + e2.message); 
-                         }
-                     } else {
-                        msg.innerText = "Usuario no encontrado.";
-                     }
-                } else {
-                    // Otros errores (ej: password incorrecto en cuenta existente)
-                    msg.innerText = "Error: " + err.code;
-                }
-            }
- }
+    } catch (err) {
+        // DETECCIÓN INTELIGENTE DE PRIMER LOGIN (ADMIN)
+        if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-login-credentials' || err.code === 'auth/invalid-credential') {
+             if(confirm("Usuario no encontrado. ¿Es tu primera vez? \n\nCrear cuenta de ADMINISTRADOR para: " + userInput)) {
+                 try {
+                    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                    // Guardamos que es ADMIN
+                    await dbCloud.collection('users').doc(cred.user.uid).set({ 
+                        email: email, 
+                        role: 'admin', 
+                        name: 'Admin Nómade' 
+                    });
+                    // Le cargamos las materias por defecto
+                    await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: materiasData });
+                    location.reload();
+                 } catch(e2) { 
+                     msg.innerText = "Error al crear: " + e2.message; 
+                 }
+             } else {
+                msg.innerText = "Usuario o contraseña incorrectos.";
+             }
+        } else {
+            msg.innerText = "Error: " + err.message;
+        }
+    }
+}
 
         function logout() { auth.signOut(); location.reload(); }
 
@@ -450,9 +437,9 @@
     // (Asegurate de que los ID en el HTML coincidan: new-user-email, new-user-pass, new-user-name)
     // Nota: en el HTML podés cambiar el placeholder de "Email" a "Usuario Nuevo"
     
-    let uInput = document.getElementById('new-user-email').value.trim(); 
+    let uInput = document.getElementById('new-user-username').value.trim(); 
     const pass = document.getElementById('new-user-pass').value;
-    const name = document.getElementById('new-user-name').value;
+    const name = document.getElementById('new-user-fullname').value;
 
     if(!uInput || !pass) return alert("Faltan datos");
 
@@ -592,7 +579,7 @@
 
         function cycle(iso){
             const m = userData.materias.find(x=>x.id===activeId);
-            if(!m.cronograma) m.cronograma={};
+            if(!m.cronograma) m.cronograma = {};
             const sts=['Presencial','Virtual','Sincronico','Asincronico','Sin Clase'];
             const c=m.cronograma[iso]||m.modalidadBase;
             m.cronograma[iso]=sts[(sts.indexOf(c)+1)%sts.length];
@@ -766,170 +753,6 @@
         function clearCanvas(){ctx.fillStyle="white";ctx.fillRect(0,0,canvas.width,canvas.height);}
 
         lucide.createIcons();
-        // --- PEGAR AL FINAL DEL SCRIPT PARA RECUPERAR FUNCIONES ---
-
-// 1. CÁLCULO DE CRONOGRAMA REAL (16 SEMANAS CON FECHAS)
-function renderCrono(){
-    const m = userData.materias.find(x => x.id === activeId);
-    if(!m) return;
-    const l = document.getElementById('lista-cronograma'); 
-    l.innerHTML = ''; 
-
-    // Mapa de días a números JS
-    const map = {'Domingo':0,'Lunes':1,'Martes':2,'Miércoles':3,'Jueves':4,'Viernes':5,'Sábado':6};
-    const targetDay = map[m.dia];
-    
-    // Buscar el primer día de cursada
-    let d = new Date(m.fechaInicio + 'T12:00:00'); // Forzar mediodía para evitar problemas de zona horaria
-    while(d.getDay() !== targetDay) {
-        d.setDate(d.getDate() + 1);
-    }
-
-    // Generar 16 clases
-    for(let i=0; i<16; i++){
-        const iso = d.toISOString().split('T')[0];
-        const displayDate = `${d.getDate()}/${d.getMonth()+1}`;
-        
-        // Estado de la clase (Presencial, Virtual, etc)
-        let st = m.cronograma?.[iso] || ((m.modalidadBase==='Hibrida')?'Presencial':m.modalidadBase);
-        if(m.modalidadBase === 'Virtual') st = 'Virtual';
-        
-        // Estilos según estado
-        let badgeClass = 'bg-gray-100 text-gray-500';
-        let icon = 'circle';
-        if(st.startsWith('Presenc')) { badgeClass='bg-raspanti-bordo text-white'; icon='map-pin'; }
-        else if(st.startsWith('Virt') || st.startsWith('Sinc')) { badgeClass='bg-blue-600 text-white'; icon='video'; }
-        else if(st.startsWith('Asinc')) { badgeClass='bg-yellow-100 text-yellow-800'; icon='book-open'; }
-        else if(st === 'Sin Clase') { badgeClass='line-through opacity-40'; icon='slash'; }
-
-        // Datos precargados
-        const plan = m.planificacion?.[iso] || {};
-        const tema = typeof plan === 'string' ? plan : (plan.tema || '');
-        const act = plan.actClase ? `<div class="text-[10px] text-blue-600 mt-1">📝 ${plan.actClase}</div>` : '';
-
-        l.innerHTML += `
-        <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-2">
-            <div class="flex justify-between items-center mb-2">
-                <span class="font-bold text-gray-700 text-sm">${displayDate}</span>
-                <button onclick="cycle('${iso}')" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${badgeClass} transition hover:scale-105">${st}</button>
-            </div>
-            <div class="relative">
-                <input type="text" class="w-full text-sm bg-gray-50 p-2 rounded border border-transparent focus:bg-white focus:border-raspanti-dorado outline-none transition" 
-                       placeholder="Tema del día..." 
-                       value="${tema}" 
-                       onchange="saveTemaSimple('${iso}', this.value)">
-                ${act}
-                <button onclick="openClaseDetail('${iso}')" class="absolute right-2 top-2 text-gray-400 hover:text-blue-500"><i data-lucide="maximize-2" class="w-4 h-4"></i></button>
-            </div>
-        </div>`;
-        
-        // Avanzar una semana
-        d.setDate(d.getDate() + 7);
-    }
-    lucide.createIcons();
-}
-
-function cycle(iso){
-    const m = userData.materias.find(x => x.id === activeId);
-    if(!m.cronograma) m.cronograma = {};
-    
-    const states = ['Presencial', 'Virtual', 'Sincronico', 'Asincronico', 'Sin Clase'];
-    const current = m.cronograma[iso] || m.modalidadBase;
-    
-    // Buscar siguiente estado
-    let nextIdx = (states.indexOf(current) + 1) % states.length;
-    m.cronograma[iso] = states[nextIdx];
-    
-    saveData();
-    renderCrono();
-}
-
-function saveTemaSimple(iso, val) {
-    const m = userData.materias.find(x => x.id === activeId);
-    if(!m.planificacion) m.planificacion = {};
-    if(!m.planificacion[iso]) m.planificacion[iso] = {};
-    
-    // Si era string, lo convertimos a objeto
-    if(typeof m.planificacion[iso] === 'string') m.planificacion[iso] = { tema: m.planificacion[iso] };
-    
-    m.planificacion[iso].tema = val;
-    saveData();
-}
-
-// 2. EXPORTACIÓN REAL A EXCEL (CSV)
-function exportarExcel(){
-    const m = userData.materias.find(x => x.id === activeId);
-    if(!m) return;
-
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "APELLIDO,NOMBRE,% ASISTENCIA,PROMEDIO\n";
-
-    // Calcular fechas de asistencia para las columnas (Opcional, acá simplificado)
-    m.alumnos.forEach(alum => {
-        // Calcular promedio
-        let suma = 0, cant = 0;
-        if(alum.notas) {
-            Object.values(alum.notas).forEach(n => {
-                if(n && !isNaN(n)) { suma += parseFloat(n); cant++; }
-            });
-        }
-        const prom = cant > 0 ? (suma/cant).toFixed(2) : '-';
-
-        // Calcular asistencia
-        // (Lógica simplificada: contar P sobre total de clases registradas)
-        let asistencias = 0; // Placeholder
-        
-        csvContent += `${alum.ape},${alum.nom},${asistencias}%,${prom}\n`;
-    });
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Planilla_${m.nombre}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-}
-
-// 3. GENERACIÓN DE PDF CON TABLAS
-function generarPDF(){
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const m = userData.materias.find(x => x.id === activeId);
-
-    // Título
-    doc.setFontSize(18);
-    doc.setTextColor(20, 78, 126); // Azul Nómade
-    doc.text(`Planilla: ${m.nombre}`, 14, 20);
-    
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(`Docente: ${document.getElementById('dash-name').innerText} | Generado por Nómade`, 14, 28);
-
-    // Tabla de Alumnos
-    const headers = [['Apellido', 'Nombre', 'Promedio']];
-    const body = m.alumnos.map(a => {
-        let suma = 0, cant = 0;
-        if(a.notas) Object.values(a.notas).forEach(n => { if(n) { suma+=parseFloat(n); cant++; }});
-        const prom = cant>0 ? (suma/cant).toFixed(2) : '-';
-        return [a.ape, a.nom, prom];
-    });
-
-    doc.autoTable({
-        startY: 35,
-        head: headers,
-        body: body,
-        theme: 'grid',
-        headStyles: { fillColor: [20, 78, 126] }
-    });
-
-    doc.save(`Planilla_${m.nombre}.pdf`);
-}
-
     </script>
 </body>
 </html>
-
-
-
-
