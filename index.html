@@ -17,13 +17,8 @@
             theme: {
                 extend: {
                     colors: {
-                        nomade: { 
-                            blue: '#144E7E',   // Títulos, pie, principal
-                            green: '#1FA194',  // Acción, botones, acentos
-                            cream: '#FAF7F0',  // Fondos
-                            white: '#FFFFFF',  // Tarjetas
-                            text: '#2C3E50'    // Texto lectura
-                        }
+                        nomade: { blue: '#144E7E', green: '#1FA194', cream: '#FAF7F0', white: '#FFFFFF', text: '#2C3E50' },
+                        raspanti: { bordo: '#800020', crema: '#FFFDD0', dorado: '#C5B358' }
                     }
                 }
             }
@@ -44,7 +39,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         /* ESTILOS NÓMADE */
-        .login-bg { background-color: #144E7E; } /* Azul Nómade Fondo Login */
+        .login-bg { background-color: #144E7E; }
         
         .toggle-checkbox:checked { right: 0; border-color: #1FA194; }
         .toggle-checkbox:checked + .toggle-label { background-color: #1FA194; }
@@ -64,7 +59,7 @@
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .calendar-day { background: white; border-radius: 8px; min-height: 70px; padding: 4px; font-size: 10px; position: relative; border: 1px solid #f1f5f9; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; }
         .calendar-day:active { background-color: #f8fafc; border-color: #1FA194; }
-        .calendar-day.today { border: 2px solid #1FA194; background: #F0FDFA; } /* Verde suave */
+        .calendar-day.today { border: 2px solid #1FA194; background: #F0FDFA; }
         .dots-container { display: flex; gap: 2px; flex-wrap: wrap; content-visibility: auto; }
         .event-dot { width: 6px; height: 6px; border-radius: 50%; }
         
@@ -182,25 +177,52 @@
                     </div>
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <div><label class="retro-label">MATERIA</label><input id="ia-materia" class="retro-select" placeholder="Materia"></div>
-                        <div><label class="retro-label">INSTANCIA</label><select id="ia-instancia" class="retro-select"><option>Parcial</option><option>TP</option><option>Final</option></select></div>
+                        <div>
+                            <label class="retro-label">INSTANCIA</label>
+                            <select id="ia-instancia" class="retro-select">
+                                <option value="Parcial Domiciliario">Parcial Domiciliario</option>
+                                <option value="Trabajo Práctico">Trabajo Práctico</option>
+                                <option value="Parcial Presencial">Parcial Presencial</option>
+                                <option value="Examen Final">Examen Final</option>
+                                <option value="Entrega de Proceso">Entrega de Proceso</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="section-title">1. DIMENSIÓN TEÓRICA Y PRÁCTICA</div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div><label class="retro-label">Dominio Conceptual</label><select id="crit-contenidos" class="retro-select"><option>Excelente profundidad</option><option>Muy buena comprensión</option><option>Comprensión correcta</option><option>Confusiones a revisar</option><option>Insuficiente</option></select></div>
-                        <div><label class="retro-label">Vinculación Práctica</label><select id="crit-practica" class="retro-select"><option>Excelente articulación</option><option>Logra relacionar</option><option>Escasa / Forzada</option><option>Sin vínculo</option></select></div>
+                        <div><label class="retro-label">Dominio Conceptual</label><select id="crit-contenidos" class="retro-select"><option value="Excelente profundidad">Excelente profundidad</option><option value="Muy buena comprensión">Muy buena comprensión</option><option value="Comprensión correcta">Bueno / Correcto</option><option value="Confusiones a revisar">Regular / Confuso</option><option value="Contenidos insuficientes">Insuficiente</option></select></div>
+                        <div><label class="retro-label">Vinculación Práctica</label><select id="crit-practica" class="retro-select"><option value="Excelente articulación teoría-realidad">Excelente articulación</option><option value="Logra relacionar conceptos">Logra relacionar</option><option value="Relación escasa o forzada">Escasa / Forzada</option><option value="Sin vínculo con la práctica">Sin vínculo práctico</option></select></div>
                     </div>
                     
                     <div class="section-title">2. PENSAMIENTO CRÍTICO</div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div><label class="retro-label">Mirada Crítica</label><select id="crit-critica" class="retro-select"><option>Problematiza con agudeza</option><option>Articula opinión</option><option>Correcto pero descriptivo</option><option>Repite sentido común</option></select></div>
-                        <div><label class="retro-label">Indagación</label><select id="crit-preguntas" class="retro-select"><option>Abre nuevos interrogantes</option><option>Formula preguntas pertinentes</option><option>No abre preguntas</option></select></div>
+                        <div><label class="retro-label">Mirada Crítica</label><select id="crit-critica" class="retro-select"><option value="Problematiza con agudeza">Problematiza (Excelente)</option><option value="Articula opinión personal">Articula opinión (Muy Bien)</option><option value="Correcto pero descriptivo">Descriptivo (Bien)</option><option value="Sentido común / Repite">Sentido común</option></select></div>
+                        <div><label class="retro-label">Indagación</label><select id="crit-preguntas" class="retro-select"><option value="Abre nuevos interrogantes potentes">Abre interrogantes</option><option value="Formula preguntas pertinentes">Preguntas correctas</option><option value="Cierra sentidos, no pregunta">No abre preguntas</option></select></div>
                     </div>
 
                     <div class="section-title">3. ESCRITURA ACADÉMICA</div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div><label class="retro-label">Redacción</label><select id="crit-redaccion" class="retro-select"><option>Impecable y fluida</option><option>Clara</option><option>Errores leves</option><option>Confusa</option></select></div>
-                        <div><label class="retro-label">Vocabulario</label><select id="crit-vocabulario" class="retro-select"><option>Preciso y específico</option><option>Uso correcto</option><option>Coloquial</option></select></div>
+                        <div><label class="retro-label">Redacción</label><select id="crit-redaccion" class="retro-select"><option value="Impecable y fluida">Impecable</option><option value="Clara">Clara</option><option value="Errores leves de cohesión">Errores leves</option><option value="Confusa / Dificulta lectura">Confusa</option></select></div>
+                        <div><label class="retro-label">Vocabulario</label><select id="crit-vocabulario" class="retro-select"><option value="Preciso y específico de la materia">Preciso y específico</option><option value="Uso correcto en general">Uso correcto</option><option value="Coloquial o impreciso">Coloquial / Impreciso</option></select></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-1">
+                        <div><label class="retro-label">Normas APA</label><select id="crit-apa" class="retro-select"><option value="Citas y referencias impecables">Citas impecables</option><option value="Cita correctamente la mayoría">Citas correctas</option><option value="Errores en formato de cita">Errores formato</option><option value="No cita fuentes / Plagio involuntario">No cita fuentes</option></select></div>
+                        <div><label class="retro-label">Ortografía</label><select id="crit-ortografia" class="retro-select"><option value="Sin errores">Sin errores</option><option value="Algunos errores menores">Errores menores</option><option value="Errores frecuentes">Errores frecuentes</option></select></div>
+                    </div>
+
+                    <div class="section-title">4. PROCESO Y PRESENTACIÓN</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div><label class="retro-label">Creatividad</label><select id="crit-creatividad" class="retro-select"><option value="Muy original, marca personal">Muy original</option><option value="Buenas ideas propias">Buenas ideas</option><option value="Resolución estándar">Estándar</option><option value="Mecánico o estereotipado">Mecánico</option></select></div>
+                        <div><label class="retro-label">Evolución</label><select id="crit-evolucion" class="retro-select"><option value="Avance muy notable desde el inicio">Avance notable</option><option value="Se observa crecimiento">Crecimiento sostenido</option><option value="Mantiene el nivel (bueno)">Mantiene nivel</option><option value="Estancamiento o retroceso">Estancamiento</option></select></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-1">
+                        <div><label class="retro-label">Recursos</label><select id="crit-recursos" class="retro-select"><option value="Uso excelente de recursos (video/img)">Excelente uso</option><option value="Buenos soportes complementarios">Buenos</option><option value="Solo texto plano">Solo texto</option><option value="Fallo en soportes (links rotos)">Fallo soportes</option></select></div>
+                        <div><label class="retro-label">Síntesis</label><select id="crit-sintesis" class="retro-select"><option value="Poder de síntesis destacado">Gran síntesis</option><option value="Adecuada">Adecuada</option><option value="Reiterativo o extenso innecesariamente">Reiterativo</option><option value="Demasiado breve/incompleto">Incompleto</option></select></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-2 mt-1">
+                        <div><label class="retro-label">Entrega (Tiempo)</label><select id="crit-entrega" class="retro-select"><option value="En tiempo y forma">En tiempo y forma</option><option value="Entrega fuera de término">Fuera de término</option></select></div>
                     </div>
 
                     <div class="mt-4">
@@ -216,6 +238,10 @@
                 </div>
 
                 <div id="ia-resultado-container" class="hidden bg-white p-5 rounded-2xl shadow-lg border-2 border-nomade-green relative mt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-gray-700">Borrador (Editable):</h3>
+                        <span class="text-[10px] text-gray-400">Tocá para editar</span>
+                    </div>
                     <textarea id="ia-output" class="w-full h-64 p-3 bg-nomade-cream text-nomade-text text-sm leading-relaxed border border-gray-200 rounded-lg outline-none resize-none font-sans"></textarea>
                     <button onclick="copiarIA()" class="w-full bg-nomade-text text-white py-3 rounded-lg font-bold text-xs flex justify-center items-center gap-2 mt-3 hover:bg-black"><i data-lucide="copy" class="w-4 h-4"></i> COPIAR TEXTO FINAL</button>
                 </div>
@@ -299,7 +325,7 @@
 
     <script>
         // CONFIGURACIÓN (CLAVE 53l0 - GEMINI 1.5 FLASH)
-        const API_KEY = 'AIzaSyA--tY3eKlFqXQzaZWowOjfQHcNslC53l0'; 
+        const API_KEY = 'AIzaSyDlswk0-WP5ICNfTZ8EvwWvzR8r9jyWGt0'; 
         
         const firebaseConfig = {
             apiKey: "AIzaSyBpBjGm2jdqlearWnBiwn4jxjeby3nA0gk",
@@ -307,7 +333,8 @@
             projectId: "raspanti-app",
             storageBucket: "raspanti-app.firebasestorage.app",
             messagingSenderId: "898404256450",
-            appId: "1:898404256450:web:8ba27e3350b8efb22c095b"
+            appId: "1:898404256450:web:8ba27e3350b8efb22c095b",
+            measurementId: "G-QMMLBB5NJM"
         };
 
         const app = firebase.initializeApp(firebaseConfig);
@@ -316,7 +343,7 @@
         let secondaryApp;
         try { secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary"); } catch(e) { secondaryApp = firebase.app("Secondary"); }
 
-        // DATOS PRECARGADOS (ADMIN)
+        // DATOS PRECARGADOS (SOLO PARA ADMIN)
         const materiasData = [
             { id: 1741000000000, nombre: "Reflexión Filosófica de la Educación", dia: "Lunes", modalidadBase: "Presencial", fechaInicio: "2026-03-16", planificacion: { "2026-03-16": { tema: "PRESENTACIÓN de la materia", biblio: "Lectura programa", actClase: "Acuerdos didácticos" }, "2026-03-23": { tema: "FERIADO", biblio: "-", actClase: "-" }, "2026-03-30": { tema: "¿Qué es la Filosofía de la educación?", biblio: "Kohan + Juego de preguntas", actClase: "Escritura a partir de imágenes" }, "2026-04-06": { tema: "Filosofía de la educación como filosofía práctica", biblio: "Fernandez", actClase: "Recorrido por la institución" }, "2026-04-13": { tema: "Poder y saber: diciplinamiento de la subjetividad", biblio: "Vigilar y Castigar (Foucault)", actClase: "" }, "2026-04-20": { tema: "Pedagogía del oprimido/Pedagogía liberadora", biblio: "Freire + Material cátedra", actClase: "Libro 'La caja'" } }, cronograma: { "2026-03-23": "Sin Clase", "2026-05-25": "Sin Clase", "2026-06-15": "Sin Clase" }, alumnos: [], examenes: [] },
             { id: 1741000000001, nombre: "Cultura Digital y Educación", dia: "Miércoles", modalidadBase: "Virtual", fechaInicio: "2026-03-18", planificacion: { "2026-03-18": { tema: "Presentación de materia+modalidad", biblio: "", actClase: "" }, "2026-03-25": { tema: "Comunidades de aprendizaje", biblio: "Schwartzman, G. (2002)", actClase: "" }, "2026-04-01": { tema: "Concepciones de enseñanza", biblio: "Jordi Adelle (2012)", actClase: "Multiple choice" } }, cronograma: { "2026-03-18": "Sincronico", "2026-04-15": "Sincronico", "2026-05-13": "Sincronico", "2026-06-17": "Sincronico" }, alumnos: [], examenes: [] },
@@ -555,7 +582,7 @@
             btn.innerHTML = '<div class="loader"></div> Pensando...'; btn.disabled = true;
 
             const fullPrompt = `Sos Lucía Snieg, experta en educación. Redactá una devolución para el alumno ${nombre} de la materia ${materia}. Observación: ${obsExtra}. Sé cálida y profesional.
-            Criterios: ${document.getElementById('crit-contenidos').value}, ${document.getElementById('crit-practica').value}, ${document.getElementById('crit-critica').value}.`;
+            Criterios: ${document.getElementById('crit-contenidos').value}, ${document.getElementById('crit-practica').value}, ${document.getElementById('crit-critica').value}, ${document.getElementById('crit-preguntas').value}, ${document.getElementById('crit-redaccion').value}, ${document.getElementById('crit-vocabulario').value}, ${document.getElementById('crit-apa').value}, ${document.getElementById('crit-ortografia').value}, ${document.getElementById('crit-creatividad').value}, ${document.getElementById('crit-evolucion').value}, ${document.getElementById('crit-recursos').value}, ${document.getElementById('crit-sintesis').value}, ${document.getElementById('crit-entrega').value}.`;
             
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CLEAN_KEY}`;
 
@@ -677,7 +704,7 @@
         function toggleTarea(i){userData.tareas[i].done=!userData.tareas[i].done; saveData(); renderTareas();}
         function borrarTarea(i){userData.tareas.splice(i,1); saveData(); renderTareas();}
 
-        // --- CUADERNO (CON DIBUJO) ---
+        // --- CUADERNO ---
         function renderNotesList(){const l=document.getElementById('lista-notas'); l.innerHTML=''; if(!userData.notas || userData.notas.length===0){document.getElementById('no-notas').classList.remove('hidden');return;} document.getElementById('no-notas').classList.add('hidden'); userData.notas.forEach((n,i)=>{const icon=n.type==='text'?'file-text':'image';const c=n.type==='text'?'text-blue-500':'text-purple-500';l.innerHTML+=`<div onclick="openNoteEditor(${i})" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between h-32 relative group cursor-pointer"><div><i data-lucide="${icon}" class="w-6 h-6 ${c} mb-2"></i><h3 class="font-bold text-sm text-gray-800 leading-tight line-clamp-2">${n.title}</h3><p class="text-[10px] text-gray-400 mt-1">${new Date(n.id).toLocaleDateString()}</p></div><button onclick="event.stopPropagation();deleteNote(${i})" class="absolute top-2 right-2 text-gray-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;}); lucide.createIcons();}
         function createNote(t){const tl=document.getElementById('new-nota-title').value||'Sin Título'; if(!userData.notas)userData.notas=[]; userData.notas.unshift({id:Date.now(),title:tl,type:t,content:t==='text'?'':null}); saveData(); closeModal('modal-new-nota'); document.getElementById('new-nota-title').value=''; openNoteEditor(0);}
         function deleteNote(i){if(confirm('¿Borrar?')){userData.notas.splice(i,1); saveData(); renderNotesList();}}
