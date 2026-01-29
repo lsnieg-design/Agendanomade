@@ -17,7 +17,7 @@
             theme: {
                 extend: {
                     colors: {
-                        nomade: { dark: '#1c1c1c', gold: '#D4AF37', light: '#F5F5F5', accent: '#3b82f6' },
+                        nomade: { dark: '#1c1c1c', gold: '#D4AF37', light: '#F5F5F5' },
                         raspanti: { bordo: '#800020', crema: '#FFFDD0', dorado: '#C5B358' }
                     }
                 }
@@ -61,7 +61,7 @@
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .calendar-day { background: white; border-radius: 8px; min-height: 70px; padding: 4px; font-size: 10px; position: relative; border: 1px solid #f1f5f9; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; }
         .calendar-day:active { background-color: #f8fafc; border-color: #C5B358; }
-        .calendar-day.today { border: 2px solid #C5B358; background: #FFFBEB; }
+        .calendar-day.today { border: 2px solid #D4AF37; background: #FFFBEB; }
         .day-number { font-weight: bold; font-size: 12px; color: #334155; }
         .dots-container { display: flex; gap: 2px; flex-wrap: wrap; content-visibility: auto; }
         .event-dot { width: 6px; height: 6px; border-radius: 50%; }
@@ -102,7 +102,7 @@
             <p id="login-msg" class="text-xs mt-4 h-4 text-red-400 font-bold"></p>
         </div>
         
-        <p class="mt-12 text-[10px] opacity-30">v25.0 &bull; Powered by Lucía Snieg</p>
+        <p class="mt-12 text-[10px] opacity-30">v27.0 &bull; Powered by Lucía Snieg</p>
     </div>
 
     <div id="app-content" class="flex flex-col h-full hidden relative">
@@ -232,6 +232,8 @@
                     <button onclick="generarDevolucion()" id="btn-generar" class="w-full bg-raspanti-bordo text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2 mt-4 hover:bg-red-900 transition"><i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN</button>
                     
                     <p id="ia-locked-msg" class="hidden text-center text-xs text-red-400 mt-2 font-bold bg-red-50 p-2 rounded border border-red-100"><i data-lucide="lock" class="w-3 inline"></i> Función exclusiva para Administradores</p>
+                    
+                    <div id="debug-log" class="hidden bg-red-100 text-red-800 text-[10px] p-2 mt-2 rounded"></div>
                 </div>
 
                 <div id="ia-resultado-container" class="hidden bg-white p-5 rounded-2xl shadow-lg border-2 border-raspanti-dorado relative mt-4">
@@ -239,7 +241,7 @@
                         <h3 class="font-bold text-gray-700">Borrador (Editable):</h3>
                         <span class="text-[10px] text-gray-400">Tocá para editar</span>
                     </div>
-                    <textarea id="ia-output" class="w-full h-64 p-3 bg-yellow-50 text-gray-700 text-sm leading-relaxed border border-gray-200 rounded-lg outline-none focus:border-raspanti-dorado resize-none font-sans"></textarea>
+                    <textarea id="ia-output" class="w-full h-64 p-3 bg-yellow-50 text-gray-700 text-sm leading-relaxed border border-gray-200 rounded-lg outline-none resize-none font-sans"></textarea>
                     <button onclick="copiarIA()" class="w-full bg-gray-800 text-white py-3 rounded-lg font-bold text-xs flex justify-center items-center gap-2 mt-3 hover:bg-black"><i data-lucide="copy" class="w-4 h-4"></i> COPIAR TEXTO FINAL</button>
                 </div>
             </div>
@@ -293,9 +295,9 @@
 
         <nav id="navbar" class="fixed bottom-0 w-full bg-white border-t border-gray-200 h-16 flex justify-around items-center z-30 pb-safe-bottom shadow-[0_-5px_10px_rgba(0,0,0,0.05)]">
             <button onclick="nav('dashboard')" id="nav-dash" class="flex flex-col items-center text-raspanti-bordo w-full justify-center"><i data-lucide="layout-dashboard" class="w-5 mb-1"></i><span class="text-[9px] font-bold">INICIO</span></button>
-            <button onclick="nav('calendario')" id="nav-cal" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="calendar" class="w-5 mb-1"></i><span class="text-[9px] font-bold">CALENDARIO</span></button>
-            <button onclick="nav('retro')" id="nav-ret" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="sparkles" class="w-5 mb-1"></i><span class="text-[9px] font-bold">RETRO</span></button>
             <button onclick="nav('materias')" id="nav-mat" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="book" class="w-5 mb-1"></i><span class="text-[9px] font-bold">MATERIAS</span></button>
+            <button onclick="nav('retro')" id="nav-ret" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="sparkles" class="w-5 mb-1"></i><span class="text-[9px] font-bold">IA</span></button>
+            <button onclick="nav('calendario')" id="nav-cal" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="calendar" class="w-5 mb-1"></i><span class="text-[9px] font-bold">CALENDARIO</span></button>
             <button onclick="nav('cuaderno')" id="nav-cua" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="notebook" class="w-5 mb-1"></i><span class="text-[9px] font-bold">CUADERNO</span></button>
         </nav>
     </div>
@@ -367,14 +369,14 @@
             try {
                 await auth.signInWithEmailAndPassword(e, p);
             } catch (err) {
-                if(err.code === 'auth/user-not-found') {
-                     if(confirm("Usuario no encontrado. ¿Registrar nuevo Admin?")) {
+                // DETECCIÓN INTELIGENTE DE USUARIO NUEVO
+                if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-login-credentials' || err.code === 'auth/invalid-credential') {
+                     if(confirm("No se pudo ingresar. ¿Querés registrar esta cuenta como ADMIN?")) {
                          try {
                             const cred = await auth.createUserWithEmailAndPassword(e, p);
-                            await dbCloud.collection('users').doc(cred.user.uid).set({ email: e, role: 'admin', name: 'Admin' });
-                            // Solo si es tu mail carga las materias, sino vacio
-                            const initialData = (e.includes("admin") || e.includes("lucia")) ? { materias: materiasData } : { materias: [] };
-                            await dbCloud.collection('app_data').doc(cred.user.uid).set(initialData);
+                            await dbCloud.collection('users').doc(cred.user.uid).set({ email: e, role: 'admin', name: 'Admin Nómade' });
+                            // Solo carga tus materias si sos vos (o el primer admin)
+                            await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: materiasData, tareas: [], notas: [], eventos: {} });
                             location.reload();
                          } catch(e2) { msg.innerText = e2.message; }
                      }
@@ -388,7 +390,7 @@
             const doc = await dbCloud.collection('app_data').doc(uid).get();
             if(doc.exists) {
                 userData = doc.data();
-                if(!userData.materias) userData.materias = []; // Protección
+                if(!userData.materias) userData.materias = []; 
             } else {
                 userData = { materias: [], tareas: [], notas: [], eventos: {} };
                 saveData();
@@ -467,7 +469,7 @@
             if(!userData.materias || userData.materias.length === 0){document.getElementById('no-materias').classList.remove('hidden'); return;}
             document.getElementById('no-materias').classList.add('hidden');
             userData.materias.forEach(m=>{
-                l.innerHTML += `<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center"><div onclick="abrirAula(${m.id})" class="flex-1"><h3 class="font-bold text-nomade-dark">${m.nombre}</h3><div class="text-xs text-gray-400 uppercase">${m.dia} • ${m.modalidadBase}</div></div><div class="flex gap-1"><button onclick="openMateriaModal(${m.id})" class="text-gray-400 hover:text-blue-500 p-2"><i data-lucide="pencil" class="w-4"></i></button><button onclick="borrarMateria(${m.id})" class="text-gray-400 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-4"></i></button></div></div>`;
+                l.innerHTML += `<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center" onclick="abrirAula(${m.id})"><div><h3 class="font-bold text-nomade-dark">${m.nombre}</h3><div class="text-xs text-gray-400 uppercase">${m.dia} • ${m.modalidadBase}</div></div><i data-lucide="chevron-right" class="text-gray-300"></i></div>`;
             });
             lucide.createIcons();
         }
@@ -480,6 +482,7 @@
             nav('aula'); setTab('crono');
         }
 
+        // CÁLCULO DE CRONOGRAMA 16 SEMANAS
         function renderCrono(){
             const m=userData.materias.find(x=>x.id===activeId), l=document.getElementById('lista-cronograma'); l.innerHTML=''; 
             const map={'Domingo':0,'Lunes':1,'Martes':2,'Miércoles':3,'Jueves':4,'Viernes':5,'Sábado':6}, t=map[m.dia]; 
@@ -576,7 +579,7 @@
             for(let i=0; i<firstDay; i++) grid.innerHTML += '<div></div>';
             for(let day=1; day<=daysInMonth; day++){
                 const date = new Date(year, month, day); const iso = formatDate(date);
-                const isToday = iso === formatDate(new Date());
+                const isToday = iso === new Date().toISOString().split('T')[0];
                 grid.innerHTML += `<div class="calendar-day ${isToday?'today':''}"><span class="day-number">${day}</span></div>`;
             }
         }
@@ -601,6 +604,10 @@
         function closeModal(id){document.getElementById(id).classList.add('hidden');}
         function openModal(id){document.getElementById(id).classList.remove('hidden');}
         function setTab(t){['crono','alumnos','notas'].forEach(x=>{document.getElementById('tab-'+x).classList.add('hidden'); document.getElementById('btn-'+x).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400';}); document.getElementById('tab-'+t).classList.remove('hidden'); document.getElementById('btn-'+t).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-raspanti-crema text-raspanti-bordo'; if(t==='crono')renderCrono(); if(t==='alumnos')renderAlum(); if(t==='notas')renderNotas();}
+        function openClaseDetail(iso){activeDateISO = iso; const m=userData.materias.find(x=>x.id===activeId); const p = m.planificacion?.[iso] || {}; document.getElementById('detail-date').innerText = `Clase del ${iso.split('-').reverse().slice(0,2).join('/')}`; document.getElementById('detail-tema').value = p.tema || ''; document.getElementById('detail-biblio').value = p.biblio || ''; document.getElementById('detail-act-clase').value = p.actClase || ''; document.getElementById('detail-act-tarea').value = p.actTarea || ''; document.getElementById('modal-clase-detail').classList.remove('hidden');}
+        function saveClaseDetail(){const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={}; const p = {tema: document.getElementById('detail-tema').value, biblio: document.getElementById('detail-biblio').value, actClase: document.getElementById('detail-act-clase').value, actTarea: document.getElementById('detail-act-tarea').value}; m.planificacion[activeDateISO] = p; saveData(); closeModal('modal-clase-detail'); renderCrono();}
+        function openImportModal() { document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('input-import-text').value=''; }
+        function processImport() { const raw = document.getElementById('input-import-text').value; if(!raw.trim()) { alert("Pega el contenido."); return; } const lines = raw.split('\n'); const m = userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion = {}; let count = 0; lines.forEach(line => { const parts = line.split('\t'); if(parts.length >= 1) { const dateRaw = parts[0].trim(); const match = dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/); if(match) { const day = match[1].padStart(2,'0'); const month = match[2].padStart(2,'0'); const year = match[3].length === 2 ? '20'+match[3] : match[3]; const isoDate = `${year}-${month}-${day}`; let idx = 1; if(parts[idx] && parts[idx].trim().length < 3 && !isNaN(parseInt(parts[idx]))) idx++; const tema = parts[idx] ? parts[idx].trim() : ""; const biblio = parts[idx+1] ? parts[idx+1].trim() : ""; const actClase = parts[idx+2] ? parts[idx+2].trim() : ""; const actTarea = parts[idx+3] ? parts[idx+3].trim() : ""; if(tema) { m.planificacion[isoDate] = { tema, biblio, actClase, actTarea }; count++; } } } }); saveData(); alert(`✅ Se importaron ${count} clases.`); closeModal('modal-import'); renderCrono(); }
         
         // --- GESTION ALUMNOS ---
         function renderAlum(){
@@ -617,7 +624,7 @@
         function renderNotas(){
             const m=userData.materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); 
             h.innerHTML='<th class="p-3 sticky left-0 bg-gray-50 text-xs font-bold text-gray-500">ALUMNO</th>'; 
-            m.examenes.forEach((e,i)=>h.innerHTML+=`<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500 cursor-pointer" onclick="openExamModal(${i})">${e.nombre}</th>`); 
+            m.examenes.forEach((e,i)=>h.innerHTML+=`<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500 uppercase cursor-pointer" onclick="openExamModal(${i})">${e.nombre}</th>`); 
             h.innerHTML+='<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500"><button onclick="openExamModal()" class="text-blue-500">+</button></th>';
             b.innerHTML=''; 
             m.alumnos.forEach((al,i)=>{
