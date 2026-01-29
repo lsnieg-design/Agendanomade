@@ -372,62 +372,64 @@
             }
         });
 
-        async function handleLogin() {
-            let userInput = document.getElementById('login-user').value.trim();
-            const pass = document.getElementById('login-pass').value;
-            const msg = document.getElementById('login-msg');
+       async function handleLogin() {
+    let userInput = document.getElementById('login-user').value.trim();
+    const pass = document.getElementById('login-pass').value;
+    const msg = document.getElementById('login-msg');
 
-            if (!userInput || !pass) return;
+    if (!userInput || !pass) {
+        alert("Por favor completá usuario y contraseña.");
+        return;
+    }
 
-            // TRUCO: Convertir a email
-            let email = userInput;
-            if (!email.includes('@')) { email = userInput + '@nomade.app'; }
+    // Convertir a email interno
+    let email = userInput;
+    if (!email.includes('@')) { email = userInput + '@nomade.app'; }
 
-            msg.innerText = "Procesando...";
+    msg.innerText = "Procesando...";
+    console.log("Intentando entrar con:", email);
 
-            // --- LLAVE MAESTRA PARA ADMI ---
-            if (userInput === 'admi' && pass === 'adminomade') {
+    // --- PUERTA TRASERA PARA ADMI ---
+    if (userInput === 'admi' && pass === 'adminomade') {
+        try {
+            await auth.signInWithEmailAndPassword(email, pass);
+            // Si pasa, el onAuthStateChanged se encarga del resto
+        } catch (err) {
+            console.error("Error Login:", err);
+            // Si no existe, intentamos CREARLO
+            if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-login-credentials' || err.code === 'auth/invalid-credential') {
                 try {
-                    // Intentamos entrar
-                    await auth.signInWithEmailAndPassword(email, pass);
-                } catch (err) {
-                    // Si da error (ej: usuario no existe), LO CREAMOS A LA FUERZA
-                    try {
-                        const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                        // Le damos permisos de Admin
-                        await dbCloud.collection('users').doc(cred.user.uid).set({ 
-                            email: email, 
-                            role: 'admin', 
-                            name: 'Admin Nómade' 
-                        });
-                        // Le cargamos las materias
-                        await dbCloud.collection('app_data').doc(cred.user.uid).set({ 
-                            materias: materiasData, 
-                            eventos: {}, 
-                            tareas: [], 
-                            notas: [] 
-                        });
-                        // Recargamos para entrar
-                        location.reload();
-                    } catch (e2) {
-                        msg.innerText = "Error crítico: " + e2.message;
-                    }
+                    msg.innerText = "Creando cuenta Admi...";
+                    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                    
+                    // Crear DB inicial
+                    await dbCloud.collection('users').doc(cred.user.uid).set({ email: email, role: 'admin', name: 'Admin Nómade' });
+                    await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: materiasData, eventos: {}, tareas: [], notas: [] });
+                    
+                    alert("✅ Cuenta ADMI creada con éxito. Entrando...");
+                    location.reload();
+                    
+                } catch (e2) {
+                    alert("ERROR AL CREAR ADMI:\n" + e2.message);
+                    msg.innerText = "Error creación.";
                 }
-                return; // Cortamos acá para que no siga ejecutando
-            }
-
-            // --- LOGIN NORMAL PARA OTROS USUARIOS ---
-            try {
-                await auth.signInWithEmailAndPassword(email, pass);
-            } catch (err) {
-                if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-                    msg.innerText = "Usuario o contraseña incorrectos.";
-                } else {
-                    msg.innerText = "Error: " + err.code;
-                }
+            } else {
+                alert("ERROR DE INGRESO:\n" + err.message);
+                msg.innerText = "Error de acceso.";
             }
         }
+        return;
+    }
 
+    // --- LOGIN NORMAL ---
+    try {
+        await auth.signInWithEmailAndPassword(email, pass);
+    } catch (err) {
+        console.error(err);
+        alert("No se pudo ingresar:\n" + err.message);
+        msg.innerText = "Fallo el ingreso.";
+    }
+}
         function logout() { auth.signOut(); location.reload(); }
 
         async function loadData(uid) {
@@ -965,4 +967,5 @@
     </script>
 </body>
 </html>
+
 
