@@ -9,7 +9,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#144E7E">
-    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="apple-touch-icon" href="nomade.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -79,7 +79,7 @@
 
     <div id="cloud-status"><i data-lucide="cloud" class="w-3 h-3"></i> <span id="cloud-text">Sincronizado</span></div>
 
-    <div id="auth-screen" class="fixed inset-0 login-bg z-50 flex flex-col items-center justify-center p-6 text-center text-white fade-in">
+        <div id="auth-screen" class="fixed inset-0 login-bg z-50 flex flex-col items-center justify-center p-6 text-center text-white fade-in">
         <div class="mb-6 drop-shadow-xl">
             <img src="nomade.png" alt="Nómade Logo" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green">
         </div>
@@ -89,12 +89,13 @@
         <div class="w-full max-w-xs space-y-4">
             <div class="relative">
                 <i data-lucide="user" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
-                
+                <input type="text" id="login-user" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Usuario">
             </div>
+
             <div class="relative">
                 <i data-lucide="lock" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
-                <input type="password" id="login-pass" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-gold outline-none transition text-center" placeholder="Contraseña">
-    </div>
+                <input type="password" id="login-pass" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Contraseña">
+            </div>
             
             <button onclick="handleLogin()" id="btn-login" class="bg-nomade-green text-white w-full py-4 rounded-xl font-bold shadow-lg hover:bg-teal-600 transition tracking-widest mt-2 transform active:scale-95">INGRESAR</button>
             <p id="login-msg" class="text-xs mt-4 h-4 text-red-300 font-bold"></p>
@@ -106,10 +107,11 @@
         </div>
     </div>
 
+
     <div id="app-content" class="flex flex-col h-full hidden relative">
         <header class="bg-nomade-blue text-white p-4 flex justify-between items-center shadow-md z-20 pt-safe-top">
             <div class="flex items-center gap-3">
-                <img src="logo.png" class="w-8 h-8 bg-white rounded-full p-0.5">
+                <img src="nomade.png" class="w-8 h-8 bg-white rounded-full p-0.5">
                 <span class="font-bold text-sm uppercase tracking-wider">Mi Agenda</span>
             </div>
             <div class="flex items-center gap-3">
@@ -250,7 +252,7 @@
             <div id="view-admin" class="hidden fade-in space-y-4">
                 <div class="bg-nomade-blue text-white p-6 rounded-2xl shadow-lg">
                     <div class="flex items-center gap-3 mb-2">
-                        <img src="logo.png" class="w-10 h-10 bg-white rounded-full p-0.5">
+                        <img src="nomade.png" class="w-10 h-10 bg-white rounded-full p-0.5">
                         <div>
                             <h2 class="text-xl font-black uppercase tracking-widest">NÓMADE</h2>
                             <p class="text-xs text-nomade-green font-bold">PANEL DE CONTROL</p>
@@ -917,4 +919,5 @@ function generarPDF(){
     </script>
 </body>
 </html>
+
 
