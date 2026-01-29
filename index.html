@@ -71,7 +71,6 @@
 
         #cloud-status { position: fixed; top: 10px; right: 10px; z-index: 100; font-size: 10px; font-weight: bold; background: rgba(255,255,255,0.95); padding: 4px 10px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 5px; opacity: 0; transition: opacity 0.5s; pointer-events: none; color: #1FA194;}
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #1FA194; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="h-screen flex flex-col text-nomade-text bg-nomade-cream">
@@ -189,40 +188,10 @@
                         </div>
                     </div>
 
-                    <div class="section-title">1. DIMENSIÓN TEÓRICA Y PRÁCTICA</div>
+                    <div class="section-title">EVALUACIÓN</div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div><label class="retro-label">Dominio Conceptual</label><select id="crit-contenidos" class="retro-select"><option value="Excelente profundidad">Excelente profundidad</option><option value="Muy buena comprensión">Muy buena comprensión</option><option value="Comprensión correcta">Bueno / Correcto</option><option value="Confusiones a revisar">Regular / Confuso</option><option value="Contenidos insuficientes">Insuficiente</option></select></div>
-                        <div><label class="retro-label">Vinculación Práctica</label><select id="crit-practica" class="retro-select"><option value="Excelente articulación teoría-realidad">Excelente articulación</option><option value="Logra relacionar conceptos">Logra relacionar</option><option value="Relación escasa o forzada">Escasa / Forzada</option><option value="Sin vínculo con la práctica">Sin vínculo práctico</option></select></div>
-                    </div>
-                    
-                    <div class="section-title">2. PENSAMIENTO CRÍTICO</div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><label class="retro-label">Mirada Crítica</label><select id="crit-critica" class="retro-select"><option value="Problematiza con agudeza">Problematiza (Excelente)</option><option value="Articula opinión personal">Articula opinión (Muy Bien)</option><option value="Correcto pero descriptivo">Descriptivo (Bien)</option><option value="Sentido común / Repite">Sentido común</option></select></div>
-                        <div><label class="retro-label">Indagación</label><select id="crit-preguntas" class="retro-select"><option value="Abre nuevos interrogantes potentes">Abre interrogantes</option><option value="Formula preguntas pertinentes">Preguntas correctas</option><option value="Cierra sentidos, no pregunta">No abre preguntas</option></select></div>
-                    </div>
-
-                    <div class="section-title">3. ESCRITURA ACADÉMICA</div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><label class="retro-label">Redacción</label><select id="crit-redaccion" class="retro-select"><option value="Impecable y fluida">Impecable</option><option value="Clara">Clara</option><option value="Errores leves de cohesión">Errores leves</option><option value="Confusa / Dificulta lectura">Confusa</option></select></div>
-                        <div><label class="retro-label">Vocabulario</label><select id="crit-vocabulario" class="retro-select"><option value="Preciso y específico de la materia">Preciso y específico</option><option value="Uso correcto en general">Uso correcto</option><option value="Coloquial o impreciso">Coloquial / Impreciso</option></select></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 mt-1">
-                        <div><label class="retro-label">Normas APA</label><select id="crit-apa" class="retro-select"><option value="Citas y referencias impecables">Citas impecables</option><option value="Cita correctamente la mayoría">Citas correctas</option><option value="Errores en formato de cita">Errores formato</option><option value="No cita fuentes / Plagio involuntario">No cita fuentes</option></select></div>
-                        <div><label class="retro-label">Ortografía</label><select id="crit-ortografia" class="retro-select"><option value="Sin errores">Sin errores</option><option value="Algunos errores menores">Errores menores</option><option value="Errores frecuentes">Errores frecuentes</option></select></div>
-                    </div>
-
-                    <div class="section-title">4. PROCESO Y PRESENTACIÓN</div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><label class="retro-label">Creatividad</label><select id="crit-creatividad" class="retro-select"><option value="Muy original, marca personal">Muy original</option><option value="Buenas ideas propias">Buenas ideas</option><option value="Resolución estándar">Estándar</option><option value="Mecánico o estereotipado">Mecánico</option></select></div>
-                        <div><label class="retro-label">Evolución</label><select id="crit-evolucion" class="retro-select"><option value="Avance muy notable desde el inicio">Avance notable</option><option value="Se observa crecimiento">Crecimiento sostenido</option><option value="Mantiene el nivel (bueno)">Mantiene nivel</option><option value="Estancamiento o retroceso">Estancamiento</option></select></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 mt-1">
-                        <div><label class="retro-label">Recursos</label><select id="crit-recursos" class="retro-select"><option value="Uso excelente de recursos (video/img)">Excelente uso</option><option value="Buenos soportes complementarios">Buenos</option><option value="Solo texto plano">Solo texto</option><option value="Fallo en soportes (links rotos)">Fallo soportes</option></select></div>
-                        <div><label class="retro-label">Síntesis</label><select id="crit-sintesis" class="retro-select"><option value="Poder de síntesis destacado">Gran síntesis</option><option value="Adecuada">Adecuada</option><option value="Reiterativo o extenso innecesariamente">Reiterativo</option><option value="Demasiado breve/incompleto">Incompleto</option></select></div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 gap-2 mt-1">
-                        <div><label class="retro-label">Entrega (Tiempo)</label><select id="crit-entrega" class="retro-select"><option value="En tiempo y forma">En tiempo y forma</option><option value="Entrega fuera de término">Fuera de término</option></select></div>
+                        <div><label class="retro-label">Contenidos</label><select id="crit-contenidos" class="retro-select"><option>Excelente</option><option>Muy Bien</option><option>Bien</option><option>Regular</option></select></div>
+                        <div><label class="retro-label">Redacción</label><select id="crit-redaccion" class="retro-select"><option>Impecable</option><option>Clara</option><option>Confusa</option></select></div>
                     </div>
 
                     <div class="mt-4">
@@ -233,7 +202,6 @@
                     <button onclick="generarDevolucion()" id="btn-generar" class="w-full bg-nomade-blue text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2 mt-4 hover:bg-blue-900 transition"><i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN</button>
                     
                     <p id="ia-locked-msg" class="hidden text-center text-xs text-red-500 mt-2 font-bold bg-red-100 p-2 rounded border border-red-200"><i data-lucide="lock" class="w-3 inline"></i> Función exclusiva para Administradores</p>
-                    
                     <div id="debug-log" class="hidden bg-red-100 text-red-800 text-[10px] p-2 mt-2 rounded"></div>
                 </div>
 
@@ -314,7 +282,7 @@
 
     <div id="modal-settings" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center"><h3 class="text-lg font-black text-nomade-blue mb-6">Configuración</h3><button onclick="logout()" class="bg-red-50 text-red-600 w-full py-3 rounded-lg font-bold text-sm shadow mb-2">CERRAR SESIÓN</button><button onclick="closeModal('modal-settings')" class="block w-full mt-4 text-gray-400 text-sm font-bold">Cerrar</button></div></div>
     <div id="modal-new-nota" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4">Nueva Nota</h3><input id="new-nota-title" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Título"><label class="text-xs font-bold text-gray-500 mb-2 block">TIPO DE NOTA</label><div class="grid grid-cols-2 gap-3 mb-4"><button onclick="createNote('text')" class="p-4 bg-blue-50 rounded-xl border border-blue-100 flex flex-col items-center gap-2 hover:bg-blue-100"><i data-lucide="type" class="w-6 h-6 text-blue-600"></i><span class="text-xs font-bold text-blue-800">TEXTO</span></button><button onclick="createNote('draw')" class="p-4 bg-purple-50 rounded-xl border border-purple-100 flex flex-col items-center gap-2 hover:bg-purple-100"><i data-lucide="pen-tool" class="w-6 h-6 text-purple-600"></i><span class="text-xs font-bold text-purple-800">DIBUJO</span></button></div><button onclick="closeModal('modal-new-nota')" class="w-full text-gray-400 text-sm font-bold">Cancelar</button></div></div>
-    <div id="modal-cal-event" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-raspanti-bordo mb-2" id="event-date-title">--/--</h3><p class="text-xs text-gray-500 mb-4">Agenda del día:</p><div id="day-events-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div><div class="border-t pt-4"><input id="new-event-text" class="w-full p-2 bg-gray-50 rounded border mb-2" placeholder="Agregar evento..."><div class="flex gap-2"><button onclick="closeModal('modal-cal-event')" class="flex-1 py-2 text-gray-500 font-bold text-xs">CERRAR</button><button onclick="addCalendarEvent()" class="flex-1 py-2 bg-nomade-green text-white rounded font-bold text-xs">AGREGAR</button></div></div></div></div>
+    <div id="modal-cal-event" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-2" id="event-date-title">--/--</h3><p class="text-xs text-gray-500 mb-4">Agenda del día:</p><div id="day-events-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div><div class="border-t pt-4"><input id="new-event-text" class="w-full p-2 bg-gray-50 rounded border mb-2" placeholder="Agregar evento..."><div class="flex gap-2"><button onclick="closeModal('modal-cal-event')" class="flex-1 py-2 text-gray-500 font-bold text-xs">CERRAR</button><button onclick="addCalendarEvent()" class="flex-1 py-2 bg-nomade-green text-white rounded font-bold text-xs">AGREGAR</button></div></div></div></div>
     <div id="modal-tarea" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4">Nueva Tarea</h3><input id="input-tarea-txt" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Descripción"><div class="flex gap-2"><button onclick="closeModal('modal-tarea')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarTarea()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-materia" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4" id="title-materia">Nueva Materia</h3><input type="hidden" id="edit-mat-id"><label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label><input id="input-mat-nombre" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Ej: Matemática"><label class="text-xs font-bold text-gray-500 ml-1">INICIO CURSADA</label><input type="date" id="input-mat-inicio" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold"><div class="grid grid-cols-2 gap-2 mb-4"><div><label class="text-xs font-bold text-gray-500 ml-1">DÍA</label><select id="input-mat-dia" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option></select></div><div><label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD</label><select id="input-mat-mod" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Hibrida">Mixta</option><option value="Presencial">Presencial</option><option value="Virtual">Virtual</option></select></div></div><div class="flex gap-2"><button onclick="closeModal('modal-materia')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarMateria()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-alumno" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4" id="title-alumno">Nuevo Alumno</h3><input type="hidden" id="edit-alum-idx"><div class="flex justify-center mb-4"><label for="input-alum-foto" class="avatar-upload group"><img id="preview-foto" src="" class="hidden"><div id="placeholder-foto" class="text-gray-400 text-center text-[10px] font-bold"><i data-lucide="camera" class="w-6 h-6 mx-auto mb-1"></i>Foto</div><input type="file" id="input-alum-foto" class="hidden" accept="image/*" onchange="previewImage(this)"></label></div><input id="input-alum-ape" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Apellido"><input id="input-alum-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Nombre"><div class="flex gap-2"><button onclick="closeModal('modal-alumno')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarAlumno()" class="flex-1 py-3 bg-nomade-green text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
@@ -333,7 +301,8 @@
             projectId: "raspanti-app",
             storageBucket: "raspanti-app.firebasestorage.app",
             messagingSenderId: "898404256450",
-            appId: "1:898404256450:web:8ba27e3350b8efb22c095b"
+            appId: "1:898404256450:web:8ba27e3350b8efb22c095b",
+            measurementId: "G-QMMLBB5NJM"
         };
 
         const app = firebase.initializeApp(firebaseConfig);
@@ -378,25 +347,44 @@
 
             if(!userInput || !pass) return;
 
+            // TRUCO: Si no tiene @, le inventamos un mail falso para que Firebase acepte
             let email = userInput;
-            if (!email.includes('@')) { email = userInput + '@nomade.app'; }
+            if (!email.includes('@')) {
+                email = userInput + '@nomade.app';
+            }
 
             msg.innerText = "Verificando...";
 
             try {
                 await auth.signInWithEmailAndPassword(email, pass);
             } catch (err) {
+                // DETECCIÓN INTELIGENTE DE USUARIO NUEVO
                 if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-login-credentials' || err.code === 'auth/invalid-credential') {
                      if(confirm(`El usuario "${userInput}" no existe.\n\n¿Querés registrarte ahora como ADMINISTRADOR?`)) {
                          try {
                             const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                            await dbCloud.collection('users').doc(cred.user.uid).set({ email: email, role: 'admin', name: 'Admin Nómade' });
+                            // Guardamos que es ADMIN
+                            await dbCloud.collection('users').doc(cred.user.uid).set({ 
+                                email: email, 
+                                role: 'admin', 
+                                name: 'Admin Nómade' 
+                            });
+                            // Le cargamos las materias por defecto
                             await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: materiasData, eventos: {}, tareas: [], notas: [] });
-                            alert("¡Bienvenida! Cuenta creada.");
+                            
+                            alert("¡Bienvenida! Cuenta creada. Entrando...");
                             location.reload();
-                         } catch(e2) { alert("Error: " + e2.message); }
-                     } else { msg.innerText = "Usuario no encontrado."; }
-                } else { msg.innerText = "Error: " + err.message; }
+
+                         } catch(e2) { 
+                             alert("Error al crear cuenta: " + e2.message); 
+                         }
+                     } else {
+                        msg.innerText = "Usuario no encontrado.";
+                     }
+                } else {
+                    // Otros errores (ej: password incorrecto en cuenta existente)
+                    msg.innerText = "Error: " + err.code;
+                }
             }
         }
 
@@ -422,19 +410,45 @@
             let uInput = document.getElementById('new-user-username').value.trim(); 
             const pass = document.getElementById('new-user-pass').value;
             const name = document.getElementById('new-user-fullname').value;
+
             if(!uInput || !pass) return alert("Faltan datos");
+
+            // TRUCO: Convertir usuario a email
             let email = uInput;
-            if (!email.includes('@')) { email = uInput + '@nomade.app'; }
+            if (!email.includes('@')) {
+                email = uInput + '@nomade.app';
+            }
 
             try {
                 const secAuth = secondaryApp.auth();
                 const cred = await secAuth.createUserWithEmailAndPassword(email, pass);
-                await dbCloud.collection('users').doc(cred.user.uid).set({ email: email, name: name, role: 'docente' });
-                await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: [], tareas: [], notas: [], eventos: {} });
+                
+                // Guardar en base de datos
+                await dbCloud.collection('users').doc(cred.user.uid).set({ 
+                    email: email, 
+                    name: name, 
+                    role: 'docente' // ROL DOCENTE (NO ADMIN)
+                });
+                
+                // Al docente nuevo le creamos la agenda VACÍA (sin tus materias)
+                await dbCloud.collection('app_data').doc(cred.user.uid).set({ 
+                    materias: [], 
+                    tareas: [], 
+                    notas: [],
+                    eventos: {}
+                });
+
                 secAuth.signOut();
                 alert(`✅ Usuario "${uInput}" creado con éxito.`);
-                loadAdminList(); 
-            } catch(e) { alert("Error: " + e.message); }
+                loadAdminList(); // Recargar lista
+                
+            } catch(e) {
+                if(e.code === 'auth/email-already-in-use') {
+                    alert("❌ Ese NOMBRE DE USUARIO ya está en uso. Elegí otro.");
+                } else {
+                    alert("Error: " + e.message);
+                }
+            }
         }
 
         async function loadAdminList() {
@@ -444,12 +458,14 @@
             let h = '';
             snap.forEach(d => { 
                 const u = d.data(); 
+                // Mostrar solo el nombre de usuario (sin @nomade.app)
                 let displayUser = u.email.split('@')[0];
                 h += `<div class="bg-gray-50 p-2 mb-1 border-l-4 border-nomade-green flex justify-between items-center"><div><span class="font-bold block text-nomade-blue">${u.name}</span><span class="text-xs text-gray-400">User: ${displayUser}</span></div><span class="text-[10px] bg-nomade-cream px-2 py-1 rounded text-nomade-blue font-bold uppercase">${u.role}</span></div>`; 
             });
             list.innerHTML = h;
         }
 
+        // --- UI NAVIGATION ---
         function nav(v){
             ['dashboard','materias','aula','lista','calendario','cuaderno','retro','admin'].forEach(id=>document.getElementById('view-'+id)?.classList.add('hidden'));
             document.getElementById('view-'+v).classList.remove('hidden');
