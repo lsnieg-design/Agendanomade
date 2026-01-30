@@ -274,8 +274,16 @@
     </div>
 
     <script>
-        const API_KEY = 'AIzaSyDS9Tw3_TRLCOu1q7ywcGNHTpY9ta9BzAk'; 
-        const firebaseConfig = {apiKey: "AIzaSyBpBjGm2jdqlearWnBiwn4jxjeby3nA0gk",authDomain: "raspanti-app.firebaseapp.com",projectId: "raspanti-app",storageBucket: "raspanti-app.firebasestorage.app",messagingSenderId: "898404256450",appId: "1:898404256450:web:8ba27e3350b8efb22c095b",measurementId: "G-QMMLBB5NJM"};
+        // BORRÁ la variable API_KEY suelta, no sirve.
+// USÁ ESTA CONFIGURACIÓN CON LA CLAVE ACTUALIZADA:
+const firebaseConfig = {
+    apiKey: "AIzaSyDS9Tw3_TRLCOu1q7ywcGNHTpY9ta9BzAk", // <--- Puse la clave que tenías arriba
+    authDomain: "raspanti-app.firebaseapp.com",
+    projectId: "raspanti-app",
+    storageBucket: "raspanti-app.firebasestorage.app",
+    messagingSenderId: "898404256450",
+    appId: "1:898404256450:web:8ba27e3350b8efb22c095b"
+};
         const app = firebase.initializeApp(firebaseConfig); const auth = firebase.auth(); const dbCloud = firebase.firestore(); let secondaryApp; try { secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary"); } catch(e) { secondaryApp = firebase.app("Secondary"); }
 
         const ADMIN_MATERIAS_BASE = [
@@ -831,7 +839,8 @@ async function handleLogin() {
         };
 
         // OTROS
-  async function crearUsuarioDocente() {
+ async function crearUsuarioDocente() {
+    // 1. OBTENER DATOS
     let uInput = document.getElementById('new-user-username').value.trim(); 
     const pass = document.getElementById('new-user-pass').value;
     const name = document.getElementById('new-user-fullname').value;
@@ -839,31 +848,32 @@ async function handleLogin() {
     if(!uInput || !pass) return alert("Faltan datos.");
     if(pass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
 
-    // Formatear email
     let email = uInput;
     if (!email.includes('@')) { email = uInput + '@nomade.app'; }
 
+    // 2. BLOQUEAR BOTÓN (FEEDBACK VISUAL)
     const btn = document.querySelector('#view-admin button');
     const textoOriginal = btn.innerText;
-    btn.innerText = "VERIFICANDO...";
+    btn.innerText = "PROCESANDO...";
     btn.disabled = true;
 
-    // 1. Inicializar sistema secundario
-    let adminAuth;
     try {
-        let tempApp = firebase.apps.find(a => a.name === "Secondary");
-        if (!tempApp) tempApp = firebase.initializeApp(firebaseConfig, "Secondary");
-        adminAuth = tempApp.auth();
-    } catch(err) {
-        btn.innerText = textoOriginal; btn.disabled = false;
-        return alert("Error interno de conexión: " + err.message);
-    }
+        // 3. OBTENER EL GESTOR DE USUARIOS (Robustez mejorada)
+        let adminAuth;
+        try {
+            // Intentamos obtener la app secundaria si ya existe
+            const existingApp = firebase.app("Secondary");
+            adminAuth = existingApp.auth();
+        } catch (e) {
+            // Si da error es porque no existe, la creamos
+            const newApp = firebase.initializeApp(firebaseConfig, "Secondary");
+            adminAuth = newApp.auth();
+        }
 
-    try {
-        // 2. INTENTAR CREAR DIRECTAMENTE
+        // 4. CREAR EL USUARIO
         const cred = await adminAuth.createUserWithEmailAndPassword(email, pass);
         
-        // 3. SI PASÓ, GUARDAMOS LOS DATOS
+        // 5. GUARDAR DATOS EN LA BASE DE DATOS
         const userData = { 
             email: email, 
             name: name || uInput, 
@@ -871,39 +881,44 @@ async function handleLogin() {
             createdAt: new Date().toISOString()
         };
 
+        // Guardamos perfil
         await dbCloud.collection('users').doc(cred.user.uid).set(userData);
+        
+        // Inicializamos su agenda vacía para que no de errores al entrar
         await dbCloud.collection('app_data').doc(cred.user.uid).set({ 
             materias: [], eventos: {}, notas: [], tareas: [] 
         });
 
-        // 4. SALIR Y AVISAR
+        // 6. CERRAR LA SESIÓN TEMPORAL (Para no sacarte a vos de Admin)
         await adminAuth.signOut();
 
-        alert(`✅ USUARIO CREADO CON ÉXITO\n\nUsuario: ${email}\nContraseña: ${pass}\n\n¡Anotalo!`);
+        // 7. ÉXITO
+        alert(`✅ ¡LISTO!\n\nUsuario: ${email}\nContraseña: ${pass}`);
         
-        // Limpiar campos
+        // Limpiar formulario
         document.getElementById('new-user-username').value = '';
         document.getElementById('new-user-pass').value = '';
         document.getElementById('new-user-fullname').value = '';
         
-        // Agregar a la lista
+        // Agregar a la lista visualmente
         const list = document.getElementById('admin-user-list');
         list.innerHTML += `<div class="bg-gray-50 p-2 mb-1 border-l-4 border-nomade-green flex justify-between items-center"><div><span class="font-bold text-nomade-blue block">${name}</span><span class="text-xs text-gray-400">${email}</span></div><span class="text-[10px] bg-green-100 text-green-800 px-2 py-1 rounded font-bold">NUEVO</span></div>`;
 
     } catch(e) {
-        console.error(e);
+        console.error("Error al crear:", e);
         
-        // MANEJO DE ERRORES CLAROS
+        // MENSAJES DE ERROR AMIGABLES
         if (e.code === 'auth/email-already-in-use') {
-            alert(`⛔ EL USUARIO YA EXISTE\n\nEl nombre "${uInput}" ya está ocupado.\n\n👉 Probá con otro nombre (ej: ${uInput}2026).`);
+            alert(`⛔ EL USUARIO YA EXISTE.\n\nEl nombre "${uInput}" ya está usado.\nPor favor probá otro (ej: ${uInput}_2026).`);
         } else if (e.code === 'auth/invalid-email') {
-            alert("❌ El formato del usuario no es válido. Usá solo letras y números.");
-        } else if (e.code === 'auth/weak-password') {
-            alert("❌ La contraseña es muy débil. Usá al menos 6 caracteres.");
+            alert("❌ Nombre de usuario inválido. Usá letras y números.");
+        } else if (e.code === 'auth/network-request-failed') {
+            alert("⚠️ Error de conexión. Verificá tu internet.");
         } else {
-            alert("❌ Error desconocido: " + e.message);
+            alert("❌ Ocurrió un error: " + e.message);
         }
     } finally {
+        // 8. DESBLOQUEAR BOTÓN SIEMPRE (Pase lo que pase)
         btn.innerText = textoOriginal;
         btn.disabled = false;
     }
@@ -1314,6 +1329,7 @@ function showToast(message) {
     <div id="toast-notification">Notificación</div>
 </body>
 </html>
+
 
 
 
