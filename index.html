@@ -11,6 +11,13 @@
     <meta name="theme-color" content="#144E7E">
     <link rel="apple-touch-icon" href="nomade.png">
 
+    <script>
+        window.onerror = function(msg, url, line, col, error) {
+            alert("ERROR CRÍTICO:\n" + msg + "\nLínea: " + line);
+            return false;
+        };
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -35,41 +42,32 @@
     <style>
         body { background-color: #FAF7F0; font-family: 'Segoe UI', system-ui, sans-serif; overscroll-behavior: none; color: #2C3E50; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* ESTILOS NÓMADE */
         .login-bg { background-color: #144E7E; }
-        
         .toggle-checkbox:checked { right: 0; border-color: #1FA194; }
         .toggle-checkbox:checked + .toggle-label { background-color: #1FA194; }
         .task-check:checked + div { text-decoration: line-through; opacity: 0.5; color: #1FA194; }
         .input-nota { min-width: 40px; text-align: center; border-radius: 6px; border: 1px solid #e2e8f0; }
-        
         .btn-asist { width: 35px; height: 35px; border-radius: 50%; font-weight: 900; font-size: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; transition: all 0.2s; }
         .st-P { background: #DCFCE7; color: #166534; border-color: #166534; }
         .st-T { background: #FEF9C3; color: #854D0E; border-color: #854D0E; }
         .st-J { background: #DBEAFE; color: #1E40AF; border-color: #1E40AF; }
         .st-A { background: #FEE2E2; color: #991B1B; border-color: #991B1B; }
-        
         .avatar-small { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #1FA194; }
         .progress-bar { height: 6px; border-radius: 3px; background: #e5e7eb; overflow: hidden; margin-top: 4px; }
         .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-        
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .calendar-day { background: white; border-radius: 8px; min-height: 70px; padding: 4px; font-size: 10px; position: relative; border: 1px solid #f1f5f9; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; }
         .calendar-day:active { background-color: #f8fafc; border-color: #1FA194; }
         .calendar-day.today { border: 2px solid #1FA194; background: #F0FDFA; }
         .dots-container { display: flex; gap: 2px; flex-wrap: wrap; content-visibility: auto; }
         .event-dot { width: 6px; height: 6px; border-radius: 50%; }
-        
         #canvas-container { touch-action: none; background: white; border-radius: 10px; overflow: hidden; height: 60vh; position: relative; border: 1px solid #1FA194; cursor: crosshair; }
-        
         .retro-label { font-size: 9px; font-weight: 800; color: #144E7E; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 6px; letter-spacing: 0.5px; }
         .retro-select { width: 100%; padding: 8px 10px; background-color: white; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; font-weight: 500; color: #2C3E50; outline: none; }
         .retro-select:focus { border-color: #1FA194; background-color: #F0FDFA; }
         .section-title { font-size: 10px; font-weight: 900; background: #e2e8f0; color: #144E7E; padding: 4px 8px; border-radius: 4px; margin-top: 14px; margin-bottom: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
-
         #cloud-status { position: fixed; top: 10px; right: 10px; z-index: 100; font-size: 10px; font-weight: bold; background: rgba(255,255,255,0.95); padding: 4px 10px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 5px; opacity: 0; transition: opacity 0.5s; pointer-events: none; color: #1FA194;}
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #1FA194; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -81,7 +79,7 @@
 
     <div id="auth-screen" class="fixed inset-0 login-bg z-50 flex flex-col items-center justify-center p-6 text-center text-white fade-in">
         <div class="mb-6 drop-shadow-xl">
-            <img src="nomade.png" alt="Nómade Logo" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green">
+            <img src="nomade.png" alt="Nómade Logo" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green" onerror="this.src='https://via.placeholder.com/150/1FA194/FFFFFF?text=N'">
         </div>
         <h1 class="text-3xl font-black uppercase mb-1 tracking-widest text-white">NÓMADE</h1>
         <p class="text-nomade-green text-sm mb-10 font-medium tracking-wide uppercase">Agenda Docente</p>
@@ -91,6 +89,7 @@
                 <i data-lucide="user" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
                 <input type="text" id="login-user" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Usuario">
             </div>
+
             <div class="relative">
                 <i data-lucide="lock" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
                 <input type="password" id="login-pass" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Contraseña">
@@ -109,7 +108,7 @@
     <div id="app-content" class="flex flex-col h-full hidden relative">
         <header class="bg-nomade-blue text-white p-4 flex justify-between items-center shadow-md z-20 pt-safe-top">
             <div class="flex items-center gap-3">
-                <img src="nomade.png" class="w-8 h-8 bg-white rounded-full p-0.5">
+                <img src="nomade.png" class="w-8 h-8 bg-white rounded-full p-0.5" onerror="this.style.display='none'">
                 <span class="font-bold text-sm uppercase tracking-wider">Mi Agenda</span>
             </div>
             <div class="flex items-center gap-3">
@@ -333,8 +332,7 @@
             projectId: "raspanti-app",
             storageBucket: "raspanti-app.firebasestorage.app",
             messagingSenderId: "898404256450",
-            appId: "1:898404256450:web:8ba27e3350b8efb22c095b",
-            measurementId: "G-QMMLBB5NJM"
+            appId: "1:898404256450:web:8ba27e3350b8efb22c095b"
         };
 
         const app = firebase.initializeApp(firebaseConfig);
@@ -372,64 +370,62 @@
             }
         });
 
-       async function handleLogin() {
-    let userInput = document.getElementById('login-user').value.trim();
-    const pass = document.getElementById('login-pass').value;
-    const msg = document.getElementById('login-msg');
+        async function handleLogin() {
+            let userInput = document.getElementById('login-user').value.trim();
+            const pass = document.getElementById('login-pass').value;
+            const msg = document.getElementById('login-msg');
 
-    if (!userInput || !pass) {
-        alert("Por favor completá usuario y contraseña.");
-        return;
-    }
+            if (!userInput || !pass) return;
 
-    // Convertir a email interno
-    let email = userInput;
-    if (!email.includes('@')) { email = userInput + '@nomade.app'; }
+            // TRUCO: Convertir a email
+            let email = userInput;
+            if (!email.includes('@')) { email = userInput + '@nomade.app'; }
 
-    msg.innerText = "Procesando...";
-    console.log("Intentando entrar con:", email);
+            msg.innerText = "Procesando...";
 
-    // --- PUERTA TRASERA PARA ADMI ---
-    if (userInput === 'admi' && pass === 'adminomade') {
-        try {
-            await auth.signInWithEmailAndPassword(email, pass);
-            // Si pasa, el onAuthStateChanged se encarga del resto
-        } catch (err) {
-            console.error("Error Login:", err);
-            // Si no existe, intentamos CREARLO
-            if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-login-credentials' || err.code === 'auth/invalid-credential') {
+            // --- LLAVE MAESTRA PARA ADMI ---
+            if (userInput === 'admi' && pass === 'adminomade') {
                 try {
-                    msg.innerText = "Creando cuenta Admi...";
-                    const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                    
-                    // Crear DB inicial
-                    await dbCloud.collection('users').doc(cred.user.uid).set({ email: email, role: 'admin', name: 'Admin Nómade' });
-                    await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: materiasData, eventos: {}, tareas: [], notas: [] });
-                    
-                    alert("✅ Cuenta ADMI creada con éxito. Entrando...");
-                    location.reload();
-                    
-                } catch (e2) {
-                    alert("ERROR AL CREAR ADMI:\n" + e2.message);
-                    msg.innerText = "Error creación.";
+                    // Intentamos entrar
+                    await auth.signInWithEmailAndPassword(email, pass);
+                } catch (err) {
+                    // Si da error (ej: usuario no existe), LO CREAMOS A LA FUERZA
+                    try {
+                        const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                        // Le damos permisos de Admin
+                        await dbCloud.collection('users').doc(cred.user.uid).set({ 
+                            email: email, 
+                            role: 'admin', 
+                            name: 'Admin Nómade' 
+                        });
+                        // Le cargamos las materias
+                        await dbCloud.collection('app_data').doc(cred.user.uid).set({ 
+                            materias: materiasData, 
+                            eventos: {}, 
+                            tareas: [], 
+                            notas: [] 
+                        });
+                        // Recargamos para entrar
+                        location.reload();
+                    } catch (e2) {
+                        msg.innerText = "Error crítico: " + e2.message;
+                    }
                 }
-            } else {
-                alert("ERROR DE INGRESO:\n" + err.message);
-                msg.innerText = "Error de acceso.";
+                return; // Cortamos acá para que no siga ejecutando
+            }
+
+            // --- LOGIN NORMAL PARA OTROS USUARIOS ---
+            try {
+                await auth.signInWithEmailAndPassword(email, pass);
+            } catch (err) {
+                if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+                    msg.innerText = "Usuario o contraseña incorrectos.";
+                } else {
+                    msg.innerText = "Error: " + err.code;
+                }
             }
         }
-        return;
-    }
 
-    // --- LOGIN NORMAL ---
-    try {
-        await auth.signInWithEmailAndPassword(email, pass);
-    } catch (err) {
-        console.error(err);
-        alert("No se pudo ingresar:\n" + err.message);
-        msg.innerText = "Fallo el ingreso.";
-    }
-}
         function logout() { auth.signOut(); location.reload(); }
 
         async function loadData(uid) {
@@ -475,12 +471,14 @@
             let h = '';
             snap.forEach(d => { 
                 const u = d.data(); 
+                // Mostrar solo el nombre de usuario (sin @nomade.app)
                 let displayUser = u.email.split('@')[0];
                 h += `<div class="bg-gray-50 p-2 mb-1 border-l-4 border-nomade-green flex justify-between items-center"><div><span class="font-bold block text-nomade-blue">${u.name}</span><span class="text-xs text-gray-400">User: ${displayUser}</span></div><span class="text-[10px] bg-nomade-cream px-2 py-1 rounded text-nomade-blue font-bold uppercase">${u.role}</span></div>`; 
             });
             list.innerHTML = h;
         }
 
+        // --- UI NAVIGATION ---
         function nav(v){
             ['dashboard','materias','aula','lista','calendario','cuaderno','retro','admin'].forEach(id=>document.getElementById('view-'+id)?.classList.add('hidden'));
             document.getElementById('view-'+v).classList.remove('hidden');
@@ -497,176 +495,178 @@
         }
 
         // --- LÓGICA DE NEGOCIO ---
-        // --- PEGAR ESTO JUSTO DEBAJO DE LA FUNCIÓN nav(v) ---
+        let activeId=null;
+        let activeDateISO=null;
+        let activeObsIdx=null;
+        let activeCalISO=null;
+        let currentMonth=new Date().getMonth(), currentYear=new Date().getFullYear();
 
-        // ======================================================
-        // 1. DASHBOARD (INICIO) CON LÓGICA UNIFICADA
-        // ======================================================
-        let activeId = null;
-        let activeDateISO = null;
-        let activeCalISO = null;
-        let currentMonth = new Date().getMonth();
-        let currentYear = new Date().getFullYear();
-
-        function initDash() {
-            const d = new Date();
-            const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-            const isoHoy = d.toISOString().split('T')[0];
+        function initDash(){
+            const d=new Date(), dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'], h=d.toISOString().split('T')[0];
+            document.getElementById('fecha-hoy').innerText=`${dias[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}`;
+            const l=document.getElementById('lista-hoy'); l.innerHTML=''; let y=false;
             
-            document.getElementById('fecha-hoy').innerText = `${dias[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}`;
-            const l = document.getElementById('lista-hoy'); 
-            l.innerHTML = ''; 
-            let hayActividad = false;
-
-            // A. Clases del día (calculadas)
-            if (userData.materias) {
-                userData.materias.forEach(m => {
-                    // Ver si toca hoy según día de la semana
-                    if (m.dia === dias[d.getDay()]) {
-                        // Chequear si hay una excepción en el cronograma (ej: Feriado)
-                        let estado = m.cronograma?.[isoHoy] || ((m.modalidadBase === 'Hibrida') ? 'Presencial' : m.modalidadBase);
-                        if (m.modalidadBase === 'Virtual') estado = 'Virtual';
-
-                        if (estado !== 'Sin Clase') {
-                            hayActividad = true;
-                            let color = 'bg-gray-400';
-                            if (estado.startsWith('Presenc')) color = 'bg-nomade-blue';
-                            else if (estado.startsWith('Virt') || estado.startsWith('Sinc')) color = 'bg-nomade-green';
-                            else if (estado.startsWith('Asinc')) color = 'bg-yellow-500';
-
-                            // Tema del día
-                            const plan = m.planificacion?.[isoHoy];
-                            const tema = plan ? (typeof plan === 'string' ? plan : plan.tema) : '';
-
-                            l.innerHTML += `
-                            <div class="bg-white p-3 rounded-lg flex items-center gap-3 mb-2 shadow-sm border-l-4 border-nomade-blue">
-                                <div class="w-2 h-2 ${color} rounded-full"></div>
-                                <div class="overflow-hidden">
-                                    <strong class="block text-sm text-nomade-blue">${m.nombre}</strong>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-[10px] uppercase font-bold text-gray-500">${estado}</span>
-                                        ${tema ? `<span class="text-[10px] bg-gray-100 px-1 rounded text-gray-600 truncate">${tema}</span>` : ''}
-                                    </div>
-                                </div>
-                            </div>`;
-                        }
+            // 1. CLASES DE MATERIAS
+            if(userData.materias) {
+                userData.materias.forEach(m=>{
+                    let t=m.cronograma?.[h]; let plan = m.planificacion?.[h]; let planTema = plan ? (typeof plan === 'string' ? plan : plan.tema) : '';
+                    if(t && t!=='Sin Clase'){
+                        y=true; let c='bg-gray-400',x=''; 
+                        if(t.startsWith('Presenc')){c='bg-nomade-blue';x='(Inst.)';}else if(t.startsWith('Virt')||t.startsWith('Sinc')){c='bg-nomade-green';x='(Zoom)';}else if(t.startsWith('Asinc')){c='bg-yellow-400';x='(Campus)';}
+                        l.innerHTML+=`<div class="bg-white/10 p-3 rounded-lg flex items-center gap-3 mb-2"><div class="w-3 h-3 ${c} rounded-full border border-white/20 shrink-0"></div><div class="overflow-hidden"><strong class="block text-sm truncate">${m.nombre}</strong><div class="flex items-center gap-2"><span class="text-xs opacity-80 uppercase font-bold">${t} ${x}</span>${planTema?`<span class="text-[10px] bg-black/20 px-1.5 py-0.5 rounded text-white/90 truncate max-w-[150px]">${planTema}</span>`:''}</div></div></div>`;
                     }
                 });
             }
-
-            // B. Eventos Manuales del Calendario
-            if (userData.eventos && userData.eventos[isoHoy]) {
-                userData.eventos[isoHoy].forEach(ev => {
-                    hayActividad = true;
-                    l.innerHTML += `
-                    <div class="bg-white p-3 rounded-lg flex items-center gap-3 mb-2 shadow-sm border-l-4 border-nomade-green">
-                        <i data-lucide="calendar" class="w-4 h-4 text-nomade-green"></i>
-                        <span class="text-sm font-bold text-gray-700">${ev}</span>
-                    </div>`;
+            // 2. EVENTOS MANUALES DEL CALENDARIO
+            if(userData.eventos && userData.eventos[h]) {
+                userData.eventos[h].forEach(ev => {
+                    y=true;
+                    l.innerHTML += `<div class="bg-white/90 text-nomade-blue p-3 rounded-lg flex items-center gap-3 mb-2 border-l-4 border-nomade-green"><i data-lucide="calendar" class="w-4 h-4 text-nomade-green"></i><span class="text-sm font-bold">${ev}</span></div>`;
                 });
             }
 
-            if (!hayActividad) l.innerHTML = '<span class="opacity-60 italic text-sm text-center block mt-4">No hay actividades hoy.</span>';
+            if(!y)l.innerHTML='<span class="opacity-60 italic text-sm">Sin actividades hoy.</span>';
             renderTareas();
         }
 
-        // ======================================================
-        // 2. CALENDARIO INTERACTIVO (AGREGAR/BORRAR EVENTOS)
-        // ======================================================
-        function changeMonth(step) {
-            currentMonth += step;
-            if (currentMonth > 11) { currentMonth = 0; currentYear++; } 
-            else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-            renderCalendar(currentMonth, currentYear);
+        function renderMaterias(){
+            const l=document.getElementById('lista-materias'); l.innerHTML='';
+            if(!userData.materias || userData.materias.length === 0){document.getElementById('no-materias').classList.remove('hidden'); return;}
+            document.getElementById('no-materias').classList.add('hidden');
+            userData.materias.forEach(m=>{
+                l.innerHTML += `<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center" onclick="abrirAula(${m.id})"><div><h3 class="font-bold text-nomade-blue">${m.nombre}</h3><div class="text-xs text-gray-400 uppercase">${m.dia} • ${m.modalidadBase}</div></div><i data-lucide="chevron-right" class="text-gray-300"></i></div>`;
+            });
+            lucide.createIcons();
         }
 
-        function renderCalendar(month, year) {
-            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-            document.getElementById('cal-month-year').innerText = `${monthNames[month]} ${year}`;
-            
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const grid = document.getElementById('calendar-grid');
-            grid.innerHTML = '';
+        function abrirAula(id){
+            activeId = id; 
+            const m = userData.materias.find(x=>x.id===id); 
+            document.getElementById('aula-nombre').innerText=m.nombre; 
+            nav('aula'); setTab('crono');
+        }
 
-            for (let i = 0; i < firstDay; i++) grid.innerHTML += '<div></div>';
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const date = new Date(year, month, day);
-                const iso = date.toISOString().split('T')[0];
-                const isToday = iso === new Date().toISOString().split('T')[0];
-
-                let dotsHtml = '';
+        // CÁLCULO DE CRONOGRAMA 16 SEMANAS
+        function renderCrono(){
+            const m=userData.materias.find(x=>x.id===activeId), l=document.getElementById('lista-cronograma'); l.innerHTML=''; 
+            const map={'Domingo':0,'Lunes':1,'Martes':2,'Miércoles':3,'Jueves':4,'Viernes':5,'Sábado':6}, t=map[m.dia]; 
+            let d=new Date(m.fechaInicio + 'T12:00:00'); 
+            while(d.getDay()!==t)d.setDate(d.getDate()+1); 
+            for(let i=0;i<16;i++){
+                const iso=d.toISOString().split('T')[0], disp=`${d.getDate()}/${d.getMonth()+1}`; 
+                let st=m.cronograma?.[iso]||((m.modalidadBase==='Hibrida')?'Presencial':m.modalidadBase); 
+                if(m.modalidadBase === 'Virtual') st = 'Virtual';
                 
-                // Puntito Azul (Materia)
-                if (userData.materias) {
-                    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-                    const nombreDia = diasSemana[date.getDay()];
-                    userData.materias.forEach(m => {
-                        if (m.dia === nombreDia) dotsHtml += `<div class="event-dot bg-nomade-blue"></div>`;
+                let b='bg-gray-100 text-gray-500', ic='help-circle'; 
+                if(st==='Presencial'){b='bg-nomade-blue text-white';ic='map-pin';}
+                else if(st.includes('Sinc')||st==='Virtual'){b='bg-nomade-green text-white';ic='video';}
+                else if(st==='Asincronico'){b='bg-yellow-100 text-yellow-700 border-yellow-200';ic='book-open';}
+                else if(st==='Sin Clase'){b='line-through opacity-50';ic='slash';} 
+                
+                const plan = m.planificacion?.[iso] || {}; 
+                const tema = typeof plan === 'string' ? plan : (plan.tema || ''); 
+                
+                l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm"><div class="flex items-center justify-between mb-2"><span class="font-bold text-gray-700 text-sm w-12">${disp}</span><button onclick="cycle('${iso}')" class="flex-1 ml-4 py-1 px-3 rounded-lg font-bold text-[10px] uppercase flex items-center justify-center gap-2 ${b} badge-transition"><i data-lucide="${ic}" class="w-3 h-3"></i> ${st}</button></div><div class="flex gap-2 items-center"><input type="text" class="flex-1 text-sm bg-gray-50 p-2 rounded border border-transparent focus:bg-white focus:border-nomade-green outline-none transition" placeholder="Tema..." value="${tema}" onchange="saveTemaSimple('${iso}', this.value)"><button onclick="openClaseDetail('${iso}')" class="p-2 text-gray-400"><i data-lucide="file-text" class="w-5 h-5"></i></button></div></div>`; 
+                d.setDate(d.getDate()+7);
+            } 
+            lucide.createIcons();
+        }
+
+        function cycle(iso){
+            const m = userData.materias.find(x=>x.id===activeId);
+            if(!m.cronograma) m.cronograma = {};
+            const sts=['Presencial','Virtual','Sincronico','Asincronico','Sin Clase'];
+            const c=m.cronograma[iso]||m.modalidadBase;
+            m.cronograma[iso]=sts[(sts.indexOf(c)+1)%sts.length];
+            saveData(); renderCrono();
+        }
+        function saveTemaSimple(iso, val){
+            const m=userData.materias.find(x=>x.id===activeId);
+            if(!m.planificacion) m.planificacion={};
+            if(!m.planificacion[iso]) m.planificacion[iso]={};
+            m.planificacion[iso].tema=val;
+            saveData();
+        }
+
+        // --- CALENDARIO CON EVENTOS MANUALES ---
+        function changeMonth(step){ currentMonth+=step; if(currentMonth>11){currentMonth=0;currentYear++;} else if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(currentMonth, currentYear); }
+        
+        function renderCalendar(month, year){
+            const monthNames=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+            document.getElementById('cal-month-year').innerText = `${monthNames[month]} ${year}`;
+            const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month+1, 0).getDate();
+            const grid = document.getElementById('calendar-grid'); grid.innerHTML = ''; 
+            for(let i=0; i<firstDay; i++) grid.innerHTML += '<div></div>';
+            
+            for(let day=1; day<=daysInMonth; day++){
+                const date = new Date(year, month, day); const iso = date.toISOString().split('T')[0];
+                const isToday = iso === new Date().toISOString().split('T')[0];
+                
+                let dotsHtml = '';
+                // Dots de materias
+                if(userData.materias) {
+                     userData.materias.forEach(m => { 
+                        // Lógica simplificada de coincidencia de día (idealmente usaríamos cronograma real)
+                        const map = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+                        if(m.dia === map[date.getDay()]) dotsHtml += `<div class="event-dot bg-nomade-blue"></div>`;
                     });
                 }
-                
-                // Puntito Verde (Evento Manual)
-                if (userData.eventos && userData.eventos[iso] && userData.eventos[iso].length > 0) {
-                    dotsHtml += `<div class="event-dot bg-nomade-green"></div>`;
+                // Dots de eventos manuales
+                if(userData.eventos && userData.eventos[iso]) {
+                    userData.eventos[iso].forEach(() => dotsHtml += `<div class="event-dot bg-nomade-green"></div>`);
                 }
 
-                grid.innerHTML += `
-                <div class="calendar-day ${isToday ? 'today' : ''}" onclick="openDayEvents('${iso}')">
+                grid.innerHTML += `<div class="calendar-day ${isToday?'today':''}" onclick="openDayEvents('${iso}')">
                     <span class="day-number">${day}</span>
                     <div class="dots-container">${dotsHtml}</div>
                 </div>`;
             }
         }
 
-        function openDayEvents(iso) {
+        function openDayEvents(iso){
             activeCalISO = iso;
-            const list = document.getElementById('day-events-list');
-            list.innerHTML = '';
-            document.getElementById('event-date-title').innerText = iso.split('-').reverse().slice(0, 2).join('/');
-
-            // Mostrar clases automáticas
+            const list = document.getElementById('day-events-list'); list.innerHTML = '';
+            document.getElementById('event-date-title').innerText = iso.split('-').reverse().slice(0,2).join('/');
+            
+            // 1. Mostrar clases de ese día
             const d = new Date(iso + 'T12:00:00');
-            const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-            const nombreDia = diasSemana[d.getDay()];
-
-            if (userData.materias) {
+            const dayName = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][d.getDay()];
+            
+            if(userData.materias) {
                 userData.materias.forEach(m => {
-                    if (m.dia === nombreDia) {
-                        list.innerHTML += `<div class="bg-gray-100 p-2 rounded text-xs font-bold text-gray-700 mb-1 border-l-4 border-nomade-blue">📚 ${m.nombre}</div>`;
-                    }
+                   if(m.dia === dayName) {
+                       list.innerHTML += `<div class="bg-gray-100 p-2 rounded text-xs font-bold text-gray-700 mb-1 border-l-4 border-nomade-blue">${m.nombre}</div>`;
+                   }
                 });
             }
 
-            // Mostrar eventos manuales con botón borrar
-            if (userData.eventos && userData.eventos[iso]) {
+            // 2. Mostrar eventos manuales
+            if(userData.eventos && userData.eventos[iso]) {
                 userData.eventos[iso].forEach((ev, idx) => {
-                    list.innerHTML += `
-                    <div class="bg-white p-2 rounded text-xs flex justify-between items-center mb-1 border border-gray-200 shadow-sm">
-                        <span class="font-medium text-nomade-green">${ev}</span>
-                        <button onclick="delEvent('${iso}', ${idx})" class="text-red-400 hover:text-red-600 px-2 font-bold">X</button>
+                    list.innerHTML += `<div class="bg-white p-2 rounded text-xs flex justify-between mb-1 border border-gray-200">
+                        <span>${ev}</span>
+                        <button onclick="delEvent('${iso}',${idx})" class="text-red-500 font-bold">X</button>
                     </div>`;
                 });
             }
             openModal('modal-cal-event');
         }
 
-        function addCalendarEvent() {
+        function addCalendarEvent(){
             const txt = document.getElementById('new-event-text').value;
-            if (!txt) return;
-            if (!userData.eventos) userData.eventos = {};
-            if (!userData.eventos[activeCalISO]) userData.eventos[activeCalISO] = [];
-
+            if(!txt) return;
+            if(!userData.eventos) userData.eventos = {};
+            if(!userData.eventos[activeCalISO]) userData.eventos[activeCalISO] = [];
+            
             userData.eventos[activeCalISO].push(txt);
             saveData();
             document.getElementById('new-event-text').value = '';
-            openDayEvents(activeCalISO);
-            renderCalendar(currentMonth, currentYear);
-            initDash();
+            openDayEvents(activeCalISO); // Recargar lista
+            renderCalendar(currentMonth, currentYear); // Actualizar puntitos
+            initDash(); // Actualizar home
         }
 
-        function delEvent(iso, idx) {
+        function delEvent(iso, idx){
             userData.eventos[iso].splice(idx, 1);
             saveData();
             openDayEvents(iso);
@@ -674,298 +674,166 @@
             initDash();
         }
 
-        // ======================================================
-        // 3. GESTIÓN DE MATERIAS (CRUD & CRONOGRAMA)
-        // ======================================================
-        function renderMaterias() {
-            const l = document.getElementById('lista-materias');
-            l.innerHTML = '';
-            if (!userData.materias || userData.materias.length === 0) {
-                document.getElementById('no-materias').classList.remove('hidden');
-                return;
+        // --- IA LOGIC (RESTRICTED TO ADMIN) ---
+        async function generarDevolucion() {
+            const u = await dbCloud.collection('users').doc(currentUser.uid).get();
+            if(u.data().role !== 'admin') { 
+                document.getElementById('ia-locked-msg').classList.remove('hidden'); 
+                return; 
             }
-            document.getElementById('no-materias').classList.add('hidden');
-            userData.materias.forEach(m => {
-                l.innerHTML += `
-                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center mb-3 cursor-pointer hover:border-nomade-green transition" onclick="abrirAula(${m.id})">
-                    <div>
-                        <h3 class="font-bold text-nomade-blue">${m.nombre}</h3>
-                        <div class="text-xs text-gray-400 font-bold uppercase mt-1">${m.dia} • ${m.modalidadBase}</div>
-                    </div>
-                    <i data-lucide="chevron-right" class="text-gray-300"></i>
-                </div>`;
-            });
-            lucide.createIcons();
-        }
-
-        function abrirAula(id) {
-            activeId = id;
-            const m = userData.materias.find(x => x.id === id);
-            document.getElementById('aula-nombre').innerText = m.nombre;
-            document.getElementById('aula-modalidad').innerText = m.modalidadBase;
-            nav('aula');
-            setTab('crono');
-        }
-
-        function setTab(t) {
-            ['crono', 'alumnos', 'notas'].forEach(x => {
-                document.getElementById('tab-' + x).classList.add('hidden');
-                document.getElementById('btn-' + x).className = 'flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400';
-            });
-            document.getElementById('tab-' + t).classList.remove('hidden');
-            document.getElementById('btn-' + t).className = 'flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-nomade-blue text-white shadow';
             
-            if (t === 'crono') renderCrono();
-            if (t === 'alumnos') renderAlum();
-            if (t === 'notas') renderNotas();
-        }
+            const nombre = document.getElementById('ia-nombre').value;
+            const materia = document.getElementById('ia-materia').value;
+            const obsExtra = document.getElementById('ia-obs-extra').value;
+            const btn = document.getElementById('btn-generar');
+            const output = document.getElementById('ia-output');
+            const container = document.getElementById('ia-resultado-container');
+            const debugLog = document.getElementById('debug-log');
 
-        // --- MOTOR DE CRONOGRAMA (16 SEMANAS) ---
-        function renderCrono() {
-            const m = userData.materias.find(x => x.id === activeId);
-            if (!m) return;
-            const l = document.getElementById('lista-cronograma');
-            l.innerHTML = '';
-
-            const map = { 'Domingo': 0, 'Lunes': 1, 'Martes': 2, 'Miércoles': 3, 'Jueves': 4, 'Viernes': 5, 'Sábado': 6 };
-            const targetDay = map[m.dia];
-
-            // Forzar hora mediodía para evitar problemas de timezone
-            let d = new Date(m.fechaInicio + 'T12:00:00');
+            if(!nombre) { alert('Falta el nombre'); return; }
             
-            // Ajustar al primer día correcto
-            while (d.getDay() !== targetDay) {
-                d.setDate(d.getDate() + 1);
-            }
+            const CLEAN_KEY = API_KEY.trim();
+            btn.innerHTML = '<div class="loader"></div> Pensando...'; btn.disabled = true;
 
-            for (let i = 0; i < 16; i++) {
-                const iso = d.toISOString().split('T')[0];
-                const displayDate = `${d.getDate()}/${d.getMonth() + 1}`;
-
-                let st = m.cronograma?.[iso] || ((m.modalidadBase === 'Hibrida') ? 'Presencial' : m.modalidadBase);
-                if (m.modalidadBase === 'Virtual') st = 'Virtual';
-
-                let badgeClass = 'bg-gray-100 text-gray-500';
-                let icon = 'circle';
-
-                if (st.startsWith('Presenc')) { badgeClass = 'bg-nomade-blue text-white'; icon = 'map-pin'; }
-                else if (st.startsWith('Virt') || st.startsWith('Sinc')) { badgeClass = 'bg-nomade-green text-white'; icon = 'video'; }
-                else if (st.startsWith('Asinc')) { badgeClass = 'bg-yellow-100 text-yellow-800'; icon = 'book-open'; }
-                else if (st === 'Sin Clase') { badgeClass = 'bg-red-50 text-red-400 line-through'; icon = 'slash'; }
-
-                const plan = m.planificacion?.[iso] || {};
-                const temaVal = typeof plan === 'string' ? plan : (plan.tema || '');
-                const hasInfo = plan.biblio || plan.actClase || plan.actTarea;
-
-                l.innerHTML += `
-                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-3">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-2">
-                            <span class="font-black text-nomade-blue text-sm w-10">${displayDate}</span>
-                            <button onclick="cycle('${iso}')" class="px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wider ${badgeClass} transition hover:opacity-80 flex items-center gap-1">
-                                <i data-lucide="${icon}" class="w-3 h-3"></i> ${st}
-                            </button>
-                        </div>
-                        <button onclick="openClaseDetail('${iso}')" class="${hasInfo ? 'text-nomade-green' : 'text-gray-300'} hover:scale-110 transition">
-                            <i data-lucide="file-edit" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                    <input type="text" class="w-full text-sm bg-gray-50 p-2 rounded-lg border border-transparent focus:bg-white focus:border-nomade-green outline-none transition font-medium text-gray-700" 
-                           placeholder="Escribir tema..." 
-                           value="${temaVal}" 
-                           onchange="saveTemaSimple('${iso}', this.value)">
-                </div>`;
-
-                d.setDate(d.getDate() + 7);
-            }
-            lucide.createIcons();
-        }
-
-        function cycle(iso) {
-            const m = userData.materias.find(x => x.id === activeId);
-            if (!m.cronograma) m.cronograma = {};
-            const states = ['Presencial', 'Virtual', 'Sincronico', 'Asincronico', 'Sin Clase'];
-            const current = m.cronograma[iso] || m.modalidadBase;
-            let nextIdx = (states.indexOf(current) + 1) % states.length;
-            m.cronograma[iso] = states[nextIdx];
-            saveData(); renderCrono();
-        }
-
-        function saveTemaSimple(iso, val) {
-            const m = userData.materias.find(x => x.id === activeId);
-            if (!m.planificacion) m.planificacion = {};
-            if (!m.planificacion[iso]) m.planificacion[iso] = {};
-            if (typeof m.planificacion[iso] === 'string') m.planificacion[iso] = { tema: m.planificacion[iso] };
-            m.planificacion[iso].tema = val;
-            saveData();
-        }
-
-        function openClaseDetail(iso) {
-            activeDateISO = iso;
-            const m = userData.materias.find(x => x.id === activeId);
-            const p = m.planificacion?.[iso] || {};
-            document.getElementById('detail-date').innerText = `Clase del ${iso.split('-').reverse().slice(0, 2).join('/')}`;
-            document.getElementById('detail-tema').value = p.tema || '';
-            document.getElementById('detail-biblio').value = p.biblio || '';
-            document.getElementById('detail-act-clase').value = p.actClase || '';
-            document.getElementById('detail-act-tarea').value = p.actTarea || '';
-            openModal('modal-clase-detail');
-        }
-
-        function saveClaseDetail() {
-            const m = userData.materias.find(x => x.id === activeId);
-            if (!m.planificacion) m.planificacion = {};
-            const p = {
-                tema: document.getElementById('detail-tema').value,
-                biblio: document.getElementById('detail-biblio').value,
-                actClase: document.getElementById('detail-act-clase').value,
-                actTarea: document.getElementById('detail-act-tarea').value
-            };
-            m.planificacion[activeDateISO] = p;
-            saveData();
-            closeModal('modal-clase-detail');
-            renderCrono();
-        }
-
-        // ======================================================
-        // 4. ALUMNOS, ASISTENCIA Y NOTAS
-        // ======================================================
-        function renderAlum() {
-            const m = userData.materias.find(x => x.id === activeId);
-            const l = document.getElementById('lista-alumnos');
-            l.innerHTML = '';
+            const fullPrompt = `Sos Lucía Snieg, experta en educación. Redactá una devolución para el alumno ${nombre} de la materia ${materia}. Observación: ${obsExtra}. Sé cálida y profesional.
+            Criterios: ${document.getElementById('crit-contenidos').value}, ${document.getElementById('crit-practica').value}, ${document.getElementById('crit-critica').value}, ${document.getElementById('crit-preguntas').value}, ${document.getElementById('crit-redaccion').value}, ${document.getElementById('crit-vocabulario').value}, ${document.getElementById('crit-apa').value}, ${document.getElementById('crit-ortografia').value}, ${document.getElementById('crit-creatividad').value}, ${document.getElementById('crit-evolucion').value}, ${document.getElementById('crit-recursos').value}, ${document.getElementById('crit-sintesis').value}, ${document.getElementById('crit-entrega').value}.`;
             
-            m.alumnos.forEach((al, i) => {
-                // Calcular % asistencia
-                let total = 0, presentes = 0;
-                if(m.asistencias) {
-                    Object.values(m.asistencias).forEach(day => {
-                        total++;
-                        if(day[al.id] === 'P' || day[al.id] === 'T') presentes++;
-                    });
-                }
-                const porc = total > 0 ? Math.round((presentes/total)*100) : 100;
-                const colorBar = porc >= 75 ? 'bg-green-500' : (porc >= 60 ? 'bg-yellow-500' : 'bg-red-500');
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CLEAN_KEY}`;
 
-                l.innerHTML += `
-                <div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm mb-2">
-                    <div class="flex items-center gap-3 flex-1">
-                        <div class="avatar-small bg-gray-100 flex items-center justify-center font-bold text-nomade-blue border border-nomade-blue/20">${al.ape[0]}</div>
-                        <div class="w-full pr-2">
-                            <span class="font-bold text-gray-700 text-sm block">${al.ape}, ${al.nom}</span>
-                            <div class="flex justify-between items-center text-[10px] text-gray-400 mt-1">
-                                <span>Asistencia: ${porc}%</span>
-                            </div>
-                            <div class="progress-bar"><div class="progress-fill ${colorBar}" style="width: ${porc}%"></div></div>
-                        </div>
-                    </div>
-                    <div class="flex gap-1">
-                        <button onclick="openObs(${i})" class="text-gray-400 hover:text-blue-500 p-1"><i data-lucide="message-circle" class="w-4 ${al.obs?'text-blue-500 fill-blue-100':''}"></i></button>
-                        <button onclick="openAlumnoModal(${i})" class="text-gray-400 hover:text-blue-500 p-1"><i data-lucide="pencil" class="w-4"></i></button>
-                        <button onclick="delAlum(${i})" class="text-red-400 hover:text-red-600 p-1"><i data-lucide="trash-2" class="w-4"></i></button>
-                    </div>
-                </div>`;
-            });
-            lucide.createIcons();
-        }
-
-        function guardarAlumno() {
-            const m = userData.materias.find(x => x.id === activeId);
-            const idx = document.getElementById('edit-alum-idx').value;
-            const d = { ape: document.getElementById('input-alum-ape').value, nom: document.getElementById('input-alum-nom').value };
-            
-            if (idx !== '') { m.alumnos[idx] = { ...m.alumnos[idx], ...d }; } 
-            else { m.alumnos.push({ id: Date.now(), ...d, notas: {}, obs: '' }); }
-            
-            m.alumnos.sort((a, b) => a.ape.localeCompare(b.ape));
-            saveData();
-            closeModal('modal-alumno');
-            renderAlum();
-        }
-        function delAlum(i){if(confirm('¿Borrar?')){const m=userData.materias.find(x=>x.id===activeId); m.alumnos.splice(i,1); saveData(); renderAlum();}}
-        function openAlumnoModal(idx=null){document.getElementById('edit-alum-idx').value=idx!==null?idx:''; document.getElementById('input-alum-ape').value=idx!==null?userData.materias.find(x=>x.id===activeId).alumnos[idx].ape:''; document.getElementById('input-alum-nom').value=idx!==null?userData.materias.find(x=>x.id===activeId).alumnos[idx].nom:''; openModal('modal-alumno');}
-
-        // TOMA DE LISTA
-        function iniciarTomaLista(){ const h = new Date().toISOString().split('T')[0]; document.getElementById('input-fecha-lista').value = h; cambiarFechaLista(h); nav('lista'); }
-        function cambiarFechaLista(iso){
-            activeDateISO = iso;
-            const m = userData.materias.find(x => x.id === activeId);
-            const c = document.getElementById('lista-check-container');
-            c.innerHTML = '';
-            
-            const map = m.asistencias?.[iso] || {};
-            
-            m.alumnos.forEach(al => {
-                const st = map[al.id] || 'P';
-                const stClass = st==='P'?'st-P':(st==='T'?'st-T':(st==='J'?'st-J':'st-A'));
-                c.innerHTML += `
-                <div class="bg-white p-3 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm mb-2">
-                    <span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span>
-                    <button id="btn-as-${al.id}" onclick="cycleAsist(${al.id})" class="btn-asist ${stClass}">${st}</button>
-                </div>`;
-            });
-        }
-        function cycleAsist(uid){ const btn = document.getElementById(`btn-as-${uid}`); const s = ['P','T','J','A']; const n = s[(s.indexOf(btn.innerText)+1)%s.length]; btn.className = `btn-asist st-${n}`; btn.innerText = n; }
-        function guardarLista(){
-            const m = userData.materias.find(x => x.id === activeId);
-            if (!m.asistencias) m.asistencias = {};
-            const map = {};
-            m.alumnos.forEach(al => { map[al.id] = document.getElementById(`btn-as-${al.id}`).innerText; });
-            m.asistencias[activeDateISO] = map;
-            saveData(); alert('✅ Asistencia Guardada'); nav('aula'); setTab('alumnos');
-        }
-
-        // NOTAS
-        function renderNotas(){
-            const m = userData.materias.find(x => x.id === activeId);
-            const h = document.getElementById('head-notas');
-            const b = document.getElementById('body-notas');
-            
-            h.innerHTML = '<th class="p-3 sticky left-0 bg-gray-50 text-xs font-bold text-gray-500">ALUMNO</th>';
-            m.examenes.forEach((e, i) => h.innerHTML += `<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500 cursor-pointer" onclick="openExamModal(${i})">${e.nombre}</th>`);
-            h.innerHTML += '<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500"><button onclick="openExamModal()" class="text-nomade-green font-bold text-lg">+</button></th>';
-            
-            b.innerHTML = '';
-            m.alumnos.forEach((al, i) => {
-                let r = `<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm truncate max-w-[120px]">${al.ape}, ${al.nom[0]}.</td>`;
-                m.examenes.forEach(e => {
-                    const nota = al.notas[e.id] || '';
-                    const color = (nota !== '' && nota < 4) ? 'text-red-500 font-bold' : 'text-gray-700';
-                    r += `<td class="p-2 border-b"><input type="number" class="w-10 p-1 rounded border input-nota ${color}" value="${nota}" onchange="saveNota(${i}, ${e.id}, this.value)"></td>`;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] })
                 });
-                r += '<td></td></tr>';
-                b.innerHTML += r;
+                const data = await response.json();
+                if (data.error) throw new Error(data.error.message);
+                
+                output.value = data.candidates[0].content.parts[0].text; 
+                container.classList.remove('hidden');
+                container.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                debugLog.innerText = error.message; debugLog.classList.remove('hidden');
+                alert('Error IA. Mirá el detalle rojo.');
+            } finally {
+                btn.innerHTML = 'GENERAR DEVOLUCIÓN'; btn.disabled = false;
+            }
+        }
+        
+        // --- FUNCIONES AUXILIARES ---
+        function changeMonth(step){ currentMonth+=step; if(currentMonth>11){currentMonth=0;currentYear++;} else if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(currentMonth, currentYear); }
+        function renderCalendar(month, year){
+            const monthNames=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+            document.getElementById('cal-month-year').innerText = `${monthNames[month]} ${year}`;
+            const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month+1, 0).getDate();
+            const grid = document.getElementById('calendar-grid'); grid.innerHTML = ''; 
+            for(let i=0; i<firstDay; i++) grid.innerHTML += '<div></div>';
+            for(let day=1; day<=daysInMonth; day++){
+                const date = new Date(year, month, day); const iso = formatDate(date);
+                const isToday = iso === new Date().toISOString().split('T')[0];
+                grid.innerHTML += `<div class="calendar-day ${isToday?'today':''}"><span class="day-number">${day}</span></div>`;
+            }
+        }
+        function formatDate(d){ const year=d.getFullYear(), month=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${year}-${month}-${day}`; }
+
+        function exportarExcel(){
+            const m=userData.materias.find(x=>x.id===activeId);
+            let c="data:text/csv;charset=utf-8,NOMBRE,APELLIDO\n";
+            m.alumnos.forEach(a=>{c+=`${a.nom},${a.ape}\n`;});
+            const l=document.createElement("a"); l.setAttribute("href",encodeURI(c)); l.setAttribute("download",`Lista_${m.nombre}.csv`); document.body.appendChild(l); l.click(); l.remove();
+        }
+        function generarPDF(){
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            const m = userData.materias.find(x => x.id === activeId);
+            doc.text(`Materia: ${m.nombre}`, 10, 10);
+            const body = m.alumnos.map(a => [a.ape, a.nom]);
+            doc.autoTable({ head: [['Apellido', 'Nombre']], body: body });
+            doc.save("Planilla.pdf");
+        }
+        
+        function openSettings(){document.getElementById('modal-settings').classList.remove('hidden');}
+        function closeModal(id){document.getElementById(id).classList.add('hidden');}
+        function openModal(id){document.getElementById(id).classList.remove('hidden');}
+        function setTab(t){['crono','alumnos','notas'].forEach(x=>{document.getElementById('tab-'+x).classList.add('hidden'); document.getElementById('btn-'+x).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400';}); document.getElementById('tab-'+t).classList.remove('hidden'); document.getElementById('btn-'+t).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-nomade-blue text-white'; if(t==='crono')renderCrono(); if(t==='alumnos')renderAlum(); if(t==='notas')renderNotas();}
+        function openClaseDetail(iso){activeDateISO = iso; const m=userData.materias.find(x=>x.id===activeId); const p = m.planificacion?.[iso] || {}; document.getElementById('detail-date').innerText = `Clase del ${iso.split('-').reverse().slice(0,2).join('/')}`; document.getElementById('detail-tema').value = p.tema || ''; document.getElementById('detail-biblio').value = p.biblio || ''; document.getElementById('detail-act-clase').value = p.actClase || ''; document.getElementById('detail-act-tarea').value = p.actTarea || ''; document.getElementById('modal-clase-detail').classList.remove('hidden');}
+        function saveClaseDetail(){const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={}; const p = {tema: document.getElementById('detail-tema').value, biblio: document.getElementById('detail-biblio').value, actClase: document.getElementById('detail-act-clase').value, actTarea: document.getElementById('detail-act-tarea').value}; m.planificacion[activeDateISO] = p; saveData(); closeModal('modal-clase-detail'); renderCrono();}
+        function openImportModal() { document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('input-import-text').value=''; }
+        function processImport() { const raw = document.getElementById('input-import-text').value; if(!raw.trim()) { alert("Pega el contenido."); return; } const lines = raw.split('\n'); const m = userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion = {}; let count = 0; lines.forEach(line => { const parts = line.split('\t'); if(parts.length >= 1) { const dateRaw = parts[0].trim(); const match = dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/); if(match) { const day = match[1].padStart(2,'0'); const month = match[2].padStart(2,'0'); const year = match[3].length === 2 ? '20'+match[3] : match[3]; const isoDate = `${year}-${month}-${day}`; let idx = 1; if(parts[idx] && parts[idx].trim().length < 3 && !isNaN(parseInt(parts[idx]))) idx++; const tema = parts[idx] ? parts[idx].trim() : ""; const biblio = parts[idx+1] ? parts[idx+1].trim() : ""; const actClase = parts[idx+2] ? parts[idx+2].trim() : ""; const actTarea = parts[idx+3] ? parts[idx+3].trim() : ""; if(tema) { m.planificacion[isoDate] = { tema, biblio, actClase, actTarea }; count++; } } } }); saveData(); alert(`✅ Se importaron ${count} clases.`); closeModal('modal-import'); renderCrono(); }
+        
+        // --- GESTION ALUMNOS ---
+        function renderAlum(){
+            const m=userData.materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML=''; 
+            m.alumnos.forEach((al,i)=>{ 
+                l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm"><div class="flex items-center gap-3 flex-1"><div class="avatar-small bg-gray-100 flex items-center justify-center font-bold text-gray-500">${al.ape[0]}</div><span class="font-bold text-gray-700 w-32 truncate">${al.ape}, ${al.nom}</span></div><button onclick="delAlum(${i})" class="text-red-500"><i data-lucide="trash-2" class="w-4"></i></button></div>`; 
+            }); 
+            lucide.createIcons();
+        }
+        function guardarAlumno(){const m=userData.materias.find(x=>x.id===activeId); m.alumnos.push({id:Date.now(), ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, notas:{}}); saveData(); closeModal('modal-alumno'); renderAlum();}
+        function delAlum(i){if(confirm('¿Borrar?')){const m=userData.materias.find(x=>x.id===activeId); m.alumnos.splice(i,1); saveData(); renderAlum();}}
+
+        // --- GESTION NOTAS ---
+        function renderNotas(){
+            const m=userData.materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); 
+            h.innerHTML='<th class="p-3 sticky left-0 bg-gray-50 text-xs font-bold text-gray-500">ALUMNO</th>'; 
+            m.examenes.forEach((e,i)=>h.innerHTML+=`<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500 uppercase cursor-pointer" onclick="openExamModal(${i})">${e.nombre}</th>`); 
+            h.innerHTML+='<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500"><button onclick="openExamModal()" class="text-nomade-green">+</button></th>';
+            b.innerHTML=''; 
+            m.alumnos.forEach((al,i)=>{
+                let r=`<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm">${al.ape}, ${al.nom[0]}.</td>`; 
+                m.examenes.forEach(e=>{ r+=`<td class="p-2 border-b"><input type="number" class="w-10 p-1 rounded border input-nota" value="${al.notas[e.id]||''}" onchange="saveNota(${i},${e.id},this.value)"></td>`; }); 
+                r+='<td></td></tr>'; b.innerHTML+=r;
             });
         }
-        function guardarExamen(){ const m = userData.materias.find(x => x.id === activeId); m.examenes.push({id:Date.now(), nombre:document.getElementById('input-exam-nom').value}); saveData(); closeModal('modal-examen'); renderNotas(); }
-        function saveNota(i, eid, v){ const m = userData.materias.find(x => x.id === activeId); m.alumnos[i].notas[eid] = v; saveData(); }
+        function guardarExamen(){const m=userData.materias.find(x=>x.id===activeId); m.examenes.push({id:Date.now(), nombre:document.getElementById('input-exam-nom').value}); saveData(); closeModal('modal-examen'); renderNotas();}
+        function saveNota(i,eid,v){const m=userData.materias.find(x=>x.id===activeId); m.alumnos[i].notas[eid]=v; saveData();}
 
-        // --- TAREAS Y NOTAS (CUADERNO) ---
+        // --- ASISTENCIA ---
+        function iniciarTomaLista(){
+            const h=new Date().toISOString().split('T')[0]; document.getElementById('input-fecha-lista').value=h; cambiarFechaLista(h); nav('lista');
+        }
+        function cambiarFechaLista(iso){
+            activeDateISO=iso; const m=userData.materias.find(x=>x.id===activeId), c=document.getElementById('lista-check-container'); 
+            c.innerHTML=''; 
+            if(!m.asistencias) m.asistencias={};
+            const map = m.asistencias[iso] || {};
+            m.alumnos.forEach(al=>{
+                const st = map[al.id] || 'P';
+                c.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm mb-2"><span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span><button id="btn-as-${al.id}" onclick="cycleAsist(${al.id})" class="btn-asist st-${st}">${st}</button></div>`;
+            });
+        }
+        function cycleAsist(uid){
+            const btn=document.getElementById(`btn-as-${uid}`); const s=['P','T','J','A'], n=s[(s.indexOf(btn.innerText)+1)%s.length]; 
+            btn.className=`btn-asist st-${n}`; btn.innerText=n;
+        }
+        function guardarLista(){
+            const m=userData.materias.find(x=>x.id===activeId); if(!m.asistencias)m.asistencias={}; 
+            const map={}; m.alumnos.forEach(al=>{map[al.id]=document.getElementById(`btn-as-${al.id}`).innerText;}); 
+            m.asistencias[activeDateISO]=map; saveData(); alert('✅ Guardado'); nav('aula'); setTab('alumnos');
+        }
+        function cancelarLista(){nav('aula');}
+
+        // TAREAS
         function renderTareas(){const l=document.getElementById('lista-tareas'); l.innerHTML=''; if(!userData.tareas || userData.tareas.length===0){document.getElementById('no-tareas').classList.remove('hidden');return;} document.getElementById('no-tareas').classList.add('hidden'); userData.tareas.forEach((t,i)=>{l.innerHTML+=`<div class="flex items-center gap-3 p-2 border-b border-gray-50 last:border-0"><input type="checkbox" class="task-check w-5 h-5 rounded border-gray-300" ${t.done?'checked':''} onchange="toggleTarea(${i})"><div class="flex-1 text-sm font-medium text-gray-700">${t.text}</div><button onclick="borrarTarea(${i})" class="text-gray-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
         function guardarTarea(){if(!userData.tareas) userData.tareas=[]; userData.tareas.push({text:document.getElementById('input-tarea-txt').value, done:false}); saveData(); closeModal('modal-tarea'); renderTareas();}
         function toggleTarea(i){userData.tareas[i].done=!userData.tareas[i].done; saveData(); renderTareas();}
         function borrarTarea(i){userData.tareas.splice(i,1); saveData(); renderTareas();}
-        
-        function renderNotesList(){const l=document.getElementById('lista-notas'); l.innerHTML=''; if(!userData.notas || userData.notas.length===0){document.getElementById('no-notas').classList.remove('hidden');return;} document.getElementById('no-notas').classList.add('hidden'); userData.notas.forEach((n,i)=>{const icon=n.type==='text'?'file-text':'image';const c=n.type==='text'?'text-blue-500':'text-purple-500';l.innerHTML+=`<div onclick="openNoteEditor(${i})" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between h-32 relative group cursor-pointer hover:border-nomade-green transition"><div><i data-lucide="${icon}" class="w-6 h-6 ${c} mb-2"></i><h3 class="font-bold text-sm text-gray-800 leading-tight line-clamp-2">${n.title}</h3><p class="text-[10px] text-gray-400 mt-1">${new Date(n.id).toLocaleDateString()}</p></div><button onclick="event.stopPropagation();deleteNote(${i})" class="absolute top-2 right-2 text-gray-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;}); lucide.createIcons();}
+
+        // --- CUADERNO ---
+        function renderNotesList(){const l=document.getElementById('lista-notas'); l.innerHTML=''; if(!userData.notas || userData.notas.length===0){document.getElementById('no-notas').classList.remove('hidden');return;} document.getElementById('no-notas').classList.add('hidden'); userData.notas.forEach((n,i)=>{const icon=n.type==='text'?'file-text':'image';const c=n.type==='text'?'text-blue-500':'text-purple-500';l.innerHTML+=`<div onclick="openNoteEditor(${i})" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between h-32 relative group cursor-pointer"><div><i data-lucide="${icon}" class="w-6 h-6 ${c} mb-2"></i><h3 class="font-bold text-sm text-gray-800 leading-tight line-clamp-2">${n.title}</h3><p class="text-[10px] text-gray-400 mt-1">${new Date(n.id).toLocaleDateString()}</p></div><button onclick="event.stopPropagation();deleteNote(${i})" class="absolute top-2 right-2 text-gray-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;}); lucide.createIcons();}
         function createNote(t){const tl=document.getElementById('new-nota-title').value||'Sin Título'; if(!userData.notas)userData.notas=[]; userData.notas.unshift({id:Date.now(),title:tl,type:t,content:t==='text'?'':null}); saveData(); closeModal('modal-new-nota'); document.getElementById('new-nota-title').value=''; openNoteEditor(0);}
         function deleteNote(i){if(confirm('¿Borrar?')){userData.notas.splice(i,1); saveData(); renderNotesList();}}
-        
-        // --- MODALES Y NAVEGACIÓN EXTRA ---
-        function openSettings(){document.getElementById('modal-settings').classList.remove('hidden');}
-        function closeModal(id){document.getElementById(id).classList.add('hidden');}
-        function openModal(id){document.getElementById(id).classList.remove('hidden');}
-        function openMateriaModal(id=null){document.getElementById('title-materia').innerText=id?'Editar Materia':'Nueva Materia'; document.getElementById('edit-mat-id').value=id||''; if(id){const m=userData.materias.find(x=>x.id==id); document.getElementById('input-mat-nombre').value=m.nombre; document.getElementById('input-mat-inicio').value=m.fechaInicio; document.getElementById('input-mat-dia').value=m.dia; document.getElementById('input-mat-mod').value=m.modalidadBase;} else{document.getElementById('input-mat-nombre').value='';} openModal('modal-materia');}
-        function guardarMateria(){const eid=document.getElementById('edit-mat-id').value; const mat={nombre:document.getElementById('input-mat-nombre').value, modalidadBase:document.getElementById('input-mat-mod').value, dia:document.getElementById('input-mat-dia').value, fechaInicio:document.getElementById('input-mat-inicio').value||new Date().toISOString().split('T')[0]}; if(eid){const idx=userData.materias.findIndex(x=>x.id==eid); userData.materias[idx]={...userData.materias[idx],...mat};} else{mat.id=Date.now(); mat.cronograma={}; mat.planificacion={}; mat.alumnos=[]; mat.examenes=[]; mat.asistencias={}; userData.materias.push(mat);} saveData(); closeModal('modal-materia'); renderMaterias();}
-        function openExamModal(idx=null){document.getElementById('title-examen').innerText=idx!==null?'Editar':'Nuevo Examen'; document.getElementById('edit-exam-id').value=idx!==null?idx:''; if(idx!==null){const e=userData.materias.find(x=>x.id===activeId).examenes[idx]; document.getElementById('input-exam-nom').value=e.nombre; document.getElementById('input-exam-date').value=e.fecha;} else{document.getElementById('input-exam-nom').value='';} openModal('modal-examen');}
-        function openObs(i){activeObsIdx=i; const m=userData.materias.find(x=>x.id===activeId).alumnos[i]; document.getElementById('obs-alum-name').innerText=`${m.ape}, ${m.nom}`; document.getElementById('input-obs-txt').value=m.obs||''; openModal('modal-obs');}
-        function guardarObs(){userData.materias.find(x=>x.id===activeId).alumnos[activeObsIdx].obs=document.getElementById('input-obs-txt').value; saveData(); closeModal('modal-obs'); renderAlum();}
-        function openImportModal() { document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('input-import-text').value=''; }
-        function processImport() { const raw = document.getElementById('input-import-text').value; if(!raw.trim()) { alert("Pega el contenido."); return; } const lines = raw.split('\n'); const m = userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion = {}; let count = 0; lines.forEach(line => { const parts = line.split('\t'); if(parts.length >= 1) { const dateRaw = parts[0].trim(); const match = dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/); if(match) { const day = match[1].padStart(2,'0'); const month = match[2].padStart(2,'0'); const year = match[3].length === 2 ? '20'+match[3] : match[3]; const isoDate = `${year}-${month}-${day}`; let idx = 1; if(parts[idx] && parts[idx].trim().length < 3 && !isNaN(parseInt(parts[idx]))) idx++; const tema = parts[idx] ? parts[idx].trim() : ""; const biblio = parts[idx+1] ? parts[idx+1].trim() : ""; const actClase = parts[idx+2] ? parts[idx+2].trim() : ""; const actTarea = parts[idx+3] ? parts[idx+3].trim() : ""; if(tema) { m.planificacion[isoDate] = { tema, biblio, actClase, actTarea }; count++; } } } }); saveData(); alert(`✅ Se importaron ${count} clases.`); closeModal('modal-import'); renderCrono(); }
-        
-        // Final Init
+        let canvas, ctx, drawing=false, lastX=0, lastY=0, penColor='black';
+        function openNoteEditor(i){const n=userData.notas[i]; activeNoteId=n.id; document.getElementById('editor-title').innerText=n.title; const t=document.getElementById('editor-text'), d=document.getElementById('editor-draw'); document.getElementById('editor-nota').classList.remove('hidden'); if(n.type==='text'){t.classList.remove('hidden');d.classList.add('hidden');t.value=n.content||'';}else{t.classList.add('hidden');d.classList.remove('hidden');initCanvas(n.content);}}
+        function closeEditor(){document.getElementById('editor-nota').classList.add('hidden'); renderNotesList();}
+        function saveCurrentNote(){const i=userData.notas.findIndex(n=>n.id===activeNoteId); if(i===-1)return; if(userData.notas[i].type==='text'){userData.notas[i].content=document.getElementById('editor-text').value;}else{userData.notas[i].content=canvas.toDataURL();} saveData(); alert('Guardado');}
+        function initCanvas(src){canvas=document.getElementById('drawing-canvas');ctx=canvas.getContext('2d');const p=document.getElementById('canvas-container');canvas.width=p.clientWidth;canvas.height=p.clientHeight;ctx.fillStyle="white";ctx.fillRect(0,0,canvas.width,canvas.height);if(src){const i=new Image();i.onload=()=>ctx.drawImage(i,0,0);i.src=src;} canvas.onmousedown=startDraw;canvas.onmousemove=draw;canvas.onmouseup=stopDraw;canvas.ontouchstart=(e)=>{e.preventDefault();startDraw(e.touches[0]);};canvas.ontouchmove=(e)=>{e.preventDefault();draw(e.touches[0]);};canvas.ontouchend=stopDraw;}
+        function startDraw(e){drawing=true;const r=canvas.getBoundingClientRect();lastX=e.clientX-r.left;lastY=e.clientY-r.top;}
+        function draw(e){if(!drawing)return;const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(x,y);ctx.strokeStyle=penColor;ctx.lineWidth=(penColor==='white'?20:2);ctx.lineCap='round';ctx.stroke();lastX=x;lastY=y;}
+        function stopDraw(){drawing=false;}
+        function setTool(c){penColor=(c==='eraser'?'white':c);}
+        function clearCanvas(){ctx.fillStyle="white";ctx.fillRect(0,0,canvas.width,canvas.height);}
+
         lucide.createIcons();
     </script>
 </body>
 </html>
-
-
