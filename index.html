@@ -104,6 +104,12 @@
             <div id="view-dashboard" class="fade-in space-y-4">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"><div class="flex justify-between items-start"><div><h2 class="text-xl font-bold text-nomade-blue flex items-center gap-2 cursor-pointer" onclick="editProfileName()"><span id="dash-name">Hola Profe</span> <i data-lucide="pencil" class="w-3 h-3 text-gray-300"></i></h2><p class="text-nomade-text text-sm opacity-60" id="fecha-hoy">Cargando...</p></div></div></div>
                 <div class="bg-nomade-blue text-white p-5 rounded-2xl shadow-lg border-l-4 border-nomade-green"><h3 class="font-bold mb-3 border-b border-white/20 pb-2 text-nomade-green">Tu Día Hoy</h3><div id="lista-hoy" class="text-sm space-y-2"></div></div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+    <h3 class="font-bold text-nomade-blue mb-3 flex items-center gap-2">
+        <i data-lucide="calendar-range" class="w-4 h-4 text-nomade-green"></i> Próximos Días
+    </h3>
+    <div id="lista-semana" class="text-sm space-y-3"></div>
+</div>
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><div class="flex justify-between items-center mb-3"><h3 class="font-bold text-nomade-blue">Tareas</h3><button onclick="openModal('modal-tarea')" class="text-xs bg-nomade-green text-white px-3 py-1 rounded-full font-bold shadow hover:bg-teal-700">+ NUEVA</button></div><div id="lista-tareas" class="space-y-2"></div><p id="no-tareas" class="text-center text-xs text-gray-400 mt-2 hidden">Sin tareas pendientes.</p></div>
             </div>
 
@@ -763,7 +769,90 @@
         // OTROS
         function crearUsuarioDocente() { let u = document.getElementById('new-user-username').value; let n = document.getElementById('new-user-fullname').value; if(!u) return alert("Falta usuario"); document.getElementById('admin-user-list').innerHTML += `<div class="bg-gray-50 p-2 mb-1 border-l-4 border-nomade-green flex justify-between items-center"><div><span class="font-bold block text-nomade-blue">${n}</span><span class="text-xs text-gray-400">User: ${u}</span></div><span class="text-[10px] bg-nomade-cream px-2 py-1 rounded text-nomade-blue font-bold uppercase">Creado</span></div>`; alert(`✅ Usuario "${u}" habilitado localmente.`); }
         function nav(v){ ['dashboard','materias','aula','lista','calendario','cuaderno','retro','admin'].forEach(id=>document.getElementById('view-'+id)?.classList.add('hidden')); document.getElementById('view-'+v).classList.remove('hidden'); ['dash','mat','cal','cua','ret'].forEach(k => document.getElementById('nav-'+k).className = 'flex flex-col items-center text-gray-400 w-full justify-center'); const map = {dashboard:'dash', materias:'mat', calendario:'cal', cuaderno:'cua', retro:'ret'}; if(map[v]) document.getElementById('nav-'+map[v]).className = 'flex flex-col items-center text-nomade-green w-full justify-center scale-110 transition'; if(v==='dashboard') initDash(); if(v==='materias') renderMaterias(); if(v==='calendario') renderCalendar(currentMonth, currentYear); lucide.createIcons(); }
-        function initDash(){ const d=new Date(), dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'], h=d.toISOString().split('T')[0]; document.getElementById('fecha-hoy').innerText=`${dias[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}`; const l=document.getElementById('lista-hoy'); l.innerHTML=''; let y=false; if(userData.materias) userData.materias.forEach(m=>{ if(m.dia === dias[d.getDay()]){ y=true; l.innerHTML+=`<div class="bg-white p-3 rounded-lg border-l-4 border-nomade-blue shadow-sm mb-2"><strong class="block text-nomade-blue">${m.nombre}</strong><span class="text-xs text-gray-500 uppercase">${m.modalidadBase}</span> ${m.horario ? '<span class="text-[10px] bg-gray-100 px-1 rounded">'+m.horario+'</span>' : ''}</div>`; } }); if(userData.eventos?.[h]) userData.eventos[h].forEach(ev=>{ y=true; l.innerHTML+=`<div class="bg-white p-3 rounded-lg border-l-4 border-nomade-green shadow-sm mb-2"><span class="text-sm font-bold text-gray-700">${ev}</span></div>`; }); if(!y) l.innerHTML='<span class="text-xs text-gray-400 italic">Nada para hoy.</span>'; renderTareas(); }
+        function initDash(){ 
+    const d=new Date();
+    const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+    const h=d.toISOString().split('T')[0]; // Fecha ISO de hoy
+
+    // 1. CABECERA
+    document.getElementById('fecha-hoy').innerText=`${dias[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}`; 
+    
+    // 2. LISTA DE HOY
+    const lHoy=document.getElementById('lista-hoy'); 
+    lHoy.innerHTML=''; 
+    let hayClase=false; 
+    
+    if(userData.materias) userData.materias.forEach(m=>{ 
+        if(m.dia === dias[d.getDay()]){ 
+            hayClase=true; 
+            // Buscamos si hay un tema específico para hoy en la planificación
+            const temaHoy = m.planificacion?.[h]?.tema || 'Sin tema asignado';
+            
+            lHoy.innerHTML+=`
+            <div class="bg-white p-3 rounded-lg border-l-4 border-nomade-blue shadow-sm mb-2">
+                <div class="flex justify-between items-start">
+                    <strong class="block text-nomade-blue text-sm">${m.nombre}</strong>
+                    <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded text-gray-500 font-bold">${m.horario||''}</span>
+                </div>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[10px] uppercase text-gray-400 font-bold">${m.modalidadBase}</span>
+                </div>
+                <div class="mt-2 pt-2 border-t border-dashed border-gray-100 text-xs text-gray-600">
+                    📝 ${temaHoy}
+                </div>
+            </div>`; 
+        } 
+    });
+    
+    // Eventos extra (del calendario)
+    if(userData.eventos?.[h]) userData.eventos[h].forEach(ev=>{ 
+        hayClase=true; 
+        lHoy.innerHTML+=`<div class="bg-white p-3 rounded-lg border-l-4 border-nomade-green shadow-sm mb-2"><span class="text-sm font-bold text-gray-700">${ev}</span></div>`; 
+    }); 
+    
+    if(!hayClase) lHoy.innerHTML='<span class="text-xs text-gray-400 italic">Nada para hoy. ¡A descansar!</span>'; 
+
+    // 3. PRÓXIMOS DÍAS (PLANIFICACIÓN SEMANAL)
+    const lSem = document.getElementById('lista-semana');
+    if(lSem) {
+        lSem.innerHTML = '';
+        let haySemana = false;
+        
+        // Miramos los próximos 5 días
+        for(let i=1; i<=5; i++){
+            const next = new Date();
+            next.setDate(d.getDate() + i); // Sumamos días
+            
+            const nextDayName = dias[next.getDay()];
+            const nextDateShort = `${next.getDate()}/${next.getMonth()+1}`;
+            const nextIso = next.toISOString().split('T')[0];
+
+            if(userData.materias) {
+                userData.materias.forEach(m => {
+                    if(m.dia === nextDayName){
+                        haySemana = true;
+                        // Buscamos tema futuro
+                        const temaFuturo = m.planificacion?.[nextIso]?.tema || '';
+                        
+                        lSem.innerHTML += `
+                        <div class="flex flex-col border-b border-gray-50 pb-2 mb-2 last:border-0">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-bold text-nomade-green">${nextDayName} ${nextDateShort}</span>
+                                <span class="text-[10px] text-gray-400">${m.horario || ''}</span>
+                            </div>
+                            <span class="text-xs text-gray-700 font-medium">${m.nombre}</span>
+                            ${temaFuturo ? `<span class="text-[10px] text-gray-500 italic mt-0.5">📌 ${temaFuturo}</span>` : ''}
+                        </div>`;
+                    }
+                });
+            }
+        }
+        if(!haySemana) lSem.innerHTML = '<span class="text-xs text-gray-400 italic">Agenda libre por los próximos 5 días.</span>';
+    }
+
+    renderTareas(); 
+    lucide.createIcons();
+}
         function renderMaterias(){ const l=document.getElementById('lista-materias'); l.innerHTML=''; if(!userData.materias || userData.materias.length === 0){document.getElementById('no-materias').classList.remove('hidden'); return;} document.getElementById('no-materias').classList.add('hidden'); userData.materias.forEach(m=>{ l.innerHTML += `<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center mb-2" onclick="abrirAula(${m.id})"><div><h3 class="font-bold text-nomade-blue">${m.nombre}</h3><div class="text-xs text-gray-400 uppercase">${m.dia} • ${m.modalidadBase}</div></div><i data-lucide="chevron-right" class="text-gray-300"></i></div>`; }); lucide.createIcons(); }
         function abrirAula(id){ activeId=id; const m=userData.materias.find(x=>x.id===id); document.getElementById('aula-nombre').innerText=m.nombre; document.getElementById('aula-modalidad').innerText=m.modalidadBase; nav('aula'); setTab('crono'); }
         function openDayEvents(iso){ activeCalISO = iso; const list = document.getElementById('day-events-list'); list.innerHTML = ''; document.getElementById('event-date-title').innerText = iso.split('-').reverse().slice(0,2).join('/'); const d = new Date(iso + 'T12:00:00'); const dayName = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][d.getDay()]; if(userData.materias) { userData.materias.forEach(m => { if(m.dia === dayName) { list.innerHTML += `<div class="bg-gray-100 p-2 rounded text-xs font-bold text-gray-700 mb-1 border-l-4 border-nomade-blue">${m.nombre} <span class="block font-normal text-gray-500">${m.horario||''}</span></div>`; } }); } if(userData.eventos && userData.eventos[iso]) { userData.eventos[iso].forEach((ev, idx) => { list.innerHTML += `<div class="bg-white p-2 rounded text-xs flex justify-between mb-1 border border-gray-200"><span>${ev}</span><button onclick="delEvent('${iso}',${idx})" class="text-red-500 font-bold">X</button></div>`; }); } openModal('modal-cal-event'); }
@@ -1072,6 +1161,7 @@ document.addEventListener('click', function() {
     </script>
 </body>
 </html>
+
 
 
 
