@@ -831,87 +831,98 @@ async function handleLogin() {
         };
 
         // OTROS
-        // --- PARCHE CREACIÓN DE USUARIOS (ANTICONGELAMIENTO) ---
-async function crearUsuarioDocente() {
+    async function crearUsuarioDocente() {
     let uInput = document.getElementById('new-user-username').value.trim(); 
     const pass = document.getElementById('new-user-pass').value;
     const name = document.getElementById('new-user-fullname').value;
 
-    if(!uInput || !pass) return alert("Faltan datos (Usuario o Contraseña).");
+    if(!uInput || !pass) return alert("Faltan datos.");
     if(pass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
 
     let email = uInput;
     if (!email.includes('@')) { email = uInput + '@nomade.app'; }
 
-    // Referencia al botón para feedback
     const btn = document.querySelector('#view-admin button');
     const textoOriginal = btn.innerText;
-    
-    // Bloquear botón
-    btn.innerText = "CREANDO...";
+    btn.innerText = "PROCESANDO...";
     btn.disabled = true;
 
+    // Inicializar sistema secundario si no existe
+    let adminAuth;
     try {
-        // Verificar conexión
-        if(!navigator.onLine) {
-            throw new Error("No hay conexión a internet. No se puede crear usuario en la nube.");
-        }
+        let tempApp = firebase.apps.find(a => a.name === "Secondary");
+        if (!tempApp) tempApp = firebase.initializeApp(firebaseConfig, "Secondary");
+        adminAuth = tempApp.auth();
+    } catch(err) {
+        btn.innerText = textoOriginal; btn.disabled = false;
+        return alert("Error interno: " + err.message);
+    }
 
-        // Asegurar que la app secundaria (para crear users) existe
-        let adminAuth;
+    try {
+        // 1. INTENTAR CREAR
+        let cred;
+        let esRecuperacion = false;
+
         try {
-            // Intentamos obtener la app secundaria, si no existe, la creamos al vuelo
-            let tempApp = firebase.apps.find(a => a.name === "Secondary");
-            if (!tempApp) {
-                tempApp = firebase.initializeApp(firebaseConfig, "Secondary");
+            cred = await adminAuth.createUserWithEmailAndPassword(email, pass);
+        } catch (createError) {
+            // 2. SI YA EXISTE, INTENTAR RECUPERAR (LOGUEARSE)
+            if (createError.code === 'auth/email-already-in-use') {
+                try {
+                    console.log("Usuario existe, intentando recuperar...");
+                    cred = await adminAuth.signInWithEmailAndPassword(email, pass);
+                    esRecuperacion = true;
+                } catch (loginError) {
+                    throw new Error("El usuario ya existe y la contraseña no coincide. Probá con otro nombre de usuario.");
+                }
+            } else {
+                throw createError; // Si es otro error, rebotarlo
             }
-            adminAuth = tempApp.auth();
-        } catch(err) {
-            throw new Error("Error interno inicializando sistema de administración: " + err.message);
         }
-
-        // 1. Crear Credencial de Acceso
-        const cred = await adminAuth.createUserWithEmailAndPassword(email, pass);
         
-        // 2. Crear Perfil en Base de Datos
-        await dbCloud.collection('users').doc(cred.user.uid).set({ 
+        // 3. GUARDAR/ACTUALIZAR DATOS EN LA NUBE
+        const userData = { 
             email: email, 
             name: name || uInput, 
             role: 'docente',
-            created: new Date().toISOString()
-        });
+            updatedAt: new Date().toISOString()
+        };
+        
+        // Solo si es nuevo agregamos la fecha de creación
+        if(!esRecuperacion) userData.createdAt = new Date().toISOString();
 
-        // 3. Crear Agenda Vacía
-        await dbCloud.collection('app_data').doc(cred.user.uid).set({ 
-            materias: [], 
-            eventos: {}, 
-            notas: [], 
-            tareas: [] 
-        });
+        await dbCloud.collection('users').doc(cred.user.uid).set(userData, { merge: true });
 
-        // 4. Desloguear al usuario nuevo (para no sacarte a vos)
+        // Asegurar que tenga su agenda inicializada
+        const docRef = dbCloud.collection('app_data').doc(cred.user.uid);
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) {
+            await docRef.set({ materias: [], eventos: {}, notas: [], tareas: [] });
+        }
+
+        // 4. SALIR DEL USUARIO CREADO/RECUPERADO
         await adminAuth.signOut();
 
-        // Éxito
-        alert(`✅ ¡ÉXITO!\nUsuario creado: ${email}\nContraseña: ${pass}\n\nYa puede ingresar desde cualquier dispositivo.`);
+        // 5. FEEDBACK
+        if(esRecuperacion) {
+            alert(`🔄 USUARIO RECUPERADO\nEl usuario "${email}" ya existía.\nSe actualizaron sus datos correctamente.`);
+        } else {
+            alert(`✅ USUARIO CREADO\nUsuario: ${email}\nContraseña: ${pass}`);
+        }
         
-        // Limpiar
+        // Limpiar campos
         document.getElementById('new-user-username').value = '';
         document.getElementById('new-user-pass').value = '';
         document.getElementById('new-user-fullname').value = '';
         
-        // Agregar a la lista visualmente
+        // Actualizar lista visual
         const list = document.getElementById('admin-user-list');
-        list.innerHTML += `<div class="bg-gray-50 p-2 mb-1 border-l-4 border-nomade-green"><span class="font-bold text-nomade-blue block">${name}</span><span class="text-xs text-gray-400">${email}</span></div>`;
+        list.innerHTML += `<div class="bg-gray-50 p-2 mb-1 border-l-4 border-nomade-green flex justify-between items-center"><div><span class="font-bold text-nomade-blue block">${name}</span><span class="text-xs text-gray-400">${email}</span></div><span class="text-[10px] bg-green-100 text-green-800 px-2 py-1 rounded font-bold">${esRecuperacion ? 'RECUPERADO' : 'NUEVO'}</span></div>`;
 
     } catch(e) {
         console.error(e);
-        let msg = e.message;
-        if (e.code === 'auth/email-already-in-use') msg = "El usuario ya existe.";
-        if (e.code === 'auth/invalid-email') msg = "Formato de usuario inválido.";
-        alert("❌ Error: " + msg);
+        alert("❌ Error: " + e.message);
     } finally {
-        // SIEMPRE desbloquear el botón al final
         btn.innerText = textoOriginal;
         btn.disabled = false;
     }
@@ -1322,6 +1333,7 @@ function showToast(message) {
     <div id="toast-notification">Notificación</div>
 </body>
 </html>
+
 
 
 
