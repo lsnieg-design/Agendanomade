@@ -831,7 +831,7 @@ async function handleLogin() {
         };
 
         // OTROS
-    async function crearUsuarioDocente() {
+  async function crearUsuarioDocente() {
     let uInput = document.getElementById('new-user-username').value.trim(); 
     const pass = document.getElementById('new-user-pass').value;
     const name = document.getElementById('new-user-fullname').value;
@@ -839,15 +839,16 @@ async function handleLogin() {
     if(!uInput || !pass) return alert("Faltan datos.");
     if(pass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
 
+    // Formatear email
     let email = uInput;
     if (!email.includes('@')) { email = uInput + '@nomade.app'; }
 
     const btn = document.querySelector('#view-admin button');
     const textoOriginal = btn.innerText;
-    btn.innerText = "PROCESANDO...";
+    btn.innerText = "VERIFICANDO...";
     btn.disabled = true;
 
-    // Inicializar sistema secundario si no existe
+    // 1. Inicializar sistema secundario
     let adminAuth;
     try {
         let tempApp = firebase.apps.find(a => a.name === "Secondary");
@@ -855,73 +856,53 @@ async function handleLogin() {
         adminAuth = tempApp.auth();
     } catch(err) {
         btn.innerText = textoOriginal; btn.disabled = false;
-        return alert("Error interno: " + err.message);
+        return alert("Error interno de conexión: " + err.message);
     }
 
     try {
-        // 1. INTENTAR CREAR
-        let cred;
-        let esRecuperacion = false;
-
-        try {
-            cred = await adminAuth.createUserWithEmailAndPassword(email, pass);
-        } catch (createError) {
-            // 2. SI YA EXISTE, INTENTAR RECUPERAR (LOGUEARSE)
-            if (createError.code === 'auth/email-already-in-use') {
-                try {
-                    console.log("Usuario existe, intentando recuperar...");
-                    cred = await adminAuth.signInWithEmailAndPassword(email, pass);
-                    esRecuperacion = true;
-                } catch (loginError) {
-                    throw new Error("El usuario ya existe y la contraseña no coincide. Probá con otro nombre de usuario.");
-                }
-            } else {
-                throw createError; // Si es otro error, rebotarlo
-            }
-        }
+        // 2. INTENTAR CREAR DIRECTAMENTE
+        const cred = await adminAuth.createUserWithEmailAndPassword(email, pass);
         
-        // 3. GUARDAR/ACTUALIZAR DATOS EN LA NUBE
+        // 3. SI PASÓ, GUARDAMOS LOS DATOS
         const userData = { 
             email: email, 
             name: name || uInput, 
             role: 'docente',
-            updatedAt: new Date().toISOString()
+            createdAt: new Date().toISOString()
         };
-        
-        // Solo si es nuevo agregamos la fecha de creación
-        if(!esRecuperacion) userData.createdAt = new Date().toISOString();
 
-        await dbCloud.collection('users').doc(cred.user.uid).set(userData, { merge: true });
+        await dbCloud.collection('users').doc(cred.user.uid).set(userData);
+        await dbCloud.collection('app_data').doc(cred.user.uid).set({ 
+            materias: [], eventos: {}, notas: [], tareas: [] 
+        });
 
-        // Asegurar que tenga su agenda inicializada
-        const docRef = dbCloud.collection('app_data').doc(cred.user.uid);
-        const docSnap = await docRef.get();
-        if (!docSnap.exists) {
-            await docRef.set({ materias: [], eventos: {}, notas: [], tareas: [] });
-        }
-
-        // 4. SALIR DEL USUARIO CREADO/RECUPERADO
+        // 4. SALIR Y AVISAR
         await adminAuth.signOut();
 
-        // 5. FEEDBACK
-        if(esRecuperacion) {
-            alert(`🔄 USUARIO RECUPERADO\nEl usuario "${email}" ya existía.\nSe actualizaron sus datos correctamente.`);
-        } else {
-            alert(`✅ USUARIO CREADO\nUsuario: ${email}\nContraseña: ${pass}`);
-        }
+        alert(`✅ USUARIO CREADO CON ÉXITO\n\nUsuario: ${email}\nContraseña: ${pass}\n\n¡Anotalo!`);
         
         // Limpiar campos
         document.getElementById('new-user-username').value = '';
         document.getElementById('new-user-pass').value = '';
         document.getElementById('new-user-fullname').value = '';
         
-        // Actualizar lista visual
+        // Agregar a la lista
         const list = document.getElementById('admin-user-list');
-        list.innerHTML += `<div class="bg-gray-50 p-2 mb-1 border-l-4 border-nomade-green flex justify-between items-center"><div><span class="font-bold text-nomade-blue block">${name}</span><span class="text-xs text-gray-400">${email}</span></div><span class="text-[10px] bg-green-100 text-green-800 px-2 py-1 rounded font-bold">${esRecuperacion ? 'RECUPERADO' : 'NUEVO'}</span></div>`;
+        list.innerHTML += `<div class="bg-gray-50 p-2 mb-1 border-l-4 border-nomade-green flex justify-between items-center"><div><span class="font-bold text-nomade-blue block">${name}</span><span class="text-xs text-gray-400">${email}</span></div><span class="text-[10px] bg-green-100 text-green-800 px-2 py-1 rounded font-bold">NUEVO</span></div>`;
 
     } catch(e) {
         console.error(e);
-        alert("❌ Error: " + e.message);
+        
+        // MANEJO DE ERRORES CLAROS
+        if (e.code === 'auth/email-already-in-use') {
+            alert(`⛔ EL USUARIO YA EXISTE\n\nEl nombre "${uInput}" ya está ocupado.\n\n👉 Probá con otro nombre (ej: ${uInput}2026).`);
+        } else if (e.code === 'auth/invalid-email') {
+            alert("❌ El formato del usuario no es válido. Usá solo letras y números.");
+        } else if (e.code === 'auth/weak-password') {
+            alert("❌ La contraseña es muy débil. Usá al menos 6 caracteres.");
+        } else {
+            alert("❌ Error desconocido: " + e.message);
+        }
     } finally {
         btn.innerText = textoOriginal;
         btn.disabled = false;
@@ -1333,6 +1314,7 @@ function showToast(message) {
     <div id="toast-notification">Notificación</div>
 </body>
 </html>
+
 
 
 
