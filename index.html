@@ -81,7 +81,7 @@
 
     <div id="auth-screen" class="fixed inset-0 login-bg z-50 flex flex-col items-center justify-center p-6 text-center text-white fade-in">
         <div class="mb-6 drop-shadow-xl">
-            <img src="nomade.png" alt="Nómade Logo" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green" onerror="this.style.display='none'">
+            <img src="nomade.png" alt="Nómade Logo" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green" onerror="this.src='https://via.placeholder.com/150/1FA194/FFFFFF?text=N'">
         </div>
         <h1 class="text-3xl font-black uppercase mb-1 tracking-widest text-white">NÓMADE</h1>
         <p class="text-nomade-green text-sm mb-10 font-medium tracking-wide uppercase">Agenda Docente</p>
@@ -325,8 +325,8 @@
     <div id="modal-clase-detail" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative max-h-[90vh] overflow-y-auto"><h3 class="text-lg font-black text-nomade-blue mb-1" id="detail-date">--/--</h3><input type="hidden" id="detail-iso"><div class="space-y-3 mt-4"><div><label class="text-xs font-bold text-gray-500">CONTENIDO / TEMA</label><textarea id="detail-tema" class="w-full p-2 bg-gray-50 rounded border text-sm font-medium h-20"></textarea></div><div><label class="text-xs font-bold text-gray-500">BIBLIOGRAFÍA</label><textarea id="detail-biblio" class="w-full p-2 bg-gray-50 rounded border text-sm text-gray-600 h-16"></textarea></div><div><label class="text-xs font-bold text-gray-500">ACTIVIDAD CLASE</label><input id="detail-act-clase" class="w-full p-2 bg-gray-50 rounded border text-sm"></div><div><label class="text-xs font-bold text-gray-500">TAREA</label><input id="detail-act-tarea" class="w-full p-2 bg-gray-50 rounded border text-sm"></div></div><div class="flex gap-2 mt-4"><button onclick="closeModal('modal-clase-detail')" class="flex-1 py-3 text-gray-500 font-bold">Cerrar</button><button onclick="saveClaseDetail()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
 
     <script>
-        // CONFIGURACIÓN (CLAVE 53l0 - GEMINI 1.5 FLASH)
-        const API_KEY = 'AIzaSyA--tY3eKlFqXQzaZWowOjfQHcNslC53l0'; 
+        // CONFIGURACIÓN (CLAVE 4IhE)
+        const API_KEY = 'AIzaSyDS9Tw3_TRLCOu1q7ywcGNHTpY9ta9BzAk'; 
         
         const firebaseConfig = {
             apiKey: "AIzaSyBpBjGm2jdqlearWnBiwn4jxjeby3nA0gk",
@@ -396,7 +396,6 @@
                         await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: materiasData, eventos: {}, tareas: [], notas: [] });
                         location.reload();
                     } catch (e2) {
-                        // Si ya existe pero falló el login antes, intenta loguear de nuevo o muestra error
                         msg.innerText = "Error crítico: " + e2.message;
                     }
                 }
@@ -727,7 +726,7 @@
             h.innerHTML+='<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500"><button onclick="openExamModal()" class="text-nomade-green">+</button></th>';
             b.innerHTML=''; 
             m.alumnos.forEach((al,i)=>{
-                let r=`<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm truncate max-w-[120px]">${al.ape}, ${al.nom[0]}.</td>`; 
+                let r=`<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm">${al.ape}, ${al.nom[0]}.</td>`; 
                 m.examenes.forEach(e=>{ r+=`<td class="p-2 border-b"><input type="number" class="w-10 p-1 rounded border input-nota" value="${al.notas[e.id]||''}" onchange="saveNota(${i},${e.id},this.value)"></td>`; }); 
                 r+='<td></td></tr>'; b.innerHTML+=r;
             });
