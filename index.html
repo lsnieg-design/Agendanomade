@@ -1159,9 +1159,22 @@ window.onload = function() {
 document.addEventListener('click', function() {
     setTimeout(() => lucide.createIcons(), 100);
 });
+        // Función para llamar en lugar de alert()
+function showToast(message) {
+    const x = document.getElementById("toast-notification");
+    x.innerText = message;
+    x.className = "show";
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
+// EJEMPLO DE USO:
+// En lugar de: alert('✅ Guardado');
+// Poné: showToast('✅ Guardado exitosamente');
     </script>
+    <div id="toast-notification">Notificación</div>
 </body>
 </html>
+
 
 
 
