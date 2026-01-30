@@ -309,17 +309,33 @@
         }
 
         function logout() { location.reload(); }
-        function saveData() { 
-            const key = currentUser.uid === 'local_admin' ? 'nomade_data_admin' : 'nomade_data_' + currentUser.email.split('@')[0];
-            localStorage.setItem(key, JSON.stringify(userData));
-            const st = document.getElementById('cloud-status'); st.style.opacity = '1'; setTimeout(() => st.style.opacity = '0', 2000);
-        }
+       function saveData() { 
+    // Si es el admin de emergencia, guarda local (esto está bien para vos)
+    if(currentUser.uid === 'local_admin') {
+        localStorage.setItem('nomade_data_admin', JSON.stringify(userData));
+        return;
+    }
 
-        // --- PWA LOGIC ---
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
-            document.getElementById('install-banner').style.display = 'block';
-        });
+    // PARA USUARIOS REALES: Guardar en Firebase (Nube)
+    if (currentUser && dbCloud) {
+        const st = document.getElementById('cloud-status');
+        st.innerHTML = '<div class="loader w-3 h-3 border-2"></div> Guardando...';
+        st.style.opacity = '1';
+
+        dbCloud.collection('app_data').doc(currentUser.uid).set(userData)
+            .then(() => {
+                st.innerHTML = '<i data-lucide="cloud" class="w-3 h-3"></i> Sincronizado';
+                setTimeout(() => st.style.opacity = '0', 2000);
+            })
+            .catch((error) => {
+                console.error("Error al guardar:", error);
+                st.innerHTML = '⚠️ Error de Red - No se guardó';
+                st.style.color = 'red';
+                st.style.opacity = '1';
+                alert("¡CUIDADO! No tenés internet. Los cambios no se guardaron en la nube.");
+            });
+    }
+}
         function installPWA() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
@@ -767,7 +783,78 @@
         };
 
         // OTROS
-        function crearUsuarioDocente() { let u = document.getElementById('new-user-username').value; let n = document.getElementById('new-user-fullname').value; if(!u) return alert("Falta usuario"); document.getElementById('admin-user-list').innerHTML += `<div class="bg-gray-50 p-2 mb-1 border-l-4 border-nomade-green flex justify-between items-center"><div><span class="font-bold block text-nomade-blue">${n}</span><span class="text-xs text-gray-400">User: ${u}</span></div><span class="text-[10px] bg-nomade-cream px-2 py-1 rounded text-nomade-blue font-bold uppercase">Creado</span></div>`; alert(`✅ Usuario "${u}" habilitado localmente.`); }
+        async function crearUsuarioDocente() {
+    // 1. Obtener datos
+    let uInput = document.getElementById('new-user-username').value.trim(); 
+    const pass = document.getElementById('new-user-pass').value;
+    const name = document.getElementById('new-user-fullname').value;
+
+    if(!uInput || !pass || !name) return alert("Por favor completá todos los campos.");
+    if(pass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
+
+    // 2. Formatear email (si ponen solo "juan", lo convertimos a email)
+    let email = uInput;
+    if (!email.includes('@')) { email = uInput + '@nomade.app'; }
+
+    const btn = document.querySelector('#view-admin button');
+    const txtOriginal = btn.innerText;
+    btn.innerText = "CREANDO...";
+    btn.disabled = true;
+
+    try {
+        // 3. Crear usuario REAL en Firebase Auth usando la app secundaria
+        // (Esto permite crear otro usuario sin desloguearte a vos)
+        const secAuth = secondaryApp.auth();
+        const cred = await secAuth.createUserWithEmailAndPassword(email, pass);
+        
+        // 4. Crear su espacio en la base de datos (Firestore)
+        await dbCloud.collection('users').doc(cred.user.uid).set({ 
+            email: email, 
+            name: name, 
+            role: 'docente',
+            createdAt: new Date().toISOString()
+        });
+
+        // 5. Inicializarle una agenda vacía
+        await dbCloud.collection('app_data').doc(cred.user.uid).set({ 
+            materias: [], 
+            eventos: {}, 
+            notas: [], 
+            tareas: [] 
+        });
+
+        // 6. Cerrar la sesión temporal del nuevo usuario para no sacarte a vos
+        await secAuth.signOut();
+
+        // 7. Éxito
+        alert(`✅ ¡LISTO!\nUsuario creado en la nube.\n\nUsuario: ${email}\nContraseña: ${pass}`);
+        
+        // Agregar visualmente a la lista (opcional, para feedback inmediato)
+        document.getElementById('admin-user-list').innerHTML += `
+            <div class="bg-gray-50 p-2 mb-1 border-l-4 border-nomade-green flex justify-between items-center">
+                <div>
+                    <span class="font-bold block text-nomade-blue">${name}</span>
+                    <span class="text-xs text-gray-400">${email}</span>
+                </div>
+                <span class="text-[10px] bg-green-100 text-green-800 px-2 py-1 rounded font-bold">NUBE OK</span>
+            </div>`;
+
+        // Limpiar campos
+        document.getElementById('new-user-username').value = '';
+        document.getElementById('new-user-pass').value = '';
+        document.getElementById('new-user-fullname').value = '';
+
+    } catch(e) {
+        console.error(e);
+        let msg = "Error al crear usuario.";
+        if(e.code === 'auth/email-already-in-use') msg = "Ese usuario/email YA EXISTE.";
+        if(e.code === 'auth/invalid-email') msg = "El formato del usuario no es válido.";
+        alert("❌ " + msg + "\n(" + e.message + ")");
+    } finally {
+        btn.innerText = txtOriginal;
+        btn.disabled = false;
+    }
+}
         function nav(v){ ['dashboard','materias','aula','lista','calendario','cuaderno','retro','admin'].forEach(id=>document.getElementById('view-'+id)?.classList.add('hidden')); document.getElementById('view-'+v).classList.remove('hidden'); ['dash','mat','cal','cua','ret'].forEach(k => document.getElementById('nav-'+k).className = 'flex flex-col items-center text-gray-400 w-full justify-center'); const map = {dashboard:'dash', materias:'mat', calendario:'cal', cuaderno:'cua', retro:'ret'}; if(map[v]) document.getElementById('nav-'+map[v]).className = 'flex flex-col items-center text-nomade-green w-full justify-center scale-110 transition'; if(v==='dashboard') initDash(); if(v==='materias') renderMaterias(); if(v==='calendario') renderCalendar(currentMonth, currentYear); lucide.createIcons(); }
        function initDash(){ 
     const d=new Date();
@@ -1174,6 +1261,7 @@ function showToast(message) {
     <div id="toast-notification">Notificación</div>
 </body>
 </html>
+
 
 
 
