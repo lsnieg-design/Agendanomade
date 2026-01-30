@@ -81,23 +81,38 @@
 
     <div id="auth-screen" class="fixed inset-0 login-bg z-50 flex flex-col items-center justify-center p-6 text-center text-white fade-in">
         <div class="mb-6 drop-shadow-xl">
-            <img src="nomade.png" alt="Nómade" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green" onerror="this.src='https://placehold.co/150x150?text=N'">
+            <img src="nomade.png" alt="Nómade Logo" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green" onerror="this.style.display='none'">
         </div>
         <h1 class="text-3xl font-black uppercase mb-1 tracking-widest text-white">NÓMADE</h1>
         <p class="text-nomade-green text-sm mb-10 font-medium tracking-wide uppercase">Agenda Docente</p>
         
         <div class="w-full max-w-xs space-y-4">
-            <div class="relative"><i data-lucide="user" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i><input type="text" id="login-user" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Usuario"></div>
-            <div class="relative"><i data-lucide="lock" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i><input type="password" id="login-pass" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Contraseña"></div>
+            <div class="relative">
+                <i data-lucide="user" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
+                <input type="text" id="login-user" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Usuario">
+            </div>
+
+            <div class="relative">
+                <i data-lucide="lock" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
+                <input type="password" id="login-pass" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Contraseña">
+            </div>
+            
             <button onclick="handleLogin()" id="btn-login" class="bg-nomade-green text-white w-full py-4 rounded-xl font-bold shadow-lg hover:bg-teal-600 transition tracking-widest mt-2 transform active:scale-95">INGRESAR</button>
             <p id="login-msg" class="text-xs mt-4 h-4 text-red-300 font-bold text-center"></p>
         </div>
-        <div class="mt-auto pb-4"><p class="text-[10px] opacity-60">Creado por</p><a href="https://www.somosnomade.com.ar" target="_blank" class="text-nomade-green font-bold text-xs hover:underline">www.somosnomade.com.ar</a></div>
+        
+        <div class="mt-auto pb-4">
+            <p class="text-[10px] opacity-60">Creado por</p>
+            <a href="https://www.somosnomade.com.ar" target="_blank" class="text-nomade-green font-bold text-xs hover:underline">www.somosnomade.com.ar</a>
+        </div>
     </div>
 
     <div id="app-content" class="flex flex-col h-full hidden relative">
         <header class="bg-nomade-blue text-white p-4 flex justify-between items-center shadow-md z-20 pt-safe-top">
-            <div class="flex items-center gap-3"><img src="nomade.png" class="w-8 h-8 bg-white rounded-full p-0.5" onerror="this.style.display='none'"><span class="font-bold text-sm uppercase tracking-wider">Mi Agenda</span></div>
+            <div class="flex items-center gap-3">
+                <img src="nomade.png" class="w-8 h-8 bg-white rounded-full p-0.5" onerror="this.style.display='none'">
+                <span class="font-bold text-sm uppercase tracking-wider">Mi Agenda</span>
+            </div>
             <div class="flex items-center gap-3">
                 <button onclick="nav('admin')" id="btn-admin-panel" class="hidden text-nomade-green animate-pulse"><i data-lucide="crown" class="w-5 h-5"></i></button>
                 <button onclick="openSettings()" class="opacity-90 hover:text-nomade-green transition"><i data-lucide="settings" class="w-5 h-5"></i></button>
@@ -109,12 +124,21 @@
             <div id="view-dashboard" class="fade-in space-y-4">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex justify-between items-start">
-                        <div><h2 class="text-xl font-bold text-nomade-blue flex items-center gap-2 cursor-pointer" onclick="editProfileName()"><span id="dash-name">Hola Profe</span> <i data-lucide="pencil" class="w-3 h-3 text-gray-300"></i></h2><p class="text-nomade-text text-sm opacity-60" id="fecha-hoy">Cargando...</p></div>
+                        <div>
+                            <h2 class="text-xl font-bold text-nomade-blue flex items-center gap-2 cursor-pointer" onclick="editProfileName()">
+                                <span id="dash-name">Hola Profe</span> <i data-lucide="pencil" class="w-3 h-3 text-gray-300"></i>
+                            </h2>
+                            <p class="text-nomade-text text-sm opacity-60" id="fecha-hoy">Cargando...</p>
+                        </div>
                     </div>
                 </div>
                 <div class="bg-nomade-blue text-white p-5 rounded-2xl shadow-lg border-l-4 border-nomade-green">
                     <h3 class="font-bold mb-3 border-b border-white/20 pb-2 text-nomade-green">Tu Día Hoy</h3>
                     <div id="lista-hoy" class="text-sm space-y-2"></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-nomade-blue mb-3 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4 text-nomade-green"></i> Planificación Semanal</h3>
+                    <div id="lista-semana" class="text-sm space-y-3"></div>
                 </div>
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-nomade-blue">Tareas</h3><button onclick="openModal('modal-tarea')" class="text-xs bg-nomade-green text-white px-3 py-1 rounded-full font-bold shadow hover:bg-teal-700">+ NUEVA</button></div>
@@ -126,7 +150,10 @@
             <div id="view-calendario" class="hidden fade-in h-full flex flex-col">
                 <div class="flex justify-between items-center mb-4">
                     <h2 id="cal-month-year" class="text-xl font-bold text-nomade-blue capitalize">Mes Año</h2>
-                    <div class="flex gap-2"><button onclick="changeMonth(-1)" class="p-2 bg-white rounded-lg shadow-sm border border-gray-200 active:bg-gray-100"><i data-lucide="chevron-left" class="w-4 text-nomade-blue"></i></button><button onclick="changeMonth(1)" class="p-2 bg-white rounded-lg shadow-sm border border-gray-200 active:bg-gray-100"><i data-lucide="chevron-right" class="w-4 text-nomade-blue"></i></button></div>
+                    <div class="flex gap-2">
+                        <button onclick="changeMonth(-1)" class="p-2 bg-white rounded-lg shadow-sm border border-gray-200 active:bg-gray-100"><i data-lucide="chevron-left" class="w-4 text-nomade-blue"></i></button>
+                        <button onclick="changeMonth(1)" class="p-2 bg-white rounded-lg shadow-sm border border-gray-200 active:bg-gray-100"><i data-lucide="chevron-right" class="w-4 text-nomade-blue"></i></button>
+                    </div>
                 </div>
                 <div class="grid grid-cols-7 gap-1 mb-2 text-center text-xs font-bold text-gray-400"><div>D</div><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div></div>
                 <div id="calendar-grid" class="calendar-grid flex-1"></div>
@@ -140,28 +167,133 @@
 
             <div id="view-retro" class="hidden fade-in space-y-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="flex items-center gap-3 mb-4 border-b border-gray-100 pb-3"><div class="p-2 bg-nomade-green rounded-full text-white"><i data-lucide="sparkles" class="w-4 h-4"></i></div><div><h2 class="font-bold text-nomade-blue text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Nómade AI)</p></div></div>
-                    <div class="grid grid-cols-2 gap-2 mb-2"><div><label class="retro-label">ESTUDIANTE</label><input id="ia-nombre" class="retro-select" placeholder="Nombre"></div><div><label class="retro-label">FECHA</label><input id="ia-fecha" type="date" class="retro-select"></div></div>
-                    <div class="grid grid-cols-2 gap-2 mb-2"><div><label class="retro-label">MATERIA</label><input id="ia-materia" class="retro-select" placeholder="Materia"></div><div><label class="retro-label">INSTANCIA</label><select id="ia-instancia" class="retro-select"><option>Parcial</option><option>TP</option><option>Final</option></select></div></div>
-                    <div class="mt-4"><label class="retro-label">OBSERVACIÓN</label><textarea id="ia-obs-extra" class="retro-select h-16 resize-none" placeholder="Detalle puntual..."></textarea></div>
+                    <div class="flex items-center gap-3 mb-4 border-b border-gray-100 pb-3">
+                        <div class="p-2 bg-nomade-green rounded-full text-white"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+                        <div><h2 class="font-bold text-nomade-blue text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Nómade AI)</p></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <div><label class="retro-label">ESTUDIANTE</label><input id="ia-nombre" class="retro-select" placeholder="Nombre"></div>
+                        <div><label class="retro-label">FECHA</label><input id="ia-fecha" type="date" class="retro-select"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <div><label class="retro-label">MATERIA</label><input id="ia-materia" class="retro-select" placeholder="Materia"></div>
+                        <div>
+                            <label class="retro-label">INSTANCIA</label>
+                            <select id="ia-instancia" class="retro-select">
+                                <option value="Parcial Domiciliario">Parcial Domiciliario</option>
+                                <option value="Trabajo Práctico">Trabajo Práctico</option>
+                                <option value="Parcial Presencial">Parcial Presencial</option>
+                                <option value="Examen Final">Examen Final</option>
+                                <option value="Entrega de Proceso">Entrega de Proceso</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="section-title">1. DIMENSIÓN TEÓRICA Y PRÁCTICA</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div><label class="retro-label">Dominio Conceptual</label><select id="crit-contenidos" class="retro-select"><option value="Excelente profundidad">Excelente profundidad</option><option value="Muy buena comprensión">Muy buena comprensión</option><option value="Comprensión correcta">Bueno / Correcto</option><option value="Confusiones a revisar">Regular / Confuso</option><option value="Contenidos insuficientes">Insuficiente</option></select></div>
+                        <div><label class="retro-label">Vinculación Práctica</label><select id="crit-practica" class="retro-select"><option value="Excelente articulación teoría-realidad">Excelente articulación</option><option value="Logra relacionar conceptos">Logra relacionar</option><option value="Relación escasa o forzada">Escasa / Forzada</option><option value="Sin vínculo con la práctica">Sin vínculo práctico</option></select></div>
+                    </div>
+                    
+                    <div class="section-title">2. PENSAMIENTO CRÍTICO</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div><label class="retro-label">Mirada Crítica</label><select id="crit-critica" class="retro-select"><option value="Problematiza con agudeza">Problematiza (Excelente)</option><option value="Articula opinión personal">Articula opinión (Muy Bien)</option><option value="Correcto pero descriptivo">Descriptivo (Bien)</option><option value="Sentido común / Repite">Sentido común</option></select></div>
+                        <div><label class="retro-label">Indagación</label><select id="crit-preguntas" class="retro-select"><option value="Abre nuevos interrogantes potentes">Abre interrogantes</option><option value="Formula preguntas pertinentes">Preguntas correctas</option><option value="Cierra sentidos, no pregunta">No abre preguntas</option></select></div>
+                    </div>
+
+                    <div class="section-title">3. ESCRITURA ACADÉMICA</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div><label class="retro-label">Redacción</label><select id="crit-redaccion" class="retro-select"><option value="Impecable y fluida">Impecable</option><option value="Clara">Clara</option><option value="Errores leves de cohesión">Errores leves</option><option value="Confusa / Dificulta lectura">Confusa</option></select></div>
+                        <div><label class="retro-label">Vocabulario</label><select id="crit-vocabulario" class="retro-select"><option value="Preciso y específico de la materia">Preciso y específico</option><option value="Uso correcto en general">Uso correcto</option><option value="Coloquial o impreciso">Coloquial / Impreciso</option></select></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-1">
+                        <div><label class="retro-label">Normas APA</label><select id="crit-apa" class="retro-select"><option value="Citas y referencias impecables">Citas impecables</option><option value="Cita correctamente la mayoría">Citas correctas</option><option value="Errores en formato de cita">Errores formato</option><option value="No cita fuentes / Plagio involuntario">No cita fuentes</option></select></div>
+                        <div><label class="retro-label">Ortografía</label><select id="crit-ortografia" class="retro-select"><option value="Sin errores">Sin errores</option><option value="Algunos errores menores">Errores menores</option><option value="Errores frecuentes">Errores frecuentes</option></select></div>
+                    </div>
+
+                    <div class="section-title">4. PROCESO Y PRESENTACIÓN</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div><label class="retro-label">Creatividad</label><select id="crit-creatividad" class="retro-select"><option value="Muy original, marca personal">Muy original</option><option value="Buenas ideas propias">Buenas ideas</option><option value="Resolución estándar">Estándar</option><option value="Mecánico o estereotipado">Mecánico</option></select></div>
+                        <div><label class="retro-label">Evolución</label><select id="crit-evolucion" class="retro-select"><option value="Avance muy notable desde el inicio">Avance notable</option><option value="Se observa crecimiento">Crecimiento sostenido</option><option value="Mantiene el nivel (bueno)">Mantiene nivel</option><option value="Estancamiento o retroceso">Estancamiento</option></select></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-1">
+                        <div><label class="retro-label">Recursos</label><select id="crit-recursos" class="retro-select"><option value="Uso excelente de recursos (video/img)">Excelente uso</option><option value="Buenos soportes complementarios">Buenos</option><option value="Solo texto plano">Solo texto</option><option value="Fallo en soportes (links rotos)">Fallo soportes</option></select></div>
+                        <div><label class="retro-label">Síntesis</label><select id="crit-sintesis" class="retro-select"><option value="Poder de síntesis destacado">Gran síntesis</option><option value="Adecuada">Adecuada</option><option value="Reiterativo o extenso innecesariamente">Reiterativo</option><option value="Demasiado breve/incompleto">Incompleto</option></select></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-2 mt-1">
+                        <div><label class="retro-label">Entrega (Tiempo)</label><select id="crit-entrega" class="retro-select"><option value="En tiempo y forma">En tiempo y forma</option><option value="Entrega fuera de término">Fuera de término</option></select></div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="retro-label">OBSERVACIÓN ESPECÍFICA (Opcional)</label>
+                        <textarea id="ia-obs-extra" class="retro-select h-16 resize-none" placeholder="Detalle puntual..."></textarea>
+                    </div>
+                    
                     <button onclick="generarDevolucion()" id="btn-generar" class="w-full bg-nomade-blue text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2 mt-4 hover:bg-blue-900 transition"><i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR DEVOLUCIÓN</button>
+                    
                     <p id="ia-locked-msg" class="hidden text-center text-xs text-red-500 mt-2 font-bold bg-red-100 p-2 rounded border border-red-200"><i data-lucide="lock" class="w-3 inline"></i> Función exclusiva para Administradores</p>
+                    
+                    <div id="debug-log" class="hidden bg-red-100 text-red-800 text-[10px] p-2 mt-2 rounded"></div>
                 </div>
-                <div id="ia-resultado-container" class="hidden bg-white p-5 rounded-2xl shadow-lg border-2 border-nomade-green relative mt-4"><textarea id="ia-output" class="w-full h-64 p-3 bg-nomade-cream text-nomade-text text-sm leading-relaxed border border-gray-200 rounded-lg outline-none resize-none font-sans"></textarea><button onclick="copiarIA()" class="w-full bg-nomade-text text-white py-3 rounded-lg font-bold text-xs flex justify-center items-center gap-2 mt-3 hover:bg-black"><i data-lucide="copy" class="w-4 h-4"></i> COPIAR TEXTO FINAL</button></div>
+
+                <div id="ia-resultado-container" class="hidden bg-white p-5 rounded-2xl shadow-lg border-2 border-nomade-green relative mt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-gray-700">Borrador (Editable):</h3>
+                        <span class="text-[10px] text-gray-400">Tocá para editar</span>
+                    </div>
+                    <textarea id="ia-output" class="w-full h-64 p-3 bg-nomade-cream text-nomade-text text-sm leading-relaxed border border-gray-200 rounded-lg outline-none resize-none font-sans"></textarea>
+                    <button onclick="copiarIA()" class="w-full bg-nomade-text text-white py-3 rounded-lg font-bold text-xs flex justify-center items-center gap-2 mt-3 hover:bg-black"><i data-lucide="copy" class="w-4 h-4"></i> COPIAR TEXTO FINAL</button>
+                </div>
             </div>
 
             <div id="view-admin" class="hidden fade-in space-y-4">
                 <div class="bg-nomade-blue text-white p-6 rounded-2xl shadow-lg">
-                    <div class="flex items-center gap-3 mb-2"><img src="nomade.png" class="w-10 h-10 bg-white rounded-full p-0.5"><div><h2 class="text-xl font-black uppercase tracking-widest">NÓMADE</h2><p class="text-xs text-nomade-green font-bold">PANEL DE CONTROL</p></div></div>
-                    <div class="mt-4 pt-4 border-t border-white/20"><h3 class="font-bold text-white mb-2 text-sm flex items-center gap-2"><i data-lucide="user-plus" class="w-4"></i> Crear Docente</h3><div class="space-y-2"><input id="new-user-username" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm" placeholder="Nombre Usuario"><input id="new-user-pass" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm" placeholder="Contraseña"><input id="new-user-fullname" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm" placeholder="Nombre Completo"><button onclick="crearUsuarioDocente()" class="w-full bg-nomade-green text-white font-bold py-2 rounded mt-2 hover:bg-teal-600 transition">CREAR ACCESO</button></div></div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <img src="nomade.png" class="w-10 h-10 bg-white rounded-full p-0.5">
+                        <div>
+                            <h2 class="text-xl font-black uppercase tracking-widest">NÓMADE</h2>
+                            <p class="text-xs text-nomade-green font-bold">PANEL DE CONTROL</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-white/20">
+                        <h3 class="font-bold text-white mb-2 text-sm flex items-center gap-2"><i data-lucide="user-plus" class="w-4"></i> Crear Docente</h3>
+                        <div class="space-y-2">
+                            <input id="new-user-username" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm" placeholder="Nombre de Usuario (ej: profe_laura)">
+                            <input id="new-user-pass" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm" placeholder="Contraseña">
+                            <input id="new-user-fullname" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm" placeholder="Nombre Completo">
+                            <button onclick="crearUsuarioDocente()" class="w-full bg-nomade-green text-white font-bold py-2 rounded mt-2 hover:bg-teal-600 transition">CREAR ACCESO</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><h3 class="font-bold text-nomade-text mb-3">Docentes Activos</h3><div id="admin-user-list" class="space-y-2 text-xs"></div></div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-nomade-text mb-3">Docentes Activos</h3>
+                    <div id="admin-user-list" class="space-y-2 text-xs"><p class="text-xs text-gray-400">Cargando lista...</p></div>
+                </div>
             </div>
 
-            <div id="view-cuaderno" class="hidden fade-in space-y-4"><div class="flex justify-between items-center"><h2 class="text-xl font-bold text-nomade-blue">Cuaderno</h2><button onclick="openModal('modal-new-nota')" class="bg-nomade-blue text-white p-2 rounded-lg shadow"><i data-lucide="plus"></i></button></div><div id="lista-notas" class="grid grid-cols-2 gap-3"></div><p id="no-notas" class="text-center text-gray-400 text-sm mt-10 hidden">Sin notas guardadas.</p><div id="editor-nota" class="hidden fixed inset-0 bg-white z-50 flex flex-col"><div class="p-4 bg-nomade-blue text-white flex justify-between items-center shadow"><button onclick="closeEditor()" class="flex items-center gap-1 font-bold text-xs"><i data-lucide="arrow-left" class="w-4"></i> VOLVER</button><span id="editor-title" class="font-bold">Editar</span><button onclick="saveCurrentNote()" class="bg-white text-nomade-blue px-3 py-1 rounded font-bold text-xs">GUARDAR</button></div><div class="flex-1 p-4 overflow-y-auto"><textarea id="editor-text" class="w-full h-full p-4 bg-nomade-cream text-nomade-text text-lg leading-relaxed outline-none resize-none hidden" placeholder="Escribe aquí..."></textarea><div id="editor-draw" class="hidden h-full flex flex-col"><div class="flex justify-center gap-4 mb-2 p-2 bg-gray-50 rounded-lg"><button onclick="setTool('black')" class="w-6 h-6 rounded-full bg-black ring-1 ring-gray-300"></button><button onclick="setTool('blue')" class="w-6 h-6 rounded-full bg-blue-600 ring-1 ring-gray-300"></button><button onclick="setTool('red')" class="w-6 h-6 rounded-full bg-red-600 ring-1 ring-gray-300"></button><button onclick="setTool('eraser')" class="text-gray-500"><i data-lucide="eraser" class="w-5"></i></button><button onclick="clearCanvas()" class="text-red-500"><i data-lucide="trash-2" class="w-5"></i></button></div><div id="canvas-container"><canvas id="drawing-canvas"></canvas></div></div></div></div></div>
+            <div id="view-cuaderno" class="hidden fade-in space-y-4">
+                <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-nomade-blue">Cuaderno</h2><button onclick="openModal('modal-new-nota')" class="bg-nomade-blue text-white p-2 rounded-lg shadow"><i data-lucide="plus"></i></button></div>
+                <div id="lista-notas" class="grid grid-cols-2 gap-3"></div>
+                <p id="no-notas" class="text-center text-gray-400 text-sm mt-10 hidden">Sin notas guardadas.</p>
+                <div id="editor-nota" class="hidden fixed inset-0 bg-white z-50 flex flex-col">
+                    <div class="p-4 bg-nomade-blue text-white flex justify-between items-center shadow"><button onclick="closeEditor()" class="flex items-center gap-1 font-bold text-xs"><i data-lucide="arrow-left" class="w-4"></i> VOLVER</button><span id="editor-title" class="font-bold">Editar</span><button onclick="saveCurrentNote()" class="bg-white text-nomade-blue px-3 py-1 rounded font-bold text-xs">GUARDAR</button></div>
+                    <div class="flex-1 p-4 overflow-y-auto"><textarea id="editor-text" class="w-full h-full p-4 bg-nomade-cream text-nomade-text text-lg leading-relaxed outline-none resize-none hidden" placeholder="Escribe aquí..."></textarea><div id="editor-draw" class="hidden h-full flex flex-col"><div class="flex justify-center gap-4 mb-2 p-2 bg-gray-50 rounded-lg"><button onclick="setTool('black')" class="w-6 h-6 rounded-full bg-black ring-1 ring-gray-300"></button><button onclick="setTool('blue')" class="w-6 h-6 rounded-full bg-blue-600 ring-1 ring-gray-300"></button><button onclick="setTool('red')" class="w-6 h-6 rounded-full bg-red-600 ring-1 ring-gray-300"></button><button onclick="setTool('eraser')" class="text-gray-500"><i data-lucide="eraser" class="w-5"></i></button><button onclick="clearCanvas()" class="text-red-500"><i data-lucide="trash-2" class="w-5"></i></button></div><div id="canvas-container"><canvas id="drawing-canvas"></canvas></div></div></div>
+                </div>
+            </div>
 
             <div id="view-aula" class="hidden fade-in space-y-4">
-                <div class="flex justify-between items-center mb-2"><button onclick="nav('materias')" class="text-gray-500 text-xs font-bold flex items-center gap-1"><i data-lucide="arrow-left" class="w-3"></i> VOLVER</button><div class="flex gap-2"><button onclick="iniciarTomaLista()" class="bg-nomade-blue text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"><i data-lucide="check-square" class="w-3 h-3"></i> ASIST</button><button onclick="exportarExcel()" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"><i data-lucide="file-spreadsheet" class="w-3 h-3"></i> XLS</button><button onclick="generarPDF()" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"><i data-lucide="file-text" class="w-3 h-3"></i> PDF</button></div></div>
+                <div class="flex justify-between items-center mb-2">
+                    <button onclick="nav('materias')" class="text-gray-500 text-xs font-bold flex items-center gap-1"><i data-lucide="arrow-left" class="w-3"></i> VOLVER</button>
+                    <div class="flex gap-2">
+                        <button onclick="iniciarTomaLista()" class="bg-nomade-blue text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"><i data-lucide="check-square" class="w-3 h-3"></i> ASIST</button>
+                        <button onclick="exportarExcel()" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"><i data-lucide="file-spreadsheet" class="w-3 h-3"></i> XLS</button>
+                        <button onclick="generarPDF()" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"><i data-lucide="file-text" class="w-3 h-3"></i> PDF</button>
+                    </div>
+                </div>
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><span id="aula-modalidad" class="text-[10px] bg-nomade-cream text-nomade-text px-2 py-1 rounded font-bold uppercase border border-nomade-text/10">--</span><h2 id="aula-nombre" class="text-2xl font-black text-nomade-blue mt-2 leading-tight">Materia</h2></div>
                 <div class="flex bg-white p-1 rounded-xl shadow-sm border border-gray-100 overflow-x-auto"><button onclick="setTab('crono')" id="btn-crono" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-nomade-blue text-white">CRONOGRAMA</button><button onclick="setTab('alumnos')" id="btn-alumnos" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400">ALUMNOS</button><button onclick="setTab('notas')" id="btn-notas" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400">NOTAS</button></div>
                 <div id="tab-crono" class="space-y-3"><div class="flex justify-between items-center"><p class="text-xs text-gray-500 font-bold ml-1">Planificación</p><button onclick="openImportModal()" class="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded border border-green-200 font-bold flex items-center gap-1"><i data-lucide="file-spreadsheet" class="w-3 h-3"></i> IMPORTAR</button></div><div id="lista-cronograma" class="space-y-3"></div></div>
@@ -202,7 +334,8 @@
             projectId: "raspanti-app",
             storageBucket: "raspanti-app.firebasestorage.app",
             messagingSenderId: "898404256450",
-            appId: "1:898404256450:web:8ba27e3350b8efb22c095b"
+            appId: "1:898404256450:web:8ba27e3350b8efb22c095b",
+            measurementId: "G-QMMLBB5NJM"
         };
 
         const app = firebase.initializeApp(firebaseConfig);
@@ -239,7 +372,6 @@
                 document.getElementById('app-content').classList.remove('hidden');
                 loadData(user.uid);
             } else {
-                // Si no hay user, mostramos login
                 if(!isOffline) {
                     document.getElementById('auth-screen').classList.remove('hidden');
                     document.getElementById('app-content').classList.add('hidden');
@@ -248,51 +380,48 @@
         });
 
         async function handleLogin() {
-            let userInput = document.getElementById('login-user').value.trim();
-            const pass = document.getElementById('login-pass').value;
+            let u = document.getElementById('login-user').value.trim();
+            let p = document.getElementById('login-pass').value.trim();
             const msg = document.getElementById('login-msg');
 
-            if (!userInput || !pass) return;
-
-            let email = userInput;
-            if (!email.includes('@')) { email = userInput + '@nomade.app'; }
-
-            msg.innerText = "Procesando...";
-
-            // PUERTA TRASERA DE EMERGENCIA (Modo Offline/Local)
-            if (userInput === 'admi' && pass === 'adminomade') {
-                // Intentamos conectar, pero si falla, entramos igual
-                const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 3000));
-                
-                try {
-                    await Promise.race([auth.signInWithEmailAndPassword(email, pass), timeout]);
-                } catch (err) {
-                    // Si falla el login o tarda mucho, forzamos entrada local
-                    console.log("Entrando en modo local de emergencia");
-                    isOffline = true;
-                    currentUser = { uid: 'local_admin', email: email };
-                    userData = JSON.parse(localStorage.getItem('nomade_local_data')) || { materias: materiasData, eventos: {}, tareas: [], notas: [] };
-                    
-                    document.getElementById('auth-screen').classList.add('hidden');
-                    document.getElementById('app-content').classList.remove('hidden');
-                    document.getElementById('btn-admin-panel').classList.remove('hidden'); // Es admin
-                    document.getElementById('dash-name').innerText = 'Admin (Local)';
-                    
-                    renderMaterias(); initDash(); renderTareas();
-                    return;
-                }
+            if (!u || !p) {
+                alert("Por favor, escribí usuario y contraseña.");
                 return;
             }
 
-            // LOGIN NORMAL
+            msg.innerText = "Procesando...";
+
+            // --- LLAVE MAESTRA / MODO LOCAL / PUERTA TRASERA ---
+            if (u === 'admin' && p === 'admin') {
+                console.log("Activando Protocolo de Emergencia Admin...");
+                isOffline = true;
+                currentUser = { uid: 'local_admin', email: 'admin@nomade.app' };
+                // Intentar recuperar local o usar default
+                const local = localStorage.getItem('nomade_local_data');
+                userData = local ? JSON.parse(local) : { materias: materiasData, eventos: {}, tareas: [], notas: [] };
+                
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+                document.getElementById('btn-admin-panel').classList.remove('hidden'); 
+                document.getElementById('dash-name').innerText = 'Admin (Local)';
+                
+                renderMaterias(); initDash(); renderTareas();
+                return;
+            }
+
+            // --- LOGIN NORMAL CON GOOGLE ---
+            let email = u;
+            if (!email.includes('@')) { email = u + '@nomade.app'; }
+
             try {
-                await auth.signInWithEmailAndPassword(email, pass);
+                // Timeout de 4 segundos. Si Google no responde, avisa.
+                const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("La conexión es lenta. Probá entrar como 'admin' / 'admin'.")), 4000));
+                await Promise.race([auth.signInWithEmailAndPassword(email, p), timeout]);
             } catch (err) {
-                if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-                    msg.innerText = "Usuario incorrecto.";
-                } else {
-                    msg.innerText = "Error: " + err.code;
-                }
+                if (err.code === 'auth/user-not-found') alert("Usuario no encontrado.");
+                else if (err.code === 'auth/wrong-password') alert("Contraseña incorrecta.");
+                else alert(err.message);
+                msg.innerText = "";
             }
         }
 
@@ -302,7 +431,7 @@
         }
 
         async function loadData(uid) {
-            if(isOffline) return; // Ya cargó en el bypass
+            if(isOffline) return; 
 
             try {
                 const doc = await dbCloud.collection('app_data').doc(uid).get();
@@ -552,7 +681,6 @@
         async function generarDevolucion() {
             if(isOffline || (currentUser && currentUser.uid !== 'local_admin' && !currentUser.email.includes('admin'))) {
                  // Si está offline o no es admin, bloqueo. Pero como el admin local es 'local_admin', pasa.
-                 // Simplificación: Si es offline/bypass, asumimos que es el admin jugando.
             }
             
             const nombre = document.getElementById('ia-nombre').value;
@@ -631,7 +759,7 @@
             h.innerHTML+='<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500"><button onclick="openExamModal()" class="text-nomade-green">+</button></th>';
             b.innerHTML=''; 
             m.alumnos.forEach((al,i)=>{
-                let r=`<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm truncate max-w-[120px]">${al.ape}, ${al.nom[0]}.</td>`; 
+                let r=`<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm">${al.ape}, ${al.nom[0]}.</td>`; 
                 m.examenes.forEach(e=>{ r+=`<td class="p-2 border-b"><input type="number" class="w-10 p-1 rounded border input-nota" value="${al.notas[e.id]||''}" onchange="saveNota(${i},${e.id},this.value)"></td>`; }); 
                 r+='<td></td></tr>'; b.innerHTML+=r;
             });
