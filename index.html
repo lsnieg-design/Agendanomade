@@ -17,7 +17,8 @@
             theme: {
                 extend: {
                     colors: {
-                        nomade: { blue: '#144E7E', green: '#1FA194', cream: '#FAF7F0', white: '#FFFFFF', text: '#2C3E50' }
+                        nomade: { blue: '#144E7E', green: '#1FA194', cream: '#FAF7F0', white: '#FFFFFF', text: '#2C3E50' },
+                        raspanti: { bordo: '#800020', crema: '#FFFDD0', dorado: '#C5B358' }
                     }
                 }
             }
@@ -32,39 +33,44 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
     <style>
-        /* ESTILOS BASE */
         body { background-color: #FAF7F0; font-family: 'Segoe UI', system-ui, sans-serif; overscroll-behavior: none; color: #2C3E50; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .login-bg { background-color: #144E7E; }
+        .toggle-checkbox:checked { right: 0; border-color: #1FA194; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #1FA194; }
+        .task-check:checked + div { text-decoration: line-through; opacity: 0.5; color: #1FA194; }
         .input-nota { min-width: 40px; text-align: center; border-radius: 6px; border: 1px solid #e2e8f0; }
-        
-        /* BOTONES DE ASISTENCIA */
         .btn-asist { width: 35px; height: 35px; border-radius: 50%; font-weight: 900; font-size: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; transition: all 0.2s; }
         .st-P { background: #DCFCE7; color: #166534; border-color: #166534; }
         .st-T { background: #FEF9C3; color: #854D0E; border-color: #854D0E; }
         .st-J { background: #DBEAFE; color: #1E40AF; border-color: #1E40AF; }
         .st-A { background: #FEE2E2; color: #991B1B; border-color: #991B1B; }
-        
-        /* CALENDARIO */
+        .avatar-small { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #1FA194; }
+        .progress-bar { height: 6px; border-radius: 3px; background: #e5e7eb; overflow: hidden; margin-top: 4px; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .calendar-day { background: white; border-radius: 8px; min-height: 70px; padding: 4px; font-size: 10px; position: relative; border: 1px solid #f1f5f9; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; }
+        .calendar-day:active { background-color: #f8fafc; border-color: #1FA194; }
         .calendar-day.today { border: 2px solid #1FA194; background: #F0FDFA; }
+        .dots-container { display: flex; gap: 2px; flex-wrap: wrap; content-visibility: auto; }
         .event-dot { width: 6px; height: 6px; border-radius: 50%; }
-        
-        /* DIBUJO */
         #canvas-container { touch-action: none; background: white; border-radius: 10px; overflow: hidden; height: 60vh; position: relative; border: 1px solid #1FA194; cursor: crosshair; }
-        
-        /* UI GENERAL */
         .retro-label { font-size: 9px; font-weight: 800; color: #144E7E; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 6px; letter-spacing: 0.5px; }
         .retro-select { width: 100%; padding: 8px 10px; background-color: white; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; font-weight: 500; color: #2C3E50; outline: none; }
         .section-title { font-size: 10px; font-weight: 900; background: #e2e8f0; color: #144E7E; padding: 4px 8px; border-radius: 4px; margin-top: 14px; margin-bottom: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
         
         #cloud-status { position: fixed; top: 10px; right: 10px; z-index: 100; font-size: 10px; font-weight: bold; background: rgba(255,255,255,0.95); padding: 4px 10px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 5px; opacity: 0; transition: opacity 0.5s; pointer-events: none; color: #1FA194;}
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #1FA194; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* BANNER DE INSTALACIÓN */
+        #install-banner { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px; border-top: 2px solid #1FA194; z-index: 100; display: none; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); animation: slideUp 0.5s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        /* FOTO UPLOAD */
+        .avatar-upload { width: 80px; height: 80px; border-radius: 50%; background: #f3f4f6; margin: 0 auto 10px; position: relative; overflow: hidden; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .avatar-upload img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
     </style>
 </head>
 <body class="h-screen flex flex-col text-nomade-text bg-nomade-cream">
@@ -72,22 +78,13 @@
     <div id="cloud-status"><i data-lucide="cloud" class="w-3 h-3"></i> <span id="cloud-text">Sincronizado</span></div>
 
     <div id="auth-screen" class="fixed inset-0 login-bg z-50 flex flex-col items-center justify-center p-6 text-center text-white fade-in">
-        <div class="mb-6 drop-shadow-xl">
-            <img src="nomade.png" alt="Nómade Logo" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green" onerror="this.src='https://via.placeholder.com/150/1FA194/FFFFFF?text=N'">
-        </div>
+        <div class="mb-6 drop-shadow-xl"><img src="nomade.png" alt="Nómade" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green" onerror="this.src='https://placehold.co/150x150?text=N'"></div>
         <h1 class="text-3xl font-black uppercase mb-1 tracking-widest text-white">NÓMADE</h1>
         <p class="text-nomade-green text-sm mb-10 font-medium tracking-wide uppercase">Agenda Docente</p>
-        
         <div class="w-full max-w-xs space-y-4">
-            <div class="relative">
-                <i data-lucide="user" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
-                <input type="text" id="login-user" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Usuario">
-            </div>
-            <div class="relative">
-                <i data-lucide="lock" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
-                <input type="password" id="login-pass" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Contraseña">
-            </div>
-            <button onclick="handleLogin()" id="btn-login" class="bg-nomade-green text-white w-full py-4 rounded-xl font-bold shadow-lg hover:bg-teal-600 transition tracking-widest mt-2 transform active:scale-95">INGRESAR</button>
+            <div class="relative"><i data-lucide="user" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i><input type="text" id="login-user" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Usuario"></div>
+            <div class="relative"><i data-lucide="lock" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i><input type="password" id="login-pass" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Contraseña"></div>
+            <button onclick="handleLogin()" class="bg-nomade-green text-white w-full py-4 rounded-xl font-bold shadow-lg hover:bg-teal-600 transition tracking-widest mt-2 transform active:scale-95">INGRESAR</button>
             <p id="login-msg" class="text-xs mt-4 h-4 text-red-300 font-bold text-center"></p>
         </div>
         <div class="mt-auto pb-4"><p class="text-[10px] opacity-60">Creado por</p><a href="https://www.somosnomade.com.ar" target="_blank" class="text-nomade-green font-bold text-xs hover:underline">www.somosnomade.com.ar</a></div>
@@ -95,10 +92,7 @@
 
     <div id="app-content" class="flex flex-col h-full hidden relative">
         <header class="bg-nomade-blue text-white p-4 flex justify-between items-center shadow-md z-20 pt-safe-top">
-            <div class="flex items-center gap-3">
-                <img src="nomade.png" class="w-8 h-8 bg-white rounded-full p-0.5" onerror="this.style.display='none'">
-                <span class="font-bold text-sm uppercase tracking-wider">Mi Agenda</span>
-            </div>
+            <div class="flex items-center gap-3"><img src="nomade.png" class="w-8 h-8 bg-white rounded-full p-0.5" onerror="this.style.display='none'"><span class="font-bold text-sm uppercase tracking-wider">Mi Agenda</span></div>
             <div class="flex items-center gap-3">
                 <button onclick="nav('admin')" id="btn-admin-panel" class="hidden text-nomade-green animate-pulse"><i data-lucide="crown" class="w-5 h-5"></i></button>
                 <button onclick="openSettings()" class="opacity-90 hover:text-nomade-green transition"><i data-lucide="settings" class="w-5 h-5"></i></button>
@@ -108,41 +102,18 @@
         <main class="flex-1 overflow-y-auto p-4 pb-24 max-w-md mx-auto w-full no-scrollbar relative bg-nomade-cream">
             
             <div id="view-dashboard" class="fade-in space-y-4">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h2 class="text-xl font-bold text-nomade-blue flex items-center gap-2 cursor-pointer" onclick="editProfileName()">
-                                <span id="dash-name">Hola Profe</span> <i data-lucide="pencil" class="w-3 h-3 text-gray-300"></i>
-                            </h2>
-                            <p class="text-nomade-text text-sm opacity-60" id="fecha-hoy">Cargando...</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-nomade-blue text-white p-5 rounded-2xl shadow-lg border-l-4 border-nomade-green">
-                    <h3 class="font-bold mb-3 border-b border-white/20 pb-2 text-nomade-green">Tu Día Hoy</h3>
-                    <div id="lista-hoy" class="text-sm space-y-2"></div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-nomade-blue">Tareas</h3><button onclick="openModal('modal-tarea')" class="text-xs bg-nomade-green text-white px-3 py-1 rounded-full font-bold shadow hover:bg-teal-700">+ NUEVA</button></div>
-                    <div id="lista-tareas" class="space-y-2"></div>
-                    <p id="no-tareas" class="text-center text-xs text-gray-400 mt-2 hidden">Sin tareas pendientes.</p>
-                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"><div class="flex justify-between items-start"><div><h2 class="text-xl font-bold text-nomade-blue flex items-center gap-2 cursor-pointer" onclick="editProfileName()"><span id="dash-name">Hola Profe</span> <i data-lucide="pencil" class="w-3 h-3 text-gray-300"></i></h2><p class="text-nomade-text text-sm opacity-60" id="fecha-hoy">Cargando...</p></div></div></div>
+                <div class="bg-nomade-blue text-white p-5 rounded-2xl shadow-lg border-l-4 border-nomade-green"><h3 class="font-bold mb-3 border-b border-white/20 pb-2 text-nomade-green">Tu Día Hoy</h3><div id="lista-hoy" class="text-sm space-y-2"></div></div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><div class="flex justify-between items-center mb-3"><h3 class="font-bold text-nomade-blue">Tareas</h3><button onclick="openModal('modal-tarea')" class="text-xs bg-nomade-green text-white px-3 py-1 rounded-full font-bold shadow hover:bg-teal-700">+ NUEVA</button></div><div id="lista-tareas" class="space-y-2"></div><p id="no-tareas" class="text-center text-xs text-gray-400 mt-2 hidden">Sin tareas pendientes.</p></div>
             </div>
 
             <div id="view-materias" class="hidden fade-in space-y-4">
                 <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-nomade-blue">Mis Materias</h2><button onclick="openMateriaModal()" class="bg-nomade-blue text-white p-2 rounded-lg shadow hover:bg-blue-900"><i data-lucide="plus"></i></button></div>
-                <div id="lista-materias" class="space-y-3"></div>
-                <p id="no-materias" class="text-center text-gray-400 text-sm mt-10 hidden">No hay materias.</p>
+                <div id="lista-materias" class="space-y-3"></div><p id="no-materias" class="text-center text-gray-400 text-sm mt-10 hidden">No hay materias.</p>
             </div>
 
             <div id="view-calendario" class="hidden fade-in h-full flex flex-col">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 id="cal-month-year" class="text-xl font-bold text-nomade-blue capitalize">Mes Año</h2>
-                    <div class="flex gap-2">
-                        <button onclick="changeMonth(-1)" class="p-2 bg-white rounded-lg shadow-sm border border-gray-200 active:bg-gray-100"><i data-lucide="chevron-left" class="w-4 text-nomade-blue"></i></button>
-                        <button onclick="changeMonth(1)" class="p-2 bg-white rounded-lg shadow-sm border border-gray-200 active:bg-gray-100"><i data-lucide="chevron-right" class="w-4 text-nomade-blue"></i></button>
-                    </div>
-                </div>
+                <div class="flex justify-between items-center mb-4"><h2 id="cal-month-year" class="text-xl font-bold text-nomade-blue capitalize">Mes Año</h2><div class="flex gap-2"><button onclick="changeMonth(-1)" class="p-2 bg-white rounded-lg shadow-sm border border-gray-200 active:bg-gray-100"><i data-lucide="chevron-left" class="w-4 text-nomade-blue"></i></button><button onclick="changeMonth(1)" class="p-2 bg-white rounded-lg shadow-sm border border-gray-200 active:bg-gray-100"><i data-lucide="chevron-right" class="w-4 text-nomade-blue"></i></button></div></div>
                 <div class="grid grid-cols-7 gap-1 mb-2 text-center text-xs font-bold text-gray-400"><div>D</div><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div></div>
                 <div id="calendar-grid" class="calendar-grid flex-1"></div>
             </div>
@@ -235,12 +206,47 @@
         </nav>
     </div>
 
+    <div id="install-banner" class="hidden">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="nomade.png" class="w-10 h-10 rounded bg-white border border-gray-200" onerror="this.style.display='none'">
+                <div>
+                    <h3 class="font-bold text-nomade-blue text-sm">Instalar Nómade</h3>
+                    <p class="text-xs text-gray-500">Acceso rápido desde tu inicio</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('install-banner').style.display='none'" class="text-xs font-bold text-gray-400 px-2">LUEGO</button>
+                <button onclick="installPWA()" class="text-xs font-bold bg-nomade-green text-white px-3 py-1.5 rounded-lg shadow">INSTALAR</button>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-settings" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center"><h3 class="text-lg font-black text-nomade-blue mb-6">Configuración</h3><button onclick="logout()" class="bg-red-50 text-red-600 w-full py-3 rounded-lg font-bold text-sm shadow mb-2">CERRAR SESIÓN</button><button onclick="closeModal('modal-settings')" class="block w-full mt-4 text-gray-400 text-sm font-bold">Cerrar</button></div></div>
     <div id="modal-new-nota" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4">Nueva Nota</h3><input id="new-nota-title" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Título"><div class="grid grid-cols-2 gap-3 mb-4"><button onclick="createNote('text')" class="p-4 bg-blue-50 rounded-xl border border-blue-100 flex flex-col items-center gap-2 hover:bg-blue-100"><i data-lucide="type" class="w-6 h-6 text-blue-600"></i><span class="text-xs font-bold text-blue-800">TEXTO</span></button><button onclick="createNote('draw')" class="p-4 bg-purple-50 rounded-xl border border-purple-100 flex flex-col items-center gap-2 hover:bg-purple-100"><i data-lucide="pen-tool" class="w-6 h-6 text-purple-600"></i><span class="text-xs font-bold text-purple-800">DIBUJO</span></button></div><button onclick="closeModal('modal-new-nota')" class="w-full text-gray-400 text-sm font-bold">Cancelar</button></div></div>
     <div id="modal-cal-event" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-2" id="event-date-title">--/--</h3><div id="day-events-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div><div class="border-t pt-4"><input id="new-event-text" class="w-full p-2 bg-gray-50 rounded border mb-2" placeholder="Agregar evento..."><div class="flex gap-2"><button onclick="closeModal('modal-cal-event')" class="flex-1 py-2 text-gray-500 font-bold text-xs">CERRAR</button><button onclick="addCalendarEvent()" class="flex-1 py-2 bg-nomade-green text-white rounded font-bold text-xs">AGREGAR</button></div></div></div></div>
     <div id="modal-tarea" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4">Nueva Tarea</h3><input id="input-tarea-txt" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Descripción"><div class="flex gap-2"><button onclick="closeModal('modal-tarea')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarTarea()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-materia" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4" id="title-materia">Nueva Materia</h3><input type="hidden" id="edit-mat-id"><label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label><input id="input-mat-nombre" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Ej: Matemática"><div class="grid grid-cols-2 gap-2"><div><label class="text-xs font-bold text-gray-500 ml-1">INICIO</label><input type="date" id="input-mat-inicio" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border"></div><div><label class="text-xs font-bold text-gray-500 ml-1">FIN</label><input type="date" id="input-mat-fin" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border"></div></div><label class="text-xs font-bold text-gray-500 ml-1">HORARIO</label><input id="input-mat-horario" class="w-full p-2 bg-gray-50 rounded-lg mb-4 border" placeholder="Ej: 18:00 a 22:00"><div class="grid grid-cols-2 gap-2 mb-4"><div><label class="text-xs font-bold text-gray-500 ml-1">DÍA</label><select id="input-mat-dia" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option><option value="Sábado">Sábado</option></select></div><div><label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD</label><select id="input-mat-mod" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Hibrida">Mixta</option><option value="Presencial">Presencial</option><option value="Virtual">Virtual</option></select></div></div><div class="flex gap-2"><button onclick="closeModal('modal-materia')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarMateria()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
-    <div id="modal-alumno" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4" id="title-alumno">Nuevo Alumno</h3><input type="hidden" id="edit-alum-idx"><input id="input-alum-ape" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Apellido"><input id="input-alum-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Nombre"><div class="flex gap-2"><button onclick="closeModal('modal-alumno')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarAlumno()" class="flex-1 py-3 bg-nomade-green text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
+    
+    <div id="modal-alumno" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 class="text-lg font-black text-nomade-blue mb-4" id="title-alumno">Nuevo Alumno</h3>
+            <input type="hidden" id="edit-alum-idx">
+            <div class="flex justify-center mb-4">
+                <label for="input-alum-foto" class="avatar-upload group">
+                    <img id="preview-foto" src="" class="hidden">
+                    <div id="placeholder-foto" class="text-gray-400 text-center text-[10px] font-bold">
+                        <i data-lucide="camera" class="w-6 h-6 mx-auto mb-1"></i>Foto
+                    </div>
+                    <input type="file" id="input-alum-foto" class="hidden" accept="image/*" onchange="previewImage(this)">
+                </label>
+            </div>
+            <input id="input-alum-ape" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Apellido">
+            <input id="input-alum-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Nombre">
+            <div class="flex gap-2"><button onclick="closeModal('modal-alumno')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarAlumno()" class="flex-1 py-3 bg-nomade-green text-white rounded-lg font-bold shadow">Guardar</button></div>
+        </div>
+    </div>
+
     <div id="modal-examen" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4" id="title-examen">Nuevo Examen/TP</h3><input type="hidden" id="edit-exam-id"><input id="input-exam-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border font-bold" placeholder="Nombre"><input type="date" id="input-exam-date" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold"><div class="flex gap-2"><button onclick="closeModal('modal-examen')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarExamen()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-obs" class="fixed inset-0 bg-black/50 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-2">Observación</h3><p id="obs-alum-name" class="text-sm font-bold text-gray-500 mb-3"></p><textarea id="input-obs-txt" class="w-full p-3 bg-gray-50 rounded-lg border h-32 mb-4" placeholder="Escribe una observación..."></textarea><div class="flex gap-2"><button onclick="closeModal('modal-obs')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarObs()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-import" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative"><button onclick="closeModal('modal-import')" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button><h3 class="text-lg font-black text-nomade-blue mb-2">Importar Planificación</h3><p class="text-xs text-gray-500 mb-4">Copia 4 columnas de tu Excel (Fecha, Contenido, Biblio, Actividad) y pega aquí.</p><textarea id="input-import-text" class="w-full p-3 bg-gray-50 rounded-lg border h-40 text-xs font-mono mb-4" placeholder="17/03/2025  Tema 1  Libro A  TP1..."></textarea><button onclick="processImport()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2"><i data-lucide="check" class="w-5 h-5"></i> PROCESAR</button></div></div>
@@ -251,28 +257,13 @@
             <h3 class="text-lg font-black text-nomade-blue mb-4">Exportar Materia</h3>
             <p class="text-xs text-gray-500 mb-4">Seleccioná qué querés incluir:</p>
             <div class="space-y-3 mb-6">
-                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input type="checkbox" id="exp-lista" class="w-5 h-5 text-nomade-green" checked>
-                    <span class="font-bold text-sm text-gray-700">Lista de Alumnos</span>
-                </label>
-                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input type="checkbox" id="exp-asist" class="w-5 h-5 text-nomade-green" checked>
-                    <span class="font-bold text-sm text-gray-700">Asistencia</span>
-                </label>
-                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input type="checkbox" id="exp-notas" class="w-5 h-5 text-nomade-green" checked>
-                    <span class="font-bold text-sm text-gray-700">Notas</span>
-                </label>
-                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input type="checkbox" id="exp-plan" class="w-5 h-5 text-nomade-green">
-                    <span class="font-bold text-sm text-gray-700">Planificación (Temas)</span>
-                </label>
+                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"><input type="checkbox" id="exp-lista" class="w-5 h-5 text-nomade-green" checked><span class="font-bold text-sm text-gray-700">Lista de Alumnos</span></label>
+                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"><input type="checkbox" id="exp-asist" class="w-5 h-5 text-nomade-green" checked><span class="font-bold text-sm text-gray-700">Asistencia</span></label>
+                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"><input type="checkbox" id="exp-notas" class="w-5 h-5 text-nomade-green" checked><span class="font-bold text-sm text-gray-700">Notas</span></label>
+                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"><input type="checkbox" id="exp-plan" class="w-5 h-5 text-nomade-green"><span class="font-bold text-sm text-gray-700">Planificación (Temas)</span></label>
             </div>
             <input type="hidden" id="export-type">
-            <div class="flex gap-2">
-                <button onclick="closeModal('modal-export')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button>
-                <button onclick="executeExport()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">DESCARGAR</button>
-            </div>
+            <div class="flex gap-2"><button onclick="closeModal('modal-export')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="executeExport()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">DESCARGAR</button></div>
         </div>
     </div>
 
@@ -286,7 +277,7 @@
             { id: 1741000000001, nombre: "Cultura Digital y Educación", dia: "Miércoles", modalidadBase: "Virtual", horario: "19:00 a 21:00", fechaInicio: "2026-03-18", fechaFin: "2026-07-08", planificacion: {}, cronograma: {}, alumnos: [], examenes: [] }
         ];
 
-        let currentUser = null; let userData = { materias: [], eventos: {}, notas: [], tareas: [] }; let isOffline = false;
+        let currentUser = null; let userData = { materias: [], eventos: {}, notas: [], tareas: [] }; let isOffline = false; let deferredPrompt;
 
         async function handleLogin() {
             let u = document.getElementById('login-user').value.trim(); let p = document.getElementById('login-pass').value.trim();
@@ -316,6 +307,28 @@
             const key = currentUser.uid === 'local_admin' ? 'nomade_data_admin' : 'nomade_data_' + currentUser.email.split('@')[0];
             localStorage.setItem(key, JSON.stringify(userData));
             const st = document.getElementById('cloud-status'); st.style.opacity = '1'; setTimeout(() => st.style.opacity = '0', 2000);
+        }
+
+        // --- PWA LOGIC ---
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); deferredPrompt = e;
+            document.getElementById('install-banner').style.display = 'block';
+        });
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') console.log('User accepted the A2HS prompt');
+                    deferredPrompt = null;
+                    document.getElementById('install-banner').style.display = 'none';
+                });
+            }
+        }
+        // Detect iOS
+        const isIos = () => { const userAgent = window.navigator.userAgent.toLowerCase(); return /iphone|ipad|ipod/.test( userAgent ); }
+        if (isIos() && !window.navigator.standalone) {
+             // Show simple iOS hint alert (simplified for this demo)
+             setTimeout(() => alert("Para instalar en iPhone: Tocá el botón Compartir y elegí 'Agregar a Inicio'"), 2000);
         }
 
         // MATERIAS
@@ -405,10 +418,11 @@
         function saveClaseDetail(){const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={}; m.planificacion[activeDateISO]={tema:document.getElementById('detail-tema').value, biblio:document.getElementById('detail-biblio').value, actClase:document.getElementById('detail-act-clase').value, actTarea:document.getElementById('detail-act-tarea').value}; saveData(); closeModal('modal-clase-detail'); renderCrono();}
         function openImportModal(){document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('input-import-text').value='';}
         function processImport(){const raw=document.getElementById('input-import-text').value; if(!raw.trim()){alert("Pega el contenido.");return;} const lines=raw.split('\n'); const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={}; let count=0; lines.forEach(line=>{const parts=line.split('\t'); if(parts.length>=1){const dateRaw=parts[0].trim(); const match=dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/); if(match){const day=match[1].padStart(2,'0'); const month=match[2].padStart(2,'0'); const year=match[3].length===2?'20'+match[3]:match[3]; const isoDate=`${year}-${month}-${day}`; let idx=1; if(parts[idx]&&parts[idx].trim().length<3&&!isNaN(parseInt(parts[idx]))) idx++; const tema=parts[idx]?parts[idx].trim():""; const biblio=parts[idx+1]?parts[idx+1].trim():""; const actClase=parts[idx+2]?parts[idx+2].trim():""; const actTarea=parts[idx+3]?parts[idx+3].trim():""; if(tema){m.planificacion[isoDate]={tema,biblio,actClase,actTarea}; count++;}}}}); saveData(); alert(`✅ Se importaron ${count} clases.`); closeModal('modal-import'); renderCrono();}
-        function renderAlum(){const m=userData.materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML=''; m.alumnos.forEach((al,i)=>{l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center mb-2 shadow-sm"><span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span><button onclick="delAlum(${i})" class="text-red-400"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
-        function guardarAlumno(){const m=userData.materias.find(x=>x.id===activeId); m.alumnos.push({id:Date.now(), ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, notas:{}}); saveData(); closeModal('modal-alumno'); renderAlum();}
+        function renderAlum(){const m=userData.materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML=''; m.alumnos.forEach((al,i)=>{l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center mb-2 shadow-sm"><div class="flex items-center gap-3"><div class="avatar-small overflow-hidden"><img src="${al.foto||'https://via.placeholder.com/40'}" class="w-full h-full object-cover"></div><span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span></div><button onclick="delAlum(${i})" class="text-red-400"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
+        function guardarAlumno(){const m=userData.materias.find(x=>x.id===activeId); const fotoInput=document.getElementById('input-alum-foto'); let fotoUrl=''; if(fotoInput.files[0]){const reader=new FileReader(); reader.onload=function(e){fotoUrl=e.target.result; m.alumnos.push({id:Date.now(), ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, foto:fotoUrl, notas:{}}); saveData(); closeModal('modal-alumno'); renderAlum();}; reader.readAsDataURL(fotoInput.files[0]);} else {m.alumnos.push({id:Date.now(), ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, foto:'', notas:{}}); saveData(); closeModal('modal-alumno'); renderAlum();}}
+        function previewImage(input){if(input.files&&input.files[0]){const reader=new FileReader(); reader.onload=function(e){document.getElementById('preview-foto').src=e.target.result; document.getElementById('preview-foto').classList.remove('hidden'); document.getElementById('placeholder-foto').classList.add('hidden');}; reader.readAsDataURL(input.files[0]);}}
         function delAlum(i){const m=userData.materias.find(x=>x.id===activeId); m.alumnos.splice(i,1); saveData(); renderAlum();}
-        function openAlumnoModal(idx=null){document.getElementById('edit-alum-idx').value=idx!==null?idx:''; document.getElementById('input-alum-ape').value=idx!==null?userData.materias.find(x=>x.id===activeId).alumnos[idx].ape:''; document.getElementById('input-alum-nom').value=idx!==null?userData.materias.find(x=>x.id===activeId).alumnos[idx].nom:''; openModal('modal-alumno');}
+        function openAlumnoModal(idx=null){document.getElementById('edit-alum-idx').value=idx!==null?idx:''; document.getElementById('input-alum-ape').value=idx!==null?userData.materias.find(x=>x.id===activeId).alumnos[idx].ape:''; document.getElementById('input-alum-nom').value=idx!==null?userData.materias.find(x=>x.id===activeId).alumnos[idx].nom:''; document.getElementById('preview-foto').classList.add('hidden'); document.getElementById('placeholder-foto').classList.remove('hidden'); openModal('modal-alumno');}
         function openExamModal(idx=null){document.getElementById('edit-exam-id').value=idx!==null?idx:''; if(idx!==null){const e=userData.materias.find(x=>x.id===activeId).examenes[idx]; document.getElementById('input-exam-nom').value=e.nombre; document.getElementById('input-exam-date').value=e.fecha;}else{document.getElementById('input-exam-nom').value='';} openModal('modal-examen');}
         function renderNotas(){const m=userData.materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); h.innerHTML='<th>Alumno</th>'; m.examenes.forEach((e,i)=>h.innerHTML+=`<th onclick="openExamModal(${i})" class="cursor-pointer hover:text-blue-500">${e.nombre}</th>`); h.innerHTML+='<th>+</th>'; b.innerHTML=''; m.alumnos.forEach((al,i)=>{let r=`<tr><td class="p-2 border-b text-sm">${al.ape}</td>`; m.examenes.forEach(e=>{ r+=`<td class="p-2 border-b"><input class="w-8 p-1 border rounded text-center" value="${al.notas[e.id]||''}" onchange="saveNota(${i},${e.id},this.value)"></td>`; }); r+='<td></td></tr>'; b.innerHTML+=r;});}
         function guardarExamen(){const m=userData.materias.find(x=>x.id===activeId); m.examenes.push({id:Date.now(), nombre:document.getElementById('input-exam-nom').value}); saveData(); closeModal('modal-examen'); renderNotas();}
