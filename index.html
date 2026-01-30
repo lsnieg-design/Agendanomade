@@ -17,8 +17,7 @@
             theme: {
                 extend: {
                     colors: {
-                        nomade: { blue: '#144E7E', green: '#1FA194', cream: '#FAF7F0', white: '#FFFFFF', text: '#2C3E50' },
-                        raspanti: { bordo: '#800020', crema: '#FFFDD0', dorado: '#C5B358' }
+                        nomade: { blue: '#144E7E', green: '#1FA194', cream: '#FAF7F0', white: '#FFFFFF', text: '#2C3E50' }
                     }
                 }
             }
@@ -33,37 +32,39 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
     <style>
+        /* ESTILOS BASE */
         body { background-color: #FAF7F0; font-family: 'Segoe UI', system-ui, sans-serif; overscroll-behavior: none; color: #2C3E50; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* ESTILOS NÓMADE */
         .login-bg { background-color: #144E7E; }
-        .toggle-checkbox:checked { right: 0; border-color: #1FA194; }
-        .toggle-checkbox:checked + .toggle-label { background-color: #1FA194; }
-        .task-check:checked + div { text-decoration: line-through; opacity: 0.5; color: #1FA194; }
         .input-nota { min-width: 40px; text-align: center; border-radius: 6px; border: 1px solid #e2e8f0; }
+        
+        /* BOTONES DE ASISTENCIA */
         .btn-asist { width: 35px; height: 35px; border-radius: 50%; font-weight: 900; font-size: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; transition: all 0.2s; }
         .st-P { background: #DCFCE7; color: #166534; border-color: #166534; }
         .st-T { background: #FEF9C3; color: #854D0E; border-color: #854D0E; }
         .st-J { background: #DBEAFE; color: #1E40AF; border-color: #1E40AF; }
         .st-A { background: #FEE2E2; color: #991B1B; border-color: #991B1B; }
-        .avatar-small { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #1FA194; }
-        .progress-bar { height: 6px; border-radius: 3px; background: #e5e7eb; overflow: hidden; margin-top: 4px; }
-        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+        
+        /* CALENDARIO */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .calendar-day { background: white; border-radius: 8px; min-height: 70px; padding: 4px; font-size: 10px; position: relative; border: 1px solid #f1f5f9; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; }
-        .calendar-day:active { background-color: #f8fafc; border-color: #1FA194; }
         .calendar-day.today { border: 2px solid #1FA194; background: #F0FDFA; }
-        .dots-container { display: flex; gap: 2px; flex-wrap: wrap; content-visibility: auto; }
         .event-dot { width: 6px; height: 6px; border-radius: 50%; }
+        
+        /* DIBUJO */
         #canvas-container { touch-action: none; background: white; border-radius: 10px; overflow: hidden; height: 60vh; position: relative; border: 1px solid #1FA194; cursor: crosshair; }
+        
+        /* UI GENERAL */
         .retro-label { font-size: 9px; font-weight: 800; color: #144E7E; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 6px; letter-spacing: 0.5px; }
         .retro-select { width: 100%; padding: 8px 10px; background-color: white; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; font-weight: 500; color: #2C3E50; outline: none; }
         .section-title { font-size: 10px; font-weight: 900; background: #e2e8f0; color: #144E7E; padding: 4px 8px; border-radius: 4px; margin-top: 14px; margin-bottom: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+        
         #cloud-status { position: fixed; top: 10px; right: 10px; z-index: 100; font-size: 10px; font-weight: bold; background: rgba(255,255,255,0.95); padding: 4px 10px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 5px; opacity: 0; transition: opacity 0.5s; pointer-events: none; color: #1FA194;}
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #1FA194; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="h-screen flex flex-col text-nomade-text bg-nomade-cream">
@@ -72,7 +73,7 @@
 
     <div id="auth-screen" class="fixed inset-0 login-bg z-50 flex flex-col items-center justify-center p-6 text-center text-white fade-in">
         <div class="mb-6 drop-shadow-xl">
-            <img src="nomade.png" alt="Nómade Logo" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green" onerror="this.style.display='none'">
+            <img src="nomade.png" alt="Nómade Logo" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green" onerror="this.src='https://via.placeholder.com/150/1FA194/FFFFFF?text=N'">
         </div>
         <h1 class="text-3xl font-black uppercase mb-1 tracking-widest text-white">NÓMADE</h1>
         <p class="text-nomade-green text-sm mb-10 font-medium tracking-wide uppercase">Agenda Docente</p>
@@ -82,20 +83,14 @@
                 <i data-lucide="user" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
                 <input type="text" id="login-user" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Usuario">
             </div>
-
             <div class="relative">
                 <i data-lucide="lock" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
                 <input type="password" id="login-pass" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Contraseña">
             </div>
-            
             <button onclick="handleLogin()" id="btn-login" class="bg-nomade-green text-white w-full py-4 rounded-xl font-bold shadow-lg hover:bg-teal-600 transition tracking-widest mt-2 transform active:scale-95">INGRESAR</button>
             <p id="login-msg" class="text-xs mt-4 h-4 text-red-300 font-bold text-center"></p>
         </div>
-        
-        <div class="mt-auto pb-4">
-            <p class="text-[10px] opacity-60">Creado por</p>
-            <a href="https://www.somosnomade.com.ar" target="_blank" class="text-nomade-green font-bold text-xs hover:underline">www.somosnomade.com.ar</a>
-        </div>
+        <div class="mt-auto pb-4"><p class="text-[10px] opacity-60">Creado por</p><a href="https://www.somosnomade.com.ar" target="_blank" class="text-nomade-green font-bold text-xs hover:underline">www.somosnomade.com.ar</a></div>
     </div>
 
     <div id="app-content" class="flex flex-col h-full hidden relative">
@@ -134,6 +129,12 @@
                 </div>
             </div>
 
+            <div id="view-materias" class="hidden fade-in space-y-4">
+                <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-nomade-blue">Mis Materias</h2><button onclick="openMateriaModal()" class="bg-nomade-blue text-white p-2 rounded-lg shadow hover:bg-blue-900"><i data-lucide="plus"></i></button></div>
+                <div id="lista-materias" class="space-y-3"></div>
+                <p id="no-materias" class="text-center text-gray-400 text-sm mt-10 hidden">No hay materias.</p>
+            </div>
+
             <div id="view-calendario" class="hidden fade-in h-full flex flex-col">
                 <div class="flex justify-between items-center mb-4">
                     <h2 id="cal-month-year" class="text-xl font-bold text-nomade-blue capitalize">Mes Año</h2>
@@ -146,37 +147,49 @@
                 <div id="calendar-grid" class="calendar-grid flex-1"></div>
             </div>
 
-            <div id="view-materias" class="hidden fade-in space-y-4">
-                <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-nomade-blue">Mis Materias</h2><button onclick="openMateriaModal()" class="bg-nomade-blue text-white p-2 rounded-lg shadow hover:bg-blue-900"><i data-lucide="plus"></i></button></div>
-                <div id="lista-materias" class="space-y-3"></div>
-                <p id="no-materias" class="text-center text-gray-400 text-sm mt-10 hidden">No hay materias.</p>
+            <div id="view-aula" class="hidden fade-in space-y-4">
+                <div class="flex justify-between items-center mb-2">
+                    <button onclick="nav('materias')" class="text-gray-500 text-xs font-bold flex items-center gap-1"><i data-lucide="arrow-left" class="w-3"></i> VOLVER</button>
+                    <div class="flex gap-2">
+                        <button onclick="iniciarTomaLista()" class="bg-nomade-blue text-white px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"><i data-lucide="check-square" class="w-3 h-3"></i> ASIST</button>
+                        <button onclick="openExportModal('xls')" class="bg-green-600 text-white px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"><i data-lucide="file-spreadsheet" class="w-3 h-3"></i> XLS</button>
+                        <button onclick="openExportModal('pdf')" class="bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"><i data-lucide="file-text" class="w-3 h-3"></i> PDF</button>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><span id="aula-modalidad" class="text-[10px] bg-nomade-cream text-nomade-text px-2 py-1 rounded font-bold uppercase border border-nomade-text/10">--</span><h2 id="aula-nombre" class="text-2xl font-black text-nomade-blue mt-2 leading-tight">Materia</h2></div>
+                
+                <div class="flex bg-white p-1 rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
+                    <button onclick="setTab('crono')" id="btn-crono" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-nomade-blue text-white">CRONOGRAMA</button>
+                    <button onclick="setTab('alumnos')" id="btn-alumnos" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400">ALUMNOS</button>
+                    <button onclick="setTab('notas')" id="btn-notas" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400">NOTAS</button>
+                </div>
+
+                <div id="tab-crono" class="space-y-3">
+                    <div class="flex justify-between items-center"><p class="text-xs text-gray-500 font-bold ml-1">Planificación</p><button onclick="openImportModal()" class="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded border border-green-200 font-bold flex items-center gap-1"><i data-lucide="file-spreadsheet" class="w-3 h-3"></i> IMPORTAR</button></div>
+                    <div id="lista-cronograma" class="space-y-3"></div>
+                </div>
+                
+                <div id="tab-alumnos" class="hidden space-y-3">
+                    <div class="flex justify-between items-center px-1"><h3 class="font-bold text-gray-600 text-sm">Padrón</h3><button onclick="openAlumnoModal()" class="text-xs bg-nomade-green text-white px-3 py-1 rounded shadow font-bold">AGREGAR</button></div>
+                    <div id="lista-alumnos" class="space-y-2"></div>
+                </div>
+                
+                <div id="tab-notas" class="hidden space-y-3">
+                    <div class="flex justify-between items-center px-1"><h3 class="font-bold text-gray-600 text-sm">Libro de Notas</h3><button onclick="openExamModal()" class="text-xs bg-nomade-blue text-white px-3 py-1 rounded shadow font-bold">NUEVO EXAMEN</button></div>
+                    <div class="overflow-x-auto bg-white rounded-xl border border-gray-100 shadow-sm"><table class="w-full text-sm"><thead><tr id="head-notas" class="bg-gray-50 text-gray-500 text-left"><th class="p-3">Alumno</th></tr></thead><tbody id="body-notas"></tbody></table></div>
+                </div>
             </div>
+
+            <div id="view-lista" class="hidden fade-in space-y-4"><button onclick="cancelarLista()" class="text-gray-500 text-xs font-bold flex items-center gap-1"><i data-lucide="x" class="w-3"></i> CANCELAR</button><div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex justify-between items-end mb-2"><p class="text-[10px] font-bold text-gray-400 uppercase">FECHA</p><span id="lista-modalidad-badge" class="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-500 font-bold">--</span></div><input type="date" id="input-fecha-lista" onchange="cambiarFechaLista(this.value)" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-nomade-blue text-lg mb-2"><div class="flex justify-center gap-3 text-[10px] font-bold text-gray-400 mb-2"><span><span class="text-green-700">P</span>resente</span><span><span class="text-yellow-700">T</span>arde</span><span><span class="text-blue-700">J</span>ustif</span><span><span class="text-red-700">A</span>usente</span></div><button onclick="guardarLista()" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-green-600 transition flex justify-center items-center gap-2"><i data-lucide="save" class="w-5 h-5"></i> GUARDAR</button></div><div id="lista-check-container" class="space-y-2 pb-10"></div></div>
 
             <div id="view-retro" class="hidden fade-in space-y-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="flex items-center gap-3 mb-4 border-b border-gray-100 pb-3">
-                        <div class="p-2 bg-nomade-green rounded-full text-white"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
-                        <div><h2 class="font-bold text-nomade-blue text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Nómade AI)</p></div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <div><label class="retro-label">ESTUDIANTE</label><input id="ia-nombre" class="retro-select" placeholder="Nombre"></div>
-                        <div><label class="retro-label">FECHA</label><input id="ia-fecha" type="date" class="retro-select"></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <div><label class="retro-label">MATERIA</label><input id="ia-materia" class="retro-select" placeholder="Materia"></div>
-                        <div>
-                            <label class="retro-label">INSTANCIA</label>
-                            <select id="ia-instancia" class="retro-select">
-                                <option value="Parcial Domiciliario">Parcial Domiciliario</option>
-                                <option value="Trabajo Práctico">Trabajo Práctico</option>
-                                <option value="Parcial Presencial">Parcial Presencial</option>
-                                <option value="Examen Final">Examen Final</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mt-4"><label class="retro-label">OBSERVACIÓN</label><textarea id="ia-obs-extra" class="retro-select h-16 resize-none" placeholder="Detalle puntual..."></textarea></div>
+                    <div class="flex items-center gap-3 mb-4 border-b border-gray-100 pb-3"><div class="p-2 bg-nomade-green rounded-full text-white"><i data-lucide="sparkles" class="w-4 h-4"></i></div><div><h2 class="font-bold text-nomade-blue text-md">Retroalimentación</h2><p class="text-[10px] text-gray-500">Evaluación pedagógica (Nómade AI)</p></div></div>
+                    <div class="grid grid-cols-2 gap-2 mb-2"><div><label class="retro-label">ESTUDIANTE</label><input id="ia-nombre" class="retro-select" placeholder="Nombre"></div><div><label class="retro-label">FECHA</label><input id="ia-fecha" type="date" class="retro-select"></div></div>
+                    <div class="grid grid-cols-2 gap-2 mb-2"><div><label class="retro-label">MATERIA</label><input id="ia-materia" class="retro-select" placeholder="Materia"></div><div><label class="retro-label">INSTANCIA</label><select id="ia-instancia" class="retro-select"><option>Parcial</option><option>TP</option><option>Final</option></select></div></div>
+                    <div class="section-title">EVALUACIÓN</div><div class="grid grid-cols-2 gap-2"><div><label class="retro-label">Contenidos</label><select id="crit-contenidos" class="retro-select"><option>Excelente</option><option>Muy Bien</option><option>Bien</option><option>Regular</option></select></div><div><label class="retro-label">Redacción</label><select id="crit-redaccion" class="retro-select"><option>Impecable</option><option>Clara</option><option>Confusa</option></select></div></div><div class="mt-4"><label class="retro-label">OBSERVACIÓN</label><textarea id="ia-obs-extra" class="retro-select h-16 resize-none" placeholder="Detalle..."></textarea></div>
                     <button onclick="generarDevolucion()" id="btn-generar" class="w-full bg-nomade-blue text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2 mt-4 hover:bg-blue-900 transition"><i data-lucide="wand-2" class="w-5 h-5"></i> GENERAR</button>
+                    <p id="ia-locked-msg" class="hidden text-center text-xs text-red-500 mt-2 font-bold bg-red-100 p-2 rounded border border-red-200"><i data-lucide="lock" class="w-3 inline"></i> Función exclusiva para Administradores</p>
                 </div>
                 <div id="ia-resultado-container" class="hidden bg-white p-5 rounded-2xl shadow-lg border-2 border-nomade-green relative mt-4"><textarea id="ia-output" class="w-full h-64 p-3 bg-nomade-cream text-nomade-text text-sm leading-relaxed border border-gray-200 rounded-lg outline-none resize-none font-sans"></textarea><button onclick="copiarIA()" class="w-full bg-nomade-text text-white py-3 rounded-lg font-bold text-xs flex justify-center items-center gap-2 mt-3 hover:bg-black"><i data-lucide="copy" class="w-4 h-4"></i> COPIAR TEXTO FINAL</button></div>
             </div>
@@ -184,36 +197,33 @@
             <div id="view-admin" class="hidden fade-in space-y-4">
                 <div class="bg-nomade-blue text-white p-6 rounded-2xl shadow-lg">
                     <div class="flex items-center gap-3 mb-2"><img src="nomade.png" class="w-10 h-10 bg-white rounded-full p-0.5" onerror="this.style.display='none'"><div><h2 class="text-xl font-black uppercase tracking-widest">NÓMADE</h2><p class="text-xs text-nomade-green font-bold">PANEL DE CONTROL</p></div></div>
-                    <div class="mt-4 pt-4 border-t border-white/20"><h3 class="font-bold text-white mb-2 text-sm flex items-center gap-2"><i data-lucide="user-plus" class="w-4"></i> Crear Docente</h3><div class="space-y-2"><input id="new-user-username" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm" placeholder="Nombre Usuario"><input id="new-user-pass" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm" placeholder="Contraseña"><input id="new-user-fullname" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm" placeholder="Nombre Completo"><button onclick="crearUsuarioDocente()" class="w-full bg-nomade-green text-white font-bold py-2 rounded mt-2 hover:bg-teal-600 transition">CREAR ACCESO</button></div></div>
+                    <div class="mt-4 pt-4 border-t border-white/20"><h3 class="font-bold text-white mb-2 text-sm flex items-center gap-2"><i data-lucide="user-plus" class="w-4"></i> Crear Docente</h3><div class="space-y-2"><input id="new-user-username" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm" placeholder="Usuario"><input id="new-user-pass" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm" placeholder="Contraseña"><input id="new-user-fullname" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm" placeholder="Nombre Completo"><button onclick="crearUsuarioDocente()" class="w-full bg-nomade-green text-white font-bold py-2 rounded mt-2 hover:bg-teal-600 transition">CREAR ACCESO</button></div></div>
                 </div>
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><h3 class="font-bold text-nomade-text mb-3">Docentes Activos</h3><div id="admin-user-list" class="space-y-2 text-xs"></div></div>
             </div>
 
             <div id="view-cuaderno" class="hidden fade-in space-y-4">
                 <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-nomade-blue">Cuaderno</h2><button onclick="openModal('modal-new-nota')" class="bg-nomade-blue text-white p-2 rounded-lg shadow"><i data-lucide="plus"></i></button></div>
-                <div id="lista-notas" class="grid grid-cols-2 gap-3"></div><p id="no-notas" class="text-center text-gray-400 text-sm mt-10 hidden">Sin notas guardadas.</p>
+                <div id="lista-notas" class="grid grid-cols-2 gap-3"></div>
+                <p id="no-notas" class="text-center text-gray-400 text-sm mt-10 hidden">Sin notas guardadas.</p>
+                
                 <div id="editor-nota" class="hidden fixed inset-0 bg-white z-50 flex flex-col">
                     <div class="p-4 bg-nomade-blue text-white flex justify-between items-center shadow"><button onclick="closeEditor()" class="flex items-center gap-1 font-bold text-xs"><i data-lucide="arrow-left" class="w-4"></i> VOLVER</button><span id="editor-title" class="font-bold">Editar</span><button onclick="saveCurrentNote()" class="bg-white text-nomade-blue px-3 py-1 rounded font-bold text-xs">GUARDAR</button></div>
                     <div class="flex-1 p-4 overflow-y-auto relative">
                         <textarea id="editor-text" class="w-full h-full p-4 bg-nomade-cream text-nomade-text text-lg leading-relaxed outline-none resize-none hidden" placeholder="Escribe aquí..."></textarea>
                         <div id="editor-draw" class="hidden h-full flex flex-col">
-                            <div class="flex flex-wrap items-center gap-3 mb-2 p-2 bg-gray-50 rounded-lg shadow-sm border border-gray-100"><input type="color" id="draw-color" value="#000000" onchange="setDrawColor(this.value)" class="w-8 h-8 rounded cursor-pointer border-0 p-0"><input type="range" id="draw-size" min="1" max="20" value="2" onchange="setDrawSize(this.value)" class="w-24"><button onclick="setTool('pen')" class="p-2 hover:bg-gray-200 rounded text-gray-600"><i data-lucide="pen-tool" class="w-5"></i></button><button onclick="setTool('eraser')" class="p-2 hover:bg-gray-200 rounded text-gray-600"><i data-lucide="eraser" class="w-5"></i></button><button onclick="clearCanvas()" class="ml-auto text-red-500 hover:bg-red-50 p-2 rounded"><i data-lucide="trash-2" class="w-5"></i></button></div>
+                            <div class="flex flex-wrap items-center gap-3 mb-2 p-2 bg-gray-50 rounded-lg shadow-sm border border-gray-100">
+                                <input type="color" id="draw-color" value="#000000" onchange="setDrawColor(this.value)" class="w-8 h-8 rounded cursor-pointer border-0 p-0">
+                                <input type="range" id="draw-size" min="1" max="20" value="2" onchange="setDrawSize(this.value)" class="w-24">
+                                <button onclick="setTool('pen')" class="p-2 hover:bg-gray-200 rounded text-gray-600"><i data-lucide="pen-tool" class="w-5"></i></button>
+                                <button onclick="setTool('eraser')" class="p-2 hover:bg-gray-200 rounded text-gray-600"><i data-lucide="eraser" class="w-5"></i></button>
+                                <button onclick="clearCanvas()" class="ml-auto text-red-500 hover:bg-red-50 p-2 rounded"><i data-lucide="trash-2" class="w-5"></i></button>
+                            </div>
                             <div id="canvas-container"><canvas id="drawing-canvas"></canvas></div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div id="view-aula" class="hidden fade-in space-y-4">
-                <div class="flex justify-between items-center mb-2"><button onclick="nav('materias')" class="text-gray-500 text-xs font-bold flex items-center gap-1"><i data-lucide="arrow-left" class="w-3"></i> VOLVER</button><div class="flex gap-2"><button onclick="iniciarTomaLista()" class="bg-nomade-blue text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"><i data-lucide="check-square" class="w-3 h-3"></i> ASIST</button><button onclick="exportarExcel()" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"><i data-lucide="file-spreadsheet" class="w-3 h-3"></i> XLS</button><button onclick="generarPDF()" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"><i data-lucide="file-text" class="w-3 h-3"></i> PDF</button></div></div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><span id="aula-modalidad" class="text-[10px] bg-nomade-cream text-nomade-text px-2 py-1 rounded font-bold uppercase border border-nomade-text/10">--</span><h2 id="aula-nombre" class="text-2xl font-black text-nomade-blue mt-2 leading-tight">Materia</h2></div>
-                <div class="flex bg-white p-1 rounded-xl shadow-sm border border-gray-100 overflow-x-auto"><button onclick="setTab('crono')" id="btn-crono" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-nomade-blue text-white">CRONOGRAMA</button><button onclick="setTab('alumnos')" id="btn-alumnos" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400">ALUMNOS</button><button onclick="setTab('notas')" id="btn-notas" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400">NOTAS</button></div>
-                <div id="tab-crono" class="space-y-3"><div class="flex justify-between items-center"><p class="text-xs text-gray-500 font-bold ml-1">Planificación</p><button onclick="openImportModal()" class="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded border border-green-200 font-bold flex items-center gap-1"><i data-lucide="file-spreadsheet" class="w-3 h-3"></i> IMPORTAR</button></div><div id="lista-cronograma" class="space-y-3"></div></div>
-                <div id="tab-alumnos" class="hidden space-y-3"><div class="flex justify-between items-center px-1"><h3 class="font-bold text-gray-600 text-sm">Padrón</h3><button onclick="openAlumnoModal()" class="text-xs bg-nomade-green text-white px-3 py-1 rounded shadow font-bold">AGREGAR</button></div><div id="lista-alumnos" class="space-y-2"></div></div>
-                <div id="tab-notas" class="hidden space-y-3"><div class="flex justify-between items-center px-1"><h3 class="font-bold text-gray-600 text-sm">Libro de Notas</h3><button onclick="openExamModal()" class="text-xs bg-nomade-blue text-white px-3 py-1 rounded shadow font-bold">NUEVO EXAMEN</button></div><div class="overflow-x-auto bg-white rounded-xl border border-gray-100 shadow-sm"><table class="w-full text-sm"><thead><tr id="head-notas" class="bg-gray-50 text-gray-500 text-left"><th class="p-3">Alumno</th></tr></thead><tbody id="body-notas"></tbody></table></div></div>
-            </div>
-            
-            <div id="view-lista" class="hidden fade-in space-y-4"><button onclick="cancelarLista()" class="text-gray-500 text-xs font-bold flex items-center gap-1"><i data-lucide="x" class="w-3"></i> CANCELAR</button><div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex justify-between items-end mb-2"><p class="text-[10px] font-bold text-gray-400 uppercase">FECHA</p><span id="lista-modalidad-badge" class="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-500 font-bold">--</span></div><input type="date" id="input-fecha-lista" onchange="cambiarFechaLista(this.value)" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-nomade-blue text-lg mb-2"><div class="flex justify-center gap-3 text-[10px] font-bold text-gray-400 mb-2"><span><span class="text-green-700">P</span>resente</span><span><span class="text-yellow-700">T</span>arde</span><span><span class="text-blue-700">J</span>ustif</span><span><span class="text-red-700">A</span>usente</span></div><button onclick="guardarLista()" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-green-600 transition flex justify-center items-center gap-2"><i data-lucide="save" class="w-5 h-5"></i> GUARDAR</button></div><div id="lista-check-container" class="space-y-2 pb-10"></div></div>
         </main>
 
         <nav id="navbar" class="fixed bottom-0 w-full bg-white border-t border-gray-200 h-16 flex justify-around items-center z-30 pb-safe-bottom shadow-[0_-5px_10px_rgba(0,0,0,0.05)]">
@@ -226,75 +236,71 @@
     </div>
 
     <div id="modal-settings" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center"><h3 class="text-lg font-black text-nomade-blue mb-6">Configuración</h3><button onclick="logout()" class="bg-red-50 text-red-600 w-full py-3 rounded-lg font-bold text-sm shadow mb-2">CERRAR SESIÓN</button><button onclick="closeModal('modal-settings')" class="block w-full mt-4 text-gray-400 text-sm font-bold">Cerrar</button></div></div>
-    <div id="modal-new-nota" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4">Nueva Nota</h3><input id="new-nota-title" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Título"><label class="text-xs font-bold text-gray-500 mb-2 block">TIPO DE NOTA</label><div class="grid grid-cols-2 gap-3 mb-4"><button onclick="createNote('text')" class="p-4 bg-blue-50 rounded-xl border border-blue-100 flex flex-col items-center gap-2 hover:bg-blue-100"><i data-lucide="type" class="w-6 h-6 text-blue-600"></i><span class="text-xs font-bold text-blue-800">TEXTO</span></button><button onclick="createNote('draw')" class="p-4 bg-purple-50 rounded-xl border border-purple-100 flex flex-col items-center gap-2 hover:bg-purple-100"><i data-lucide="pen-tool" class="w-6 h-6 text-purple-600"></i><span class="text-xs font-bold text-purple-800">DIBUJO</span></button></div><button onclick="closeModal('modal-new-nota')" class="w-full text-gray-400 text-sm font-bold">Cancelar</button></div></div>
+    <div id="modal-new-nota" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4">Nueva Nota</h3><input id="new-nota-title" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Título"><div class="grid grid-cols-2 gap-3 mb-4"><button onclick="createNote('text')" class="p-4 bg-blue-50 rounded-xl border border-blue-100 flex flex-col items-center gap-2 hover:bg-blue-100"><i data-lucide="type" class="w-6 h-6 text-blue-600"></i><span class="text-xs font-bold text-blue-800">TEXTO</span></button><button onclick="createNote('draw')" class="p-4 bg-purple-50 rounded-xl border border-purple-100 flex flex-col items-center gap-2 hover:bg-purple-100"><i data-lucide="pen-tool" class="w-6 h-6 text-purple-600"></i><span class="text-xs font-bold text-purple-800">DIBUJO</span></button></div><button onclick="closeModal('modal-new-nota')" class="w-full text-gray-400 text-sm font-bold">Cancelar</button></div></div>
     <div id="modal-cal-event" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-2" id="event-date-title">--/--</h3><div id="day-events-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div><div class="border-t pt-4"><input id="new-event-text" class="w-full p-2 bg-gray-50 rounded border mb-2" placeholder="Agregar evento..."><div class="flex gap-2"><button onclick="closeModal('modal-cal-event')" class="flex-1 py-2 text-gray-500 font-bold text-xs">CERRAR</button><button onclick="addCalendarEvent()" class="flex-1 py-2 bg-nomade-green text-white rounded font-bold text-xs">AGREGAR</button></div></div></div></div>
     <div id="modal-tarea" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4">Nueva Tarea</h3><input id="input-tarea-txt" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Descripción"><div class="flex gap-2"><button onclick="closeModal('modal-tarea')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarTarea()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-materia" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4" id="title-materia">Nueva Materia</h3><input type="hidden" id="edit-mat-id"><label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label><input id="input-mat-nombre" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Ej: Matemática"><div class="grid grid-cols-2 gap-2"><div><label class="text-xs font-bold text-gray-500 ml-1">INICIO</label><input type="date" id="input-mat-inicio" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border"></div><div><label class="text-xs font-bold text-gray-500 ml-1">FIN</label><input type="date" id="input-mat-fin" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border"></div></div><label class="text-xs font-bold text-gray-500 ml-1">HORARIO</label><input id="input-mat-horario" class="w-full p-2 bg-gray-50 rounded-lg mb-4 border" placeholder="Ej: 18:00 a 22:00"><div class="grid grid-cols-2 gap-2 mb-4"><div><label class="text-xs font-bold text-gray-500 ml-1">DÍA</label><select id="input-mat-dia" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option><option value="Sábado">Sábado</option></select></div><div><label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD</label><select id="input-mat-mod" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Hibrida">Mixta</option><option value="Presencial">Presencial</option><option value="Virtual">Virtual</option></select></div></div><div class="flex gap-2"><button onclick="closeModal('modal-materia')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarMateria()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
-    
     <div id="modal-alumno" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4" id="title-alumno">Nuevo Alumno</h3><input type="hidden" id="edit-alum-idx"><input id="input-alum-ape" class="w-full p-3 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Apellido"><input id="input-alum-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Nombre"><div class="flex gap-2"><button onclick="closeModal('modal-alumno')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarAlumno()" class="flex-1 py-3 bg-nomade-green text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-examen" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4" id="title-examen">Nuevo Examen/TP</h3><input type="hidden" id="edit-exam-id"><input id="input-exam-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border font-bold" placeholder="Nombre"><input type="date" id="input-exam-date" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold"><div class="flex gap-2"><button onclick="closeModal('modal-examen')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarExamen()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-obs" class="fixed inset-0 bg-black/50 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-2">Observación</h3><p id="obs-alum-name" class="text-sm font-bold text-gray-500 mb-3"></p><textarea id="input-obs-txt" class="w-full p-3 bg-gray-50 rounded-lg border h-32 mb-4" placeholder="Escribe una observación..."></textarea><div class="flex gap-2"><button onclick="closeModal('modal-obs')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarObs()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-import" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative"><button onclick="closeModal('modal-import')" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button><h3 class="text-lg font-black text-nomade-blue mb-2">Importar Planificación</h3><p class="text-xs text-gray-500 mb-4">Copia 4 columnas de tu Excel (Fecha, Contenido, Biblio, Actividad) y pega aquí.</p><textarea id="input-import-text" class="w-full p-3 bg-gray-50 rounded-lg border h-40 text-xs font-mono mb-4" placeholder="17/03/2025  Tema 1  Libro A  TP1..."></textarea><button onclick="processImport()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2"><i data-lucide="check" class="w-5 h-5"></i> PROCESAR</button></div></div>
     <div id="modal-clase-detail" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative max-h-[90vh] overflow-y-auto"><h3 class="text-lg font-black text-nomade-blue mb-1" id="detail-date">--/--</h3><input type="hidden" id="detail-iso"><div class="space-y-3 mt-4"><div><label class="text-xs font-bold text-gray-500">CONTENIDO / TEMA</label><textarea id="detail-tema" class="w-full p-2 bg-gray-50 rounded border text-sm font-medium h-20"></textarea></div><div><label class="text-xs font-bold text-gray-500">BIBLIOGRAFÍA</label><textarea id="detail-biblio" class="w-full p-2 bg-gray-50 rounded border text-sm text-gray-600 h-16"></textarea></div><div><label class="text-xs font-bold text-gray-500">ACTIVIDAD CLASE</label><input id="detail-act-clase" class="w-full p-2 bg-gray-50 rounded border text-sm"></div><div><label class="text-xs font-bold text-gray-500">TAREA</label><input id="detail-act-tarea" class="w-full p-2 bg-gray-50 rounded border text-sm"></div></div><div class="flex gap-2 mt-4"><button onclick="closeModal('modal-clase-detail')" class="flex-1 py-3 text-gray-500 font-bold">Cerrar</button><button onclick="saveClaseDetail()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
+    
+    <div id="modal-export" class="fixed inset-0 bg-black/50 z-[80] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 class="text-lg font-black text-nomade-blue mb-4">Exportar Materia</h3>
+            <p class="text-xs text-gray-500 mb-4">Seleccioná qué querés incluir:</p>
+            <div class="space-y-3 mb-6">
+                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input type="checkbox" id="exp-lista" class="w-5 h-5 text-nomade-green" checked>
+                    <span class="font-bold text-sm text-gray-700">Lista de Alumnos</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input type="checkbox" id="exp-asist" class="w-5 h-5 text-nomade-green" checked>
+                    <span class="font-bold text-sm text-gray-700">Asistencia</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input type="checkbox" id="exp-notas" class="w-5 h-5 text-nomade-green" checked>
+                    <span class="font-bold text-sm text-gray-700">Notas</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input type="checkbox" id="exp-plan" class="w-5 h-5 text-nomade-green">
+                    <span class="font-bold text-sm text-gray-700">Planificación (Temas)</span>
+                </label>
+            </div>
+            <input type="hidden" id="export-type">
+            <div class="flex gap-2">
+                <button onclick="closeModal('modal-export')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button>
+                <button onclick="executeExport()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">DESCARGAR</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // CONFIGURACIÓN (CLAVE 4IhE)
         const API_KEY = 'AIzaSyDS9Tw3_TRLCOu1q7ywcGNHTpY9ta9BzAk'; 
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyBpBjGm2jdqlearWnBiwn4jxjeby3nA0gk",
-            authDomain: "raspanti-app.firebaseapp.com",
-            projectId: "raspanti-app",
-            storageBucket: "raspanti-app.firebasestorage.app",
-            messagingSenderId: "898404256450",
-            appId: "1:898404256450:web:8ba27e3350b8efb22c095b",
-            measurementId: "G-QMMLBB5NJM"
-        };
+        const firebaseConfig = {apiKey: "AIzaSyBpBjGm2jdqlearWnBiwn4jxjeby3nA0gk",authDomain: "raspanti-app.firebaseapp.com",projectId: "raspanti-app",storageBucket: "raspanti-app.firebasestorage.app",messagingSenderId: "898404256450",appId: "1:898404256450:web:8ba27e3350b8efb22c095b",measurementId: "G-QMMLBB5NJM"};
+        const app = firebase.initializeApp(firebaseConfig); const auth = firebase.auth(); const dbCloud = firebase.firestore(); let secondaryApp; try { secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary"); } catch(e) { secondaryApp = firebase.app("Secondary"); }
 
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const dbCloud = firebase.firestore();
-        let secondaryApp;
-        try { secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary"); } catch(e) { secondaryApp = firebase.app("Secondary"); }
-
-        // DATOS ADMIN
         const ADMIN_MATERIAS_BASE = [
             { id: 1741000000000, nombre: "Reflexión Filosófica de la Educación", dia: "Lunes", modalidadBase: "Presencial", horario: "18:00 a 20:00", fechaInicio: "2026-03-16", fechaFin: "2026-07-06", planificacion: {}, cronograma: {}, alumnos: [{id:1, ape:'Perez', nom:'Juan', notas:{}}], examenes: [] },
             { id: 1741000000001, nombre: "Cultura Digital y Educación", dia: "Miércoles", modalidadBase: "Virtual", horario: "19:00 a 21:00", fechaInicio: "2026-03-18", fechaFin: "2026-07-08", planificacion: {}, cronograma: {}, alumnos: [], examenes: [] }
         ];
 
-        let currentUser = null;
-        let userData = { materias: [], eventos: {} }; 
-        let isOffline = false;
+        let currentUser = null; let userData = { materias: [], eventos: {}, notas: [], tareas: [] }; let isOffline = false;
 
         async function handleLogin() {
-            let u = document.getElementById('login-user').value.trim();
-            let p = document.getElementById('login-pass').value.trim();
-            const msg = document.getElementById('login-msg');
+            let u = document.getElementById('login-user').value.trim(); let p = document.getElementById('login-pass').value.trim();
             if (!u || !p) return alert("Completá los datos");
-
-            // BYPASS DE EMERGENCIA
             if (u === 'admi' && p === 'adminomade') {
                 isOffline = true; currentUser = { uid: 'local_admin', email: 'admi@nomade.app' };
                 const saved = localStorage.getItem('nomade_data_admin');
-                userData = saved ? JSON.parse(saved) : { materias: ADMIN_MATERIAS_BASE, eventos: {}, tareas: [] };
+                userData = saved ? JSON.parse(saved) : { materias: ADMIN_MATERIAS_BASE, eventos: {}, tareas: [], notas: [] };
                 startApp(); return;
             }
-
-            // LOGIN NORMAL (Intento Google o Local Fallback)
-            let email = u.includes('@') ? u : u + '@nomade.app';
-            try {
-                const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 3000));
-                await Promise.race([auth.signInWithEmailAndPassword(email, p), timeout]);
-            } catch (err) {
-                // Si falla, entramos en LOCAL
-                console.log("Modo Local para: " + u);
-                isOffline = true;
-                currentUser = { uid: 'local_' + u, email: email };
-                const saved = localStorage.getItem('nomade_data_' + u);
-                userData = saved ? JSON.parse(saved) : { materias: [], eventos: {}, tareas: [] };
-                startApp();
-            }
+            isOffline = true; currentUser = { uid: 'local_' + u, email: u };
+            const saved = localStorage.getItem('nomade_data_' + u);
+            userData = saved ? JSON.parse(saved) : { materias: [], eventos: {}, tareas: [], notas: [] };
+            startApp();
         }
 
         function startApp() {
@@ -302,18 +308,14 @@
             document.getElementById('app-content').classList.remove('hidden');
             if(currentUser.email.includes('admi')) document.getElementById('btn-admin-panel').classList.remove('hidden');
             document.getElementById('dash-name').innerText = currentUser.email.split('@')[0];
-            renderMaterias(); initDash(); renderTareas();
-            lucide.createIcons(); // RE-INIT ICONS
+            renderMaterias(); initDash(); renderTareas(); lucide.createIcons();
         }
 
         function logout() { location.reload(); }
         function saveData() { 
             const key = currentUser.uid === 'local_admin' ? 'nomade_data_admin' : 'nomade_data_' + currentUser.email.split('@')[0];
             localStorage.setItem(key, JSON.stringify(userData));
-            const st = document.getElementById('cloud-status');
-            st.innerHTML = '<i data-lucide="hard-drive" class="w-3 h-3"></i> Guardado Local';
-            st.style.opacity = '1';
-            setTimeout(() => st.style.opacity = '0', 2000);
+            const st = document.getElementById('cloud-status'); st.style.opacity = '1'; setTimeout(() => st.style.opacity = '0', 2000);
         }
 
         // MATERIAS
@@ -342,13 +344,11 @@
                 let st = m.cronograma?.[iso] || ((m.modalidadBase === 'Hibrida') ? 'Presencial' : m.modalidadBase);
                 if (m.modalidadBase === 'Virtual') st = 'Virtual';
                 if (st === 'Receso') st = 'Receso';
-
                 let badgeClass = 'bg-gray-100 text-gray-500';
                 if (st.startsWith('Presenc')) badgeClass = 'bg-nomade-blue text-white';
                 else if (st.startsWith('Virt') || st.startsWith('Sinc')) badgeClass = 'bg-nomade-green text-white';
-                else if (st === 'Receso' || st === 'Sin Clase') badgeClass = 'bg-red-100 text-red-500';
+                else if (st === 'Receso') badgeClass = 'bg-red-100 text-red-500';
                 const plan = m.planificacion?.[iso]?.tema || '';
-
                 l.innerHTML += `<div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-3">
                     <div class="flex justify-between items-center mb-2"><span class="font-black text-nomade-blue text-sm w-10">${displayDate}</span><div class="flex gap-1"><button onclick="cycle('${iso}')" class="px-2 py-1 rounded text-[9px] font-bold uppercase ${badgeClass}">${st}</button><button onclick="setReceso('${iso}')" class="text-xs text-gray-300 hover:text-red-500">⛔</button></div></div>
                     <input class="w-full text-sm bg-gray-50 p-2 rounded" placeholder="Tema..." value="${plan}" onchange="saveTema('${iso}',this.value)">
@@ -377,8 +377,13 @@
             canvas.ontouchstart = start; canvas.ontouchmove = move; canvas.ontouchend = end;
         }
         function saveCurrentNote(){ const i=userData.notas.findIndex(n=>n.id===activeNoteId); if(i===-1)return; if(userData.notas[i].type==='text'){userData.notas[i].content=document.getElementById('editor-text').value;}else{userData.notas[i].content=canvas.toDataURL();} saveData(); alert('Guardado'); closeEditor(); }
-        function createNote(type){ userData.notas.unshift({id:Date.now(), title:document.getElementById('new-nota-title').value, type:type, content:''}); saveData(); closeModal('modal-new-nota'); renderNotesList(); }
-        function renderNotesList(){ const l=document.getElementById('lista-notas'); l.innerHTML=''; userData.notas.forEach((n,i)=>l.innerHTML+=`<div onclick="openNoteEditor(${i})" class="bg-white p-4 shadow rounded cursor-pointer font-bold border-l-4 ${n.type==='text'?'border-blue-500':'border-purple-500'}">${n.title}</div>`); }
+        function createNote(type){ 
+            if(!userData.notas) userData.notas = [];
+            userData.notas.unshift({id:Date.now(), title:document.getElementById('new-nota-title').value, type:type, content:''}); 
+            saveData(); closeModal('modal-new-nota'); renderNotesList(); 
+        }
+        function renderNotesList(){ const l=document.getElementById('lista-notas'); l.innerHTML=''; if(userData.notas) userData.notas.forEach((n,i)=>l.innerHTML+=`<div onclick="openNoteEditor(${i})" class="bg-white p-4 shadow rounded cursor-pointer font-bold border-l-4 ${n.type==='text'?'border-blue-500':'border-purple-500'}">${n.title}</div>`); }
+        function clearCanvas(){ctx.fillStyle="white";ctx.fillRect(0,0,canvas.width,canvas.height);}
 
         // OTROS
         function crearUsuarioDocente() { let u = document.getElementById('new-user-username').value; let n = document.getElementById('new-user-fullname').value; if(!u) return alert("Falta usuario"); document.getElementById('admin-user-list').innerHTML += `<div class="bg-gray-50 p-2 mb-1 border-l-4 border-nomade-green flex justify-between items-center"><div><span class="font-bold block text-nomade-blue">${n}</span><span class="text-xs text-gray-400">User: ${u}</span></div><span class="text-[10px] bg-nomade-cream px-2 py-1 rounded text-nomade-blue font-bold uppercase">Creado</span></div>`; alert(`✅ Usuario "${u}" habilitado localmente.`); }
@@ -403,16 +408,67 @@
         function renderAlum(){const m=userData.materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML=''; m.alumnos.forEach((al,i)=>{l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center mb-2 shadow-sm"><span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span><button onclick="delAlum(${i})" class="text-red-400"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
         function guardarAlumno(){const m=userData.materias.find(x=>x.id===activeId); m.alumnos.push({id:Date.now(), ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, notas:{}}); saveData(); closeModal('modal-alumno'); renderAlum();}
         function delAlum(i){const m=userData.materias.find(x=>x.id===activeId); m.alumnos.splice(i,1); saveData(); renderAlum();}
-        function renderNotas(){const m=userData.materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); h.innerHTML='<th>Alumno</th>'; m.examenes.forEach(e=>h.innerHTML+=`<th>${e.nombre}</th>`); h.innerHTML+='<th>+</th>'; b.innerHTML=''; m.alumnos.forEach((al,i)=>{let r=`<tr><td class="p-2 border-b text-sm">${al.ape}</td>`; m.examenes.forEach(e=>{ r+=`<td class="p-2 border-b"><input class="w-8 p-1 border rounded text-center" value="${al.notas[e.id]||''}" onchange="saveNota(${i},${e.id},this.value)"></td>`; }); r+='<td></td></tr>'; b.innerHTML+=r;});}
+        function openAlumnoModal(idx=null){document.getElementById('edit-alum-idx').value=idx!==null?idx:''; document.getElementById('input-alum-ape').value=idx!==null?userData.materias.find(x=>x.id===activeId).alumnos[idx].ape:''; document.getElementById('input-alum-nom').value=idx!==null?userData.materias.find(x=>x.id===activeId).alumnos[idx].nom:''; openModal('modal-alumno');}
+        function openExamModal(idx=null){document.getElementById('edit-exam-id').value=idx!==null?idx:''; if(idx!==null){const e=userData.materias.find(x=>x.id===activeId).examenes[idx]; document.getElementById('input-exam-nom').value=e.nombre; document.getElementById('input-exam-date').value=e.fecha;}else{document.getElementById('input-exam-nom').value='';} openModal('modal-examen');}
+        function renderNotas(){const m=userData.materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); h.innerHTML='<th>Alumno</th>'; m.examenes.forEach((e,i)=>h.innerHTML+=`<th onclick="openExamModal(${i})" class="cursor-pointer hover:text-blue-500">${e.nombre}</th>`); h.innerHTML+='<th>+</th>'; b.innerHTML=''; m.alumnos.forEach((al,i)=>{let r=`<tr><td class="p-2 border-b text-sm">${al.ape}</td>`; m.examenes.forEach(e=>{ r+=`<td class="p-2 border-b"><input class="w-8 p-1 border rounded text-center" value="${al.notas[e.id]||''}" onchange="saveNota(${i},${e.id},this.value)"></td>`; }); r+='<td></td></tr>'; b.innerHTML+=r;});}
         function guardarExamen(){const m=userData.materias.find(x=>x.id===activeId); m.examenes.push({id:Date.now(), nombre:document.getElementById('input-exam-nom').value}); saveData(); closeModal('modal-examen'); renderNotas();}
         function saveNota(i,eid,v){const m=userData.materias.find(x=>x.id===activeId); m.alumnos[i].notas[eid]=v; saveData();}
-        function exportarExcel(){const m=userData.materias.find(x=>x.id===activeId); let c="data:text/csv;charset=utf-8,NOMBRE,APELLIDO\n"; m.alumnos.forEach(a=>{c+=`${a.nom},${a.ape}\n`;}); const l=document.createElement("a"); l.setAttribute("href",encodeURI(c)); l.setAttribute("download",`Lista_${m.nombre}.csv`); document.body.appendChild(l); l.click(); l.remove();}
-        function generarPDF(){const { jsPDF } = window.jspdf; const doc = new jsPDF(); const m = userData.materias.find(x => x.id === activeId); doc.text(`Materia: ${m.nombre}`, 10, 10); const body = m.alumnos.map(a => [a.ape, a.nom]); doc.autoTable({ head: [['Apellido', 'Nombre']], body: body }); doc.save("Planilla.pdf");}
-        function clearCanvas(){ctx.fillStyle="white";ctx.fillRect(0,0,canvas.width,canvas.height);}
+        
+        // EXPORTACION
+        function openExportModal(type){ document.getElementById('export-type').value=type; openModal('modal-export'); }
+        function executeExport(){
+            const type = document.getElementById('export-type').value;
+            const incList = document.getElementById('exp-lista').checked;
+            const incAsist = document.getElementById('exp-asist').checked;
+            const incNotas = document.getElementById('exp-notas').checked;
+            const incPlan = document.getElementById('exp-plan').checked;
+            const m = userData.materias.find(x=>x.id===activeId);
+            
+            if(type === 'xls'){
+                let csv = "data:text/csv;charset=utf-8,";
+                if(incList) csv += "APELLIDO,NOMBRE";
+                if(incAsist) csv += ",ASISTENCIA(%)";
+                if(incNotas) m.examenes.forEach(e => csv += "," + e.nombre);
+                csv += "\n";
+                m.alumnos.forEach(a => {
+                    if(incList) csv += `${a.ape},${a.nom}`;
+                    if(incAsist) {
+                        let tot=0, pres=0; if(m.asistencias) Object.values(m.asistencias).forEach(d=>{tot++; if(d[a.id]==='P') pres++;});
+                        csv += `,${tot>0 ? Math.round((pres/tot)*100) : 0}%`;
+                    }
+                    if(incNotas) m.examenes.forEach(e => csv += `,${a.notas[e.id]||''}`);
+                    csv += "\n";
+                });
+                const link = document.createElement("a"); link.setAttribute("href", encodeURI(csv)); link.setAttribute("download", `Reporte_${m.nombre}.csv`); document.body.appendChild(link); link.click();
+            } else {
+                const { jsPDF } = window.jspdf; const doc = new jsPDF();
+                doc.setFontSize(18); doc.text(m.nombre, 14, 20); doc.setFontSize(12);
+                if(incList){
+                    const head = [['Apellido', 'Nombre']];
+                    if(incAsist) head[0].push('Asistencia');
+                    if(incNotas) m.examenes.forEach(e => head[0].push(e.nombre));
+                    const body = m.alumnos.map(a => {
+                        const row = [a.ape, a.nom];
+                        if(incAsist) {
+                            let tot=0, pres=0; if(m.asistencias) Object.values(m.asistencias).forEach(d=>{tot++; if(d[a.id]==='P') pres++;});
+                            row.push(`${tot>0 ? Math.round((pres/tot)*100) : 0}%`);
+                        }
+                        if(incNotas) m.examenes.forEach(e => row.push(a.notas[e.id]||'-'));
+                        return row;
+                    });
+                    doc.autoTable({ startY: 30, head: head, body: body });
+                }
+                if(incPlan){
+                    doc.addPage(); doc.text("Planificación", 14, 20);
+                    const pBody = Object.entries(m.planificacion).map(([k,v]) => [k, v.tema]);
+                    doc.autoTable({ head: [['Fecha', 'Tema']], body: pBody });
+                }
+                doc.save(`Reporte_${m.nombre}.pdf`);
+            }
+            closeModal('modal-export');
+        }
 
-        window.onload = function() {
-            lucide.createIcons();
-        };
+        window.onload = function() { lucide.createIcons(); };
     </script>
 </body>
 </html>
