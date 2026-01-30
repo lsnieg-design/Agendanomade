@@ -769,15 +769,15 @@
         // OTROS
         function crearUsuarioDocente() { let u = document.getElementById('new-user-username').value; let n = document.getElementById('new-user-fullname').value; if(!u) return alert("Falta usuario"); document.getElementById('admin-user-list').innerHTML += `<div class="bg-gray-50 p-2 mb-1 border-l-4 border-nomade-green flex justify-between items-center"><div><span class="font-bold block text-nomade-blue">${n}</span><span class="text-xs text-gray-400">User: ${u}</span></div><span class="text-[10px] bg-nomade-cream px-2 py-1 rounded text-nomade-blue font-bold uppercase">Creado</span></div>`; alert(`✅ Usuario "${u}" habilitado localmente.`); }
         function nav(v){ ['dashboard','materias','aula','lista','calendario','cuaderno','retro','admin'].forEach(id=>document.getElementById('view-'+id)?.classList.add('hidden')); document.getElementById('view-'+v).classList.remove('hidden'); ['dash','mat','cal','cua','ret'].forEach(k => document.getElementById('nav-'+k).className = 'flex flex-col items-center text-gray-400 w-full justify-center'); const map = {dashboard:'dash', materias:'mat', calendario:'cal', cuaderno:'cua', retro:'ret'}; if(map[v]) document.getElementById('nav-'+map[v]).className = 'flex flex-col items-center text-nomade-green w-full justify-center scale-110 transition'; if(v==='dashboard') initDash(); if(v==='materias') renderMaterias(); if(v==='calendario') renderCalendar(currentMonth, currentYear); lucide.createIcons(); }
-        function initDash(){ 
+       function initDash(){ 
     const d=new Date();
     const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-    const h=d.toISOString().split('T')[0]; // Fecha ISO de hoy
+    const h=d.toISOString().split('T')[0]; // Fecha de hoy
 
-    // 1. CABECERA
+    // 1. CABECERA (Fecha de hoy)
     document.getElementById('fecha-hoy').innerText=`${dias[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}`; 
     
-    // 2. LISTA DE HOY
+    // 2. LISTA DE HOY (Tu Día Hoy)
     const lHoy=document.getElementById('lista-hoy'); 
     lHoy.innerHTML=''; 
     let hayClase=false; 
@@ -785,69 +785,70 @@
     if(userData.materias) userData.materias.forEach(m=>{ 
         if(m.dia === dias[d.getDay()]){ 
             hayClase=true; 
-            // Buscamos si hay un tema específico para hoy en la planificación
             const temaHoy = m.planificacion?.[h]?.tema || 'Sin tema asignado';
             
             lHoy.innerHTML+=`
             <div class="bg-white p-3 rounded-lg border-l-4 border-nomade-blue shadow-sm mb-2">
                 <div class="flex justify-between items-start">
-                    <strong class="block text-nomade-blue text-sm">${m.nombre}</strong>
+                    <strong class="block text-nomade-blue text-sm uppercase">${m.nombre}</strong>
                     <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded text-gray-500 font-bold">${m.horario||''}</span>
                 </div>
-                <div class="flex items-center gap-2 mt-1">
-                    <span class="text-[10px] uppercase text-gray-400 font-bold">${m.modalidadBase}</span>
-                </div>
-                <div class="mt-2 pt-2 border-t border-dashed border-gray-100 text-xs text-gray-600">
-                    📝 ${temaHoy}
+                <div class="mt-2 text-xs text-gray-700">
+                    <span class="font-bold">HOY:</span> ${temaHoy}
                 </div>
             </div>`; 
         } 
     });
     
-    // Eventos extra (del calendario)
     if(userData.eventos?.[h]) userData.eventos[h].forEach(ev=>{ 
         hayClase=true; 
         lHoy.innerHTML+=`<div class="bg-white p-3 rounded-lg border-l-4 border-nomade-green shadow-sm mb-2"><span class="text-sm font-bold text-gray-700">${ev}</span></div>`; 
     }); 
     
-    if(!hayClase) lHoy.innerHTML='<span class="text-xs text-gray-400 italic">Nada para hoy. ¡A descansar!</span>'; 
+    if(!hayClase) lHoy.innerHTML='<span class="text-xs text-gray-400 italic">Hoy no tenés actividades agendadas.</span>'; 
 
-    // 3. PRÓXIMOS DÍAS (PLANIFICACIÓN SEMANAL)
+
+    // 3. PRÓXIMOS DÍAS (PLANIFICACIÓN SEMANAL) - ¡MODIFICADO!
     const lSem = document.getElementById('lista-semana');
     if(lSem) {
         lSem.innerHTML = '';
         let haySemana = false;
         
-        // Miramos los próximos 5 días
-        for(let i=1; i<=5; i++){
+        // Revisamos los próximos 7 días
+        for(let i=1; i<=7; i++){
             const next = new Date();
-            next.setDate(d.getDate() + i); // Sumamos días
+            next.setDate(d.getDate() + i); 
             
-            const nextDayName = dias[next.getDay()];
-            const nextDateShort = `${next.getDate()}/${next.getMonth()+1}`;
-            const nextIso = next.toISOString().split('T')[0];
+            const nextDayName = dias[next.getDay()]; // Ej: Lunes
+            const nextDateShort = `${next.getDate()}/${next.getMonth()+1}`; // Ej: 2/2
+            const nextIso = next.toISOString().split('T')[0]; // Para buscar en la DB
 
             if(userData.materias) {
                 userData.materias.forEach(m => {
+                    // Si el día de la materia coincide con el día que estamos revisando
                     if(m.dia === nextDayName){
                         haySemana = true;
-                        // Buscamos tema futuro
-                        const temaFuturo = m.planificacion?.[nextIso]?.tema || '';
                         
+                        // Buscamos si hay un tema planificado para esa fecha específica
+                        // Si no hay tema, pone "Sin contenido detallado" para que sepas que falta cargar
+                        const temaFuturo = m.planificacion?.[nextIso]?.tema || 'Sin contenido detallado';
+                        
+                        // Renderizado formato: LUNES 2/2 MATERIA: Contenido
                         lSem.innerHTML += `
-                        <div class="flex flex-col border-b border-gray-50 pb-2 mb-2 last:border-0">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-xs font-bold text-nomade-green">${nextDayName} ${nextDateShort}</span>
-                                <span class="text-[10px] text-gray-400">${m.horario || ''}</span>
+                        <div class="mb-3 border-b border-gray-100 pb-2 last:border-0">
+                            <div class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-0.5">
+                                ${nextDayName} ${nextDateShort}
                             </div>
-                            <span class="text-xs text-gray-700 font-medium">${m.nombre}</span>
-                            ${temaFuturo ? `<span class="text-[10px] text-gray-500 italic mt-0.5">📌 ${temaFuturo}</span>` : ''}
+                            <div class="text-xs text-gray-800 leading-snug">
+                                <strong class="text-nomade-blue uppercase">${m.nombre}:</strong> 
+                                <span class="text-gray-600">${temaFuturo}</span>
+                            </div>
                         </div>`;
                     }
                 });
             }
         }
-        if(!haySemana) lSem.innerHTML = '<span class="text-xs text-gray-400 italic">Agenda libre por los próximos 5 días.</span>';
+        if(!haySemana) lSem.innerHTML = '<span class="text-xs text-gray-400 italic">Nada programado para los próximos días.</span>';
     }
 
     renderTareas(); 
@@ -1161,6 +1162,7 @@ document.addEventListener('click', function() {
     </script>
 </body>
 </html>
+
 
 
 
