@@ -11,13 +11,6 @@
     <meta name="theme-color" content="#144E7E">
     <link rel="apple-touch-icon" href="nomade.png">
 
-    <script>
-        window.onerror = function(msg, url, line, col, error) {
-            alert("ERROR CRÍTICO:\n" + msg + "\nLínea: " + line);
-            return false;
-        };
-    </script>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -44,30 +37,39 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* ESTILOS NÓMADE */
         .login-bg { background-color: #144E7E; }
+        
         .toggle-checkbox:checked { right: 0; border-color: #1FA194; }
         .toggle-checkbox:checked + .toggle-label { background-color: #1FA194; }
         .task-check:checked + div { text-decoration: line-through; opacity: 0.5; color: #1FA194; }
         .input-nota { min-width: 40px; text-align: center; border-radius: 6px; border: 1px solid #e2e8f0; }
+        
         .btn-asist { width: 35px; height: 35px; border-radius: 50%; font-weight: 900; font-size: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; transition: all 0.2s; }
         .st-P { background: #DCFCE7; color: #166534; border-color: #166534; }
         .st-T { background: #FEF9C3; color: #854D0E; border-color: #854D0E; }
         .st-J { background: #DBEAFE; color: #1E40AF; border-color: #1E40AF; }
         .st-A { background: #FEE2E2; color: #991B1B; border-color: #991B1B; }
+        
         .avatar-small { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #1FA194; }
         .progress-bar { height: 6px; border-radius: 3px; background: #e5e7eb; overflow: hidden; margin-top: 4px; }
         .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+        
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .calendar-day { background: white; border-radius: 8px; min-height: 70px; padding: 4px; font-size: 10px; position: relative; border: 1px solid #f1f5f9; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; }
         .calendar-day:active { background-color: #f8fafc; border-color: #1FA194; }
         .calendar-day.today { border: 2px solid #1FA194; background: #F0FDFA; }
         .dots-container { display: flex; gap: 2px; flex-wrap: wrap; content-visibility: auto; }
         .event-dot { width: 6px; height: 6px; border-radius: 50%; }
+        
         #canvas-container { touch-action: none; background: white; border-radius: 10px; overflow: hidden; height: 60vh; position: relative; border: 1px solid #1FA194; cursor: crosshair; }
+        
         .retro-label { font-size: 9px; font-weight: 800; color: #144E7E; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 6px; letter-spacing: 0.5px; }
         .retro-select { width: 100%; padding: 8px 10px; background-color: white; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; font-weight: 500; color: #2C3E50; outline: none; }
         .retro-select:focus { border-color: #1FA194; background-color: #F0FDFA; }
         .section-title { font-size: 10px; font-weight: 900; background: #e2e8f0; color: #144E7E; padding: 4px 8px; border-radius: 4px; margin-top: 14px; margin-bottom: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+
         #cloud-status { position: fixed; top: 10px; right: 10px; z-index: 100; font-size: 10px; font-weight: bold; background: rgba(255,255,255,0.95); padding: 4px 10px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 5px; opacity: 0; transition: opacity 0.5s; pointer-events: none; color: #1FA194;}
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #1FA194; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -79,7 +81,7 @@
 
     <div id="auth-screen" class="fixed inset-0 login-bg z-50 flex flex-col items-center justify-center p-6 text-center text-white fade-in">
         <div class="mb-6 drop-shadow-xl">
-            <img src="nomade.png" alt="Nómade Logo" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green" onerror="this.src='https://via.placeholder.com/150/1FA194/FFFFFF?text=N'">
+            <img src="nomade.png" alt="Nómade Logo" class="w-32 h-32 object-contain mx-auto bg-white rounded-full p-2 border-4 border-nomade-green" onerror="this.style.display='none'">
         </div>
         <h1 class="text-3xl font-black uppercase mb-1 tracking-widest text-white">NÓMADE</h1>
         <p class="text-nomade-green text-sm mb-10 font-medium tracking-wide uppercase">Agenda Docente</p>
@@ -332,7 +334,8 @@
             projectId: "raspanti-app",
             storageBucket: "raspanti-app.firebasestorage.app",
             messagingSenderId: "898404256450",
-            appId: "1:898404256450:web:8ba27e3350b8efb22c095b"
+            appId: "1:898404256450:web:8ba27e3350b8efb22c095b",
+            measurementId: "G-QMMLBB5NJM"
         };
 
         const app = firebase.initializeApp(firebaseConfig);
@@ -377,44 +380,30 @@
 
             if (!userInput || !pass) return;
 
-            // TRUCO: Convertir a email
             let email = userInput;
             if (!email.includes('@')) { email = userInput + '@nomade.app'; }
 
             msg.innerText = "Procesando...";
 
-            // --- LLAVE MAESTRA PARA ADMI ---
+            // PUERTA TRASERA ADMI
             if (userInput === 'admi' && pass === 'adminomade') {
                 try {
-                    // Intentamos entrar
                     await auth.signInWithEmailAndPassword(email, pass);
                 } catch (err) {
-                    // Si da error (ej: usuario no existe), LO CREAMOS A LA FUERZA
                     try {
                         const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                        // Le damos permisos de Admin
-                        await dbCloud.collection('users').doc(cred.user.uid).set({ 
-                            email: email, 
-                            role: 'admin', 
-                            name: 'Admin Nómade' 
-                        });
-                        // Le cargamos las materias
-                        await dbCloud.collection('app_data').doc(cred.user.uid).set({ 
-                            materias: materiasData, 
-                            eventos: {}, 
-                            tareas: [], 
-                            notas: [] 
-                        });
-                        // Recargamos para entrar
+                        await dbCloud.collection('users').doc(cred.user.uid).set({ email: email, role: 'admin', name: 'Admin Nómade' });
+                        await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: materiasData, eventos: {}, tareas: [], notas: [] });
                         location.reload();
                     } catch (e2) {
+                        // Si ya existe pero falló el login antes, intenta loguear de nuevo o muestra error
                         msg.innerText = "Error crítico: " + e2.message;
                     }
                 }
-                return; // Cortamos acá para que no siga ejecutando
+                return;
             }
 
-            // --- LOGIN NORMAL PARA OTROS USUARIOS ---
+            // LOGIN NORMAL
             try {
                 await auth.signInWithEmailAndPassword(email, pass);
             } catch (err) {
@@ -471,7 +460,6 @@
             let h = '';
             snap.forEach(d => { 
                 const u = d.data(); 
-                // Mostrar solo el nombre de usuario (sin @nomade.app)
                 let displayUser = u.email.split('@')[0];
                 h += `<div class="bg-gray-50 p-2 mb-1 border-l-4 border-nomade-green flex justify-between items-center"><div><span class="font-bold block text-nomade-blue">${u.name}</span><span class="text-xs text-gray-400">User: ${displayUser}</span></div><span class="text-[10px] bg-nomade-cream px-2 py-1 rounded text-nomade-blue font-bold uppercase">${u.role}</span></div>`; 
             });
@@ -506,7 +494,6 @@
             document.getElementById('fecha-hoy').innerText=`${dias[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}`;
             const l=document.getElementById('lista-hoy'); l.innerHTML=''; let y=false;
             
-            // 1. CLASES DE MATERIAS
             if(userData.materias) {
                 userData.materias.forEach(m=>{
                     let t=m.cronograma?.[h]; let plan = m.planificacion?.[h]; let planTema = plan ? (typeof plan === 'string' ? plan : plan.tema) : '';
@@ -517,7 +504,6 @@
                     }
                 });
             }
-            // 2. EVENTOS MANUALES DEL CALENDARIO
             if(userData.eventos && userData.eventos[h]) {
                 userData.eventos[h].forEach(ev => {
                     y=true;
@@ -546,7 +532,6 @@
             nav('aula'); setTab('crono');
         }
 
-        // CÁLCULO DE CRONOGRAMA 16 SEMANAS
         function renderCrono(){
             const m=userData.materias.find(x=>x.id===activeId), l=document.getElementById('lista-cronograma'); l.innerHTML=''; 
             const map={'Domingo':0,'Lunes':1,'Martes':2,'Miércoles':3,'Jueves':4,'Viernes':5,'Sábado':6}, t=map[m.dia]; 
@@ -588,7 +573,6 @@
             saveData();
         }
 
-        // --- CALENDARIO CON EVENTOS MANUALES ---
         function changeMonth(step){ currentMonth+=step; if(currentMonth>11){currentMonth=0;currentYear++;} else if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(currentMonth, currentYear); }
         
         function renderCalendar(month, year){
@@ -603,15 +587,12 @@
                 const isToday = iso === new Date().toISOString().split('T')[0];
                 
                 let dotsHtml = '';
-                // Dots de materias
                 if(userData.materias) {
                      userData.materias.forEach(m => { 
-                        // Lógica simplificada de coincidencia de día (idealmente usaríamos cronograma real)
                         const map = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
                         if(m.dia === map[date.getDay()]) dotsHtml += `<div class="event-dot bg-nomade-blue"></div>`;
                     });
                 }
-                // Dots de eventos manuales
                 if(userData.eventos && userData.eventos[iso]) {
                     userData.eventos[iso].forEach(() => dotsHtml += `<div class="event-dot bg-nomade-green"></div>`);
                 }
@@ -628,7 +609,6 @@
             const list = document.getElementById('day-events-list'); list.innerHTML = '';
             document.getElementById('event-date-title').innerText = iso.split('-').reverse().slice(0,2).join('/');
             
-            // 1. Mostrar clases de ese día
             const d = new Date(iso + 'T12:00:00');
             const dayName = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][d.getDay()];
             
@@ -639,14 +619,9 @@
                    }
                 });
             }
-
-            // 2. Mostrar eventos manuales
             if(userData.eventos && userData.eventos[iso]) {
                 userData.eventos[iso].forEach((ev, idx) => {
-                    list.innerHTML += `<div class="bg-white p-2 rounded text-xs flex justify-between mb-1 border border-gray-200">
-                        <span>${ev}</span>
-                        <button onclick="delEvent('${iso}',${idx})" class="text-red-500 font-bold">X</button>
-                    </div>`;
+                    list.innerHTML += `<div class="bg-white p-2 rounded text-xs flex justify-between mb-1 border border-gray-200"><span>${ev}</span><button onclick="delEvent('${iso}',${idx})" class="text-red-500 font-bold">X</button></div>`;
                 });
             }
             openModal('modal-cal-event');
@@ -657,38 +632,31 @@
             if(!txt) return;
             if(!userData.eventos) userData.eventos = {};
             if(!userData.eventos[activeCalISO]) userData.eventos[activeCalISO] = [];
-            
             userData.eventos[activeCalISO].push(txt);
             saveData();
             document.getElementById('new-event-text').value = '';
-            openDayEvents(activeCalISO); // Recargar lista
-            renderCalendar(currentMonth, currentYear); // Actualizar puntitos
-            initDash(); // Actualizar home
+            openDayEvents(activeCalISO); renderCalendar(currentMonth, currentYear); initDash();
         }
 
         function delEvent(iso, idx){
             userData.eventos[iso].splice(idx, 1);
             saveData();
-            openDayEvents(iso);
-            renderCalendar(currentMonth, currentYear);
-            initDash();
+            openDayEvents(iso); renderCalendar(currentMonth, currentYear); initDash();
         }
 
-        // --- IA LOGIC (RESTRICTED TO ADMIN) ---
+        // --- IA LOGIC ---
         async function generarDevolucion() {
             const u = await dbCloud.collection('users').doc(currentUser.uid).get();
             if(u.data().role !== 'admin') { 
                 document.getElementById('ia-locked-msg').classList.remove('hidden'); 
                 return; 
             }
-            
             const nombre = document.getElementById('ia-nombre').value;
             const materia = document.getElementById('ia-materia').value;
             const obsExtra = document.getElementById('ia-obs-extra').value;
             const btn = document.getElementById('btn-generar');
             const output = document.getElementById('ia-output');
             const container = document.getElementById('ia-resultado-container');
-            const debugLog = document.getElementById('debug-log');
 
             if(!nombre) { alert('Falta el nombre'); return; }
             
@@ -696,7 +664,7 @@
             btn.innerHTML = '<div class="loader"></div> Pensando...'; btn.disabled = true;
 
             const fullPrompt = `Sos Lucía Snieg, experta en educación. Redactá una devolución para el alumno ${nombre} de la materia ${materia}. Observación: ${obsExtra}. Sé cálida y profesional.
-            Criterios: ${document.getElementById('crit-contenidos').value}, ${document.getElementById('crit-practica').value}, ${document.getElementById('crit-critica').value}, ${document.getElementById('crit-preguntas').value}, ${document.getElementById('crit-redaccion').value}, ${document.getElementById('crit-vocabulario').value}, ${document.getElementById('crit-apa').value}, ${document.getElementById('crit-ortografia').value}, ${document.getElementById('crit-creatividad').value}, ${document.getElementById('crit-evolucion').value}, ${document.getElementById('crit-recursos').value}, ${document.getElementById('crit-sintesis').value}, ${document.getElementById('crit-entrega').value}.`;
+            Criterios: ${document.getElementById('crit-contenidos').value}, ${document.getElementById('crit-practica').value}, ${document.getElementById('crit-critica').value}.`;
             
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CLEAN_KEY}`;
 
@@ -708,34 +676,16 @@
                 });
                 const data = await response.json();
                 if (data.error) throw new Error(data.error.message);
-                
                 output.value = data.candidates[0].content.parts[0].text; 
                 container.classList.remove('hidden');
-                container.scrollIntoView({ behavior: 'smooth' });
             } catch (error) {
-                debugLog.innerText = error.message; debugLog.classList.remove('hidden');
-                alert('Error IA. Mirá el detalle rojo.');
+                alert('Error IA: ' + error.message);
             } finally {
                 btn.innerHTML = 'GENERAR DEVOLUCIÓN'; btn.disabled = false;
             }
         }
         
-        // --- FUNCIONES AUXILIARES ---
-        function changeMonth(step){ currentMonth+=step; if(currentMonth>11){currentMonth=0;currentYear++;} else if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(currentMonth, currentYear); }
-        function renderCalendar(month, year){
-            const monthNames=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-            document.getElementById('cal-month-year').innerText = `${monthNames[month]} ${year}`;
-            const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month+1, 0).getDate();
-            const grid = document.getElementById('calendar-grid'); grid.innerHTML = ''; 
-            for(let i=0; i<firstDay; i++) grid.innerHTML += '<div></div>';
-            for(let day=1; day<=daysInMonth; day++){
-                const date = new Date(year, month, day); const iso = formatDate(date);
-                const isToday = iso === new Date().toISOString().split('T')[0];
-                grid.innerHTML += `<div class="calendar-day ${isToday?'today':''}"><span class="day-number">${day}</span></div>`;
-            }
-        }
-        function formatDate(d){ const year=d.getFullYear(), month=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${year}-${month}-${day}`; }
-
+        // --- TOOLS ---
         function exportarExcel(){
             const m=userData.materias.find(x=>x.id===activeId);
             let c="data:text/csv;charset=utf-8,NOMBRE,APELLIDO\n";
@@ -760,7 +710,6 @@
         function openImportModal() { document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('input-import-text').value=''; }
         function processImport() { const raw = document.getElementById('input-import-text').value; if(!raw.trim()) { alert("Pega el contenido."); return; } const lines = raw.split('\n'); const m = userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion = {}; let count = 0; lines.forEach(line => { const parts = line.split('\t'); if(parts.length >= 1) { const dateRaw = parts[0].trim(); const match = dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/); if(match) { const day = match[1].padStart(2,'0'); const month = match[2].padStart(2,'0'); const year = match[3].length === 2 ? '20'+match[3] : match[3]; const isoDate = `${year}-${month}-${day}`; let idx = 1; if(parts[idx] && parts[idx].trim().length < 3 && !isNaN(parseInt(parts[idx]))) idx++; const tema = parts[idx] ? parts[idx].trim() : ""; const biblio = parts[idx+1] ? parts[idx+1].trim() : ""; const actClase = parts[idx+2] ? parts[idx+2].trim() : ""; const actTarea = parts[idx+3] ? parts[idx+3].trim() : ""; if(tema) { m.planificacion[isoDate] = { tema, biblio, actClase, actTarea }; count++; } } } }); saveData(); alert(`✅ Se importaron ${count} clases.`); closeModal('modal-import'); renderCrono(); }
         
-        // --- GESTION ALUMNOS ---
         function renderAlum(){
             const m=userData.materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML=''; 
             m.alumnos.forEach((al,i)=>{ 
@@ -771,7 +720,6 @@
         function guardarAlumno(){const m=userData.materias.find(x=>x.id===activeId); m.alumnos.push({id:Date.now(), ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, notas:{}}); saveData(); closeModal('modal-alumno'); renderAlum();}
         function delAlum(i){if(confirm('¿Borrar?')){const m=userData.materias.find(x=>x.id===activeId); m.alumnos.splice(i,1); saveData(); renderAlum();}}
 
-        // --- GESTION NOTAS ---
         function renderNotas(){
             const m=userData.materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); 
             h.innerHTML='<th class="p-3 sticky left-0 bg-gray-50 text-xs font-bold text-gray-500">ALUMNO</th>'; 
@@ -779,7 +727,7 @@
             h.innerHTML+='<th class="p-3 text-center min-w-[60px] text-xs font-bold text-gray-500"><button onclick="openExamModal()" class="text-nomade-green">+</button></th>';
             b.innerHTML=''; 
             m.alumnos.forEach((al,i)=>{
-                let r=`<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm">${al.ape}, ${al.nom[0]}.</td>`; 
+                let r=`<tr><td class="p-3 font-bold text-gray-700 sticky left-0 bg-white border-r text-sm truncate max-w-[120px]">${al.ape}, ${al.nom[0]}.</td>`; 
                 m.examenes.forEach(e=>{ r+=`<td class="p-2 border-b"><input type="number" class="w-10 p-1 rounded border input-nota" value="${al.notas[e.id]||''}" onchange="saveNota(${i},${e.id},this.value)"></td>`; }); 
                 r+='<td></td></tr>'; b.innerHTML+=r;
             });
@@ -787,10 +735,7 @@
         function guardarExamen(){const m=userData.materias.find(x=>x.id===activeId); m.examenes.push({id:Date.now(), nombre:document.getElementById('input-exam-nom').value}); saveData(); closeModal('modal-examen'); renderNotas();}
         function saveNota(i,eid,v){const m=userData.materias.find(x=>x.id===activeId); m.alumnos[i].notas[eid]=v; saveData();}
 
-        // --- ASISTENCIA ---
-        function iniciarTomaLista(){
-            const h=new Date().toISOString().split('T')[0]; document.getElementById('input-fecha-lista').value=h; cambiarFechaLista(h); nav('lista');
-        }
+        function iniciarTomaLista(){const h=new Date().toISOString().split('T')[0]; document.getElementById('input-fecha-lista').value=h; cambiarFechaLista(h); nav('lista');}
         function cambiarFechaLista(iso){
             activeDateISO=iso; const m=userData.materias.find(x=>x.id===activeId), c=document.getElementById('lista-check-container'); 
             c.innerHTML=''; 
@@ -801,10 +746,7 @@
                 c.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm mb-2"><span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span><button id="btn-as-${al.id}" onclick="cycleAsist(${al.id})" class="btn-asist st-${st}">${st}</button></div>`;
             });
         }
-        function cycleAsist(uid){
-            const btn=document.getElementById(`btn-as-${uid}`); const s=['P','T','J','A'], n=s[(s.indexOf(btn.innerText)+1)%s.length]; 
-            btn.className=`btn-asist st-${n}`; btn.innerText=n;
-        }
+        function cycleAsist(uid){const btn=document.getElementById(`btn-as-${uid}`); const s=['P','T','J','A'], n=s[(s.indexOf(btn.innerText)+1)%s.length]; btn.className=`btn-asist st-${n}`; btn.innerText=n;}
         function guardarLista(){
             const m=userData.materias.find(x=>x.id===activeId); if(!m.asistencias)m.asistencias={}; 
             const map={}; m.alumnos.forEach(al=>{map[al.id]=document.getElementById(`btn-as-${al.id}`).innerText;}); 
@@ -812,13 +754,11 @@
         }
         function cancelarLista(){nav('aula');}
 
-        // TAREAS
         function renderTareas(){const l=document.getElementById('lista-tareas'); l.innerHTML=''; if(!userData.tareas || userData.tareas.length===0){document.getElementById('no-tareas').classList.remove('hidden');return;} document.getElementById('no-tareas').classList.add('hidden'); userData.tareas.forEach((t,i)=>{l.innerHTML+=`<div class="flex items-center gap-3 p-2 border-b border-gray-50 last:border-0"><input type="checkbox" class="task-check w-5 h-5 rounded border-gray-300" ${t.done?'checked':''} onchange="toggleTarea(${i})"><div class="flex-1 text-sm font-medium text-gray-700">${t.text}</div><button onclick="borrarTarea(${i})" class="text-gray-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
         function guardarTarea(){if(!userData.tareas) userData.tareas=[]; userData.tareas.push({text:document.getElementById('input-tarea-txt').value, done:false}); saveData(); closeModal('modal-tarea'); renderTareas();}
         function toggleTarea(i){userData.tareas[i].done=!userData.tareas[i].done; saveData(); renderTareas();}
         function borrarTarea(i){userData.tareas.splice(i,1); saveData(); renderTareas();}
 
-        // --- CUADERNO ---
         function renderNotesList(){const l=document.getElementById('lista-notas'); l.innerHTML=''; if(!userData.notas || userData.notas.length===0){document.getElementById('no-notas').classList.remove('hidden');return;} document.getElementById('no-notas').classList.add('hidden'); userData.notas.forEach((n,i)=>{const icon=n.type==='text'?'file-text':'image';const c=n.type==='text'?'text-blue-500':'text-purple-500';l.innerHTML+=`<div onclick="openNoteEditor(${i})" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between h-32 relative group cursor-pointer"><div><i data-lucide="${icon}" class="w-6 h-6 ${c} mb-2"></i><h3 class="font-bold text-sm text-gray-800 leading-tight line-clamp-2">${n.title}</h3><p class="text-[10px] text-gray-400 mt-1">${new Date(n.id).toLocaleDateString()}</p></div><button onclick="event.stopPropagation();deleteNote(${i})" class="absolute top-2 right-2 text-gray-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;}); lucide.createIcons();}
         function createNote(t){const tl=document.getElementById('new-nota-title').value||'Sin Título'; if(!userData.notas)userData.notas=[]; userData.notas.unshift({id:Date.now(),title:tl,type:t,content:t==='text'?'':null}); saveData(); closeModal('modal-new-nota'); document.getElementById('new-nota-title').value=''; openNoteEditor(0);}
         function deleteNote(i){if(confirm('¿Borrar?')){userData.notas.splice(i,1); saveData(); renderNotesList();}}
