@@ -375,28 +375,196 @@
         function setReceso(iso) { const m = userData.materias.find(x => x.id === activeId); if (!m.cronograma) m.cronograma = {}; m.cronograma[iso] = 'Receso'; saveData(); renderCrono(); }
         function saveTema(iso,val){ const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={}; if(!m.planificacion[iso]) m.planificacion[iso]={}; m.planificacion[iso].tema=val; saveData(); }
 
-        // CUADERNO MEJORADO
-        let penColor='#000000', penSize=2;
-        function setDrawColor(c){ penColor=c; penSize=2; } function setDrawSize(s){ penSize=s; }
-        function setTool(t){ if(t==='eraser'){penColor='#FFFFFF';penSize=20;} else {penColor=document.getElementById('draw-color').value; penSize=document.getElementById('draw-size').value;} }
-        let canvas, ctx, drawing=false, lastX=0, lastY=0;
-        function openNoteEditor(i){ const n=userData.notas[i]||{title:'', content:''}; activeNoteId=n.id; document.getElementById('editor-title').innerText=n.title; const t=document.getElementById('editor-text'), d=document.getElementById('editor-draw'); document.getElementById('editor-nota').classList.remove('hidden'); if(n.type==='draw'){t.classList.add('hidden');d.classList.remove('hidden');initCanvas(n.content);}else{t.classList.remove('hidden');d.classList.add('hidden');t.value=n.content||'';} }
-        function closeEditor(){ document.getElementById('editor-nota').classList.add('hidden'); renderNotesList(); }
-        function initCanvas(src){ canvas=document.getElementById('drawing-canvas'); ctx=canvas.getContext('2d'); const p=document.getElementById('canvas-container'); canvas.width=p.clientWidth; canvas.height=p.clientHeight; ctx.fillStyle="white"; ctx.fillRect(0,0,canvas.width,canvas.height); if(src){const i=new Image(); i.onload=()=>ctx.drawImage(i,0,0); i.src=src;} 
-            const start = (e) => { drawing = true; const r = canvas.getBoundingClientRect(); lastX = (e.clientX || e.touches[0].clientX) - r.left; lastY = (e.clientY || e.touches[0].clientY) - r.top; e.preventDefault(); };
-            const move = (e) => { if (!drawing) return; const r = canvas.getBoundingClientRect(); const x = (e.clientX || e.touches[0].clientX) - r.left; const y = (e.clientY || e.touches[0].clientY) - r.top; ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(x, y); ctx.strokeStyle = penColor; ctx.lineWidth = penSize; ctx.lineCap = 'round'; ctx.stroke(); lastX = x; lastY = y; e.preventDefault(); };
-            const end = () => { drawing = false; };
-            canvas.onmousedown = start; canvas.onmousemove = move; canvas.onmouseup = end;
-            canvas.ontouchstart = start; canvas.ontouchmove = move; canvas.ontouchend = end;
-        }
-        function saveCurrentNote(){ const i=userData.notas.findIndex(n=>n.id===activeNoteId); if(i===-1)return; if(userData.notas[i].type==='text'){userData.notas[i].content=document.getElementById('editor-text').value;}else{userData.notas[i].content=canvas.toDataURL();} saveData(); alert('Guardado'); closeEditor(); }
-        function createNote(type){ 
-            if(!userData.notas) userData.notas = [];
-            userData.notas.unshift({id:Date.now(), title:document.getElementById('new-nota-title').value, type:type, content:''}); 
-            saveData(); closeModal('modal-new-nota'); renderNotesList(); 
-        }
-        function renderNotesList(){ const l=document.getElementById('lista-notas'); l.innerHTML=''; if(userData.notas) userData.notas.forEach((n,i)=>l.innerHTML+=`<div onclick="openNoteEditor(${i})" class="bg-white p-4 shadow rounded cursor-pointer font-bold border-l-4 ${n.type==='text'?'border-blue-500':'border-purple-500'}">${n.title}</div>`); }
-        function clearCanvas(){ctx.fillStyle="white";ctx.fillRect(0,0,canvas.width,canvas.height);}
+       // ==========================================
+// 📓 PARCHE CUADERNO CORREGIDO (V45)
+// ==========================================
+
+// Variables de dibujo
+let penColor='#000000', penSize=2;
+let canvas, ctx, drawing=false, lastX=0, lastY=0;
+
+// Configuración de Herramientas
+function setDrawColor(c){ penColor=c; penSize=2; } 
+function setDrawSize(s){ penSize=s; }
+function setTool(t){ 
+    if(t==='eraser'){
+        penColor='#FFFFFF';
+        penSize=20; 
+    } else {
+        penColor=document.getElementById('draw-color').value; 
+        penSize=document.getElementById('draw-size').value;
+    } 
+}
+
+// 1. CREAR NOTA (Ahora entra directo)
+function createNote(type){ 
+    if(!userData.notas) userData.notas = [];
+    
+    const title = document.getElementById('new-nota-title').value || 'Nueva Nota';
+    
+    // Agregamos al principio del array
+    userData.notas.unshift({
+        id: Date.now(), 
+        title: title, 
+        type: type, 
+        content: '' // Empieza vacía
+    }); 
+    
+    saveData(); 
+    closeModal('modal-new-nota'); 
+    
+    // Limpiamos el input para la próxima
+    document.getElementById('new-nota-title').value = '';
+    
+    // ¡MAGIA! Abrimos la nota recién creada (índice 0)
+    openNoteEditor(0);
+}
+
+// 2. LISTAR NOTAS (Con botón de borrar recuperado)
+function renderNotesList(){ 
+    const l = document.getElementById('lista-notas'); 
+    l.innerHTML = ''; 
+    
+    if(!userData.notas || userData.notas.length === 0) {
+        document.getElementById('no-notas').classList.remove('hidden');
+        return;
+    }
+    document.getElementById('no-notas').classList.add('hidden');
+
+    userData.notas.forEach((n,i) => {
+        // Icono según tipo
+        const icon = n.type === 'text' ? 'type' : 'pen-tool';
+        const border = n.type === 'text' ? 'border-blue-500' : 'border-purple-500';
+
+        l.innerHTML += `
+        <div onclick="openNoteEditor(${i})" class="bg-white p-4 shadow-sm rounded-xl cursor-pointer border-l-4 ${border} relative group hover:shadow-md transition">
+            <div class="flex justify-between items-center">
+                <div class="font-bold text-sm text-gray-700 truncate pr-8">${n.title}</div>
+                <i data-lucide="${icon}" class="w-4 h-4 text-gray-300"></i>
+            </div>
+            <button onclick="event.stopPropagation(); deleteNote(${i})" class="absolute top-2 right-2 text-gray-300 hover:text-red-500 p-1">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+        </div>`;
+    });
+    lucide.createIcons();
+}
+
+// 3. BORRAR NOTA
+function deleteNote(i){
+    if(confirm("¿Seguro querés borrar esta nota? No se puede recuperar.")){
+        userData.notas.splice(i, 1);
+        saveData();
+        renderNotesList();
+    }
+}
+
+// 4. ABRIR EDITOR (Texto o Dibujo)
+function openNoteEditor(i){ 
+    const n = userData.notas[i]; 
+    activeNoteId = n.id; // Guardamos ID global para saber cuál guardar después
+    
+    document.getElementById('editor-title').innerText = n.title; 
+    const t = document.getElementById('editor-text');
+    const d = document.getElementById('editor-draw'); 
+    
+    // Mostrar el editor
+    document.getElementById('editor-nota').classList.remove('hidden'); 
+    
+    if(n.type === 'draw'){
+        t.classList.add('hidden');
+        d.classList.remove('hidden');
+        // Importante: Inicializar canvas DESPUÉS de quitar 'hidden' para que tenga tamaño real
+        initCanvas(n.content);
+    } else {
+        t.classList.remove('hidden');
+        d.classList.add('hidden');
+        t.value = n.content || '';
+    } 
+}
+
+// 5. CERRAR EDITOR
+function closeEditor(){ 
+    document.getElementById('editor-nota').classList.add('hidden'); 
+    renderNotesList(); // Refrescar lista por si cambió el título o algo (opcional)
+}
+
+// 6. GUARDAR LO QUE HICISTE
+function saveCurrentNote(){ 
+    const i = userData.notas.findIndex(n => n.id === activeNoteId); 
+    if(i === -1) return; 
+    
+    if(userData.notas[i].type === 'text'){
+        userData.notas[i].content = document.getElementById('editor-text').value;
+    } else {
+        userData.notas[i].content = canvas.toDataURL(); // Guardar dibujo como imagen
+    } 
+    
+    saveData(); 
+    alert('✅ Guardado'); 
+    // No cerramos el editor para que puedas seguir editando si querés
+}
+
+// 7. LÓGICA DE CANVAS (DIBUJO)
+function initCanvas(src){ 
+    canvas = document.getElementById('drawing-canvas'); 
+    ctx = canvas.getContext('2d'); 
+    const p = document.getElementById('canvas-container'); 
+    
+    // Ajustar tamaño al contenedor padre
+    canvas.width = p.clientWidth; 
+    canvas.height = p.clientHeight; 
+    
+    // Fondo blanco (importante para que no sea transparente al guardar)
+    ctx.fillStyle = "white"; 
+    ctx.fillRect(0,0,canvas.width,canvas.height); 
+    
+    // Si ya había dibujo, cargarlo
+    if(src){
+        const img = new Image(); 
+        img.onload = () => ctx.drawImage(img,0,0); 
+        img.src = src;
+    } 
+    
+    // Eventos Mouse/Touch
+    const start = (e) => { 
+        drawing = true; 
+        const r = canvas.getBoundingClientRect(); 
+        lastX = (e.clientX || e.touches[0].clientX) - r.left; 
+        lastY = (e.clientY || e.touches[0].clientY) - r.top; 
+        e.preventDefault(); 
+    };
+    
+    const move = (e) => { 
+        if (!drawing) return; 
+        const r = canvas.getBoundingClientRect(); 
+        const x = (e.clientX || e.touches[0].clientX) - r.left; 
+        const y = (e.clientY || e.touches[0].clientY) - r.top; 
+        
+        ctx.beginPath(); 
+        ctx.moveTo(lastX, lastY); 
+        ctx.lineTo(x, y); 
+        ctx.strokeStyle = penColor; 
+        ctx.lineWidth = penSize; 
+        ctx.lineCap = 'round'; 
+        ctx.stroke(); 
+        
+        lastX = x; lastY = y; 
+        e.preventDefault(); 
+    };
+    
+    const end = () => { drawing = false; };
+    
+    canvas.onmousedown = start; canvas.onmousemove = move; canvas.onmouseup = end;
+    canvas.ontouchstart = start; canvas.ontouchmove = move; canvas.ontouchend = end;
+}
+
+function clearCanvas(){
+    if(confirm("¿Borrar todo el dibujo?")){
+        ctx.fillStyle="white";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
+}
 
         // OTROS
         function crearUsuarioDocente() { let u = document.getElementById('new-user-username').value; let n = document.getElementById('new-user-fullname').value; if(!u) return alert("Falta usuario"); document.getElementById('admin-user-list').innerHTML += `<div class="bg-gray-50 p-2 mb-1 border-l-4 border-nomade-green flex justify-between items-center"><div><span class="font-bold block text-nomade-blue">${n}</span><span class="text-xs text-gray-400">User: ${u}</span></div><span class="text-[10px] bg-nomade-cream px-2 py-1 rounded text-nomade-blue font-bold uppercase">Creado</span></div>`; alert(`✅ Usuario "${u}" habilitado localmente.`); }
@@ -430,59 +598,307 @@
         
         // EXPORTACION
         function openExportModal(type){ document.getElementById('export-type').value=type; openModal('modal-export'); }
-        function executeExport(){
-            const type = document.getElementById('export-type').value;
-            const incList = document.getElementById('exp-lista').checked;
-            const incAsist = document.getElementById('exp-asist').checked;
-            const incNotas = document.getElementById('exp-notas').checked;
-            const incPlan = document.getElementById('exp-plan').checked;
-            const m = userData.materias.find(x=>x.id===activeId);
-            
-            if(type === 'xls'){
-                let csv = "data:text/csv;charset=utf-8,";
-                if(incList) csv += "APELLIDO,NOMBRE";
-                if(incAsist) csv += ",ASISTENCIA(%)";
-                if(incNotas) m.examenes.forEach(e => csv += "," + e.nombre);
-                csv += "\n";
-                m.alumnos.forEach(a => {
-                    if(incList) csv += `${a.ape},${a.nom}`;
-                    if(incAsist) {
-                        let tot=0, pres=0; if(m.asistencias) Object.values(m.asistencias).forEach(d=>{tot++; if(d[a.id]==='P') pres++;});
-                        csv += `,${tot>0 ? Math.round((pres/tot)*100) : 0}%`;
-                    }
-                    if(incNotas) m.examenes.forEach(e => csv += `,${a.notas[e.id]||''}`);
-                    csv += "\n";
-                });
-                const link = document.createElement("a"); link.setAttribute("href", encodeURI(csv)); link.setAttribute("download", `Reporte_${m.nombre}.csv`); document.body.appendChild(link); link.click();
-            } else {
-                const { jsPDF } = window.jspdf; const doc = new jsPDF();
-                doc.setFontSize(18); doc.text(m.nombre, 14, 20); doc.setFontSize(12);
-                if(incList){
-                    const head = [['Apellido', 'Nombre']];
-                    if(incAsist) head[0].push('Asistencia');
-                    if(incNotas) m.examenes.forEach(e => head[0].push(e.nombre));
-                    const body = m.alumnos.map(a => {
-                        const row = [a.ape, a.nom];
-                        if(incAsist) {
-                            let tot=0, pres=0; if(m.asistencias) Object.values(m.asistencias).forEach(d=>{tot++; if(d[a.id]==='P') pres++;});
-                            row.push(`${tot>0 ? Math.round((pres/tot)*100) : 0}%`);
-                        }
-                        if(incNotas) m.examenes.forEach(e => row.push(a.notas[e.id]||'-'));
-                        return row;
-                    });
-                    doc.autoTable({ startY: 30, head: head, body: body });
-                }
-                if(incPlan){
-                    doc.addPage(); doc.text("Planificación", 14, 20);
-                    const pBody = Object.entries(m.planificacion).map(([k,v]) => [k, v.tema]);
-                    doc.autoTable({ head: [['Fecha', 'Tema']], body: pBody });
-                }
-                doc.save(`Reporte_${m.nombre}.pdf`);
-            }
-            closeModal('modal-export');
+       // ==========================================
+// 📊 PARCHE EXPORTACIÓN DETALLADA (V46)
+// ==========================================
+
+function executeExport() {
+    const type = document.getElementById('export-type').value;
+    const incList = document.getElementById('exp-lista').checked; // Lista de nombres
+    const incAsist = document.getElementById('exp-asist').checked; // Grilla de Fechas
+    const incNotas = document.getElementById('exp-notas').checked; // Notas
+    const incPlan = document.getElementById('exp-plan').checked; // Planificación
+    
+    const m = userData.materias.find(x => x.id === activeId);
+    if (!m) return;
+
+    // 1. Obtener todas las fechas donde se tomó lista (ordenadas)
+    // Esto busca en el objeto asistencias todas las fechas registradas
+    const fechasAsist = m.asistencias ? Object.keys(m.asistencias).sort() : [];
+
+    // --- MODO EXCEL (CSV) ---
+    if (type === 'xls') {
+        let csv = "data:text/csv;charset=utf-8,";
+        
+        // --- CABECERAS ---
+        if (incList) csv += "APELLIDO,NOMBRE";
+        
+        // Cabeceras de Fechas (si se pide asistencia)
+        if (incAsist) {
+            fechasAsist.forEach(f => {
+                // Convertir 2026-03-20 a 20/03
+                const fechaCorta = f.split('-').reverse().slice(0,2).join('/');
+                csv += `,${fechaCorta}`;
+            });
+            csv += ",% FINAL"; // Columna extra de resumen
         }
 
-        window.onload = function() { lucide.createIcons(); };
+        // Cabeceras de Notas
+        if (incNotas) {
+            m.examenes.forEach(e => csv += "," + e.nombre);
+        }
+        csv += "\n";
+
+        // --- FILAS ---
+        m.alumnos.forEach(a => {
+            if (incList) csv += `${a.ape},${a.nom}`;
+            
+            // Celdas de Asistencia
+            if (incAsist) {
+                let totalClases = 0;
+                let totalPresentes = 0;
+
+                fechasAsist.forEach(f => {
+                    let estado = m.asistencias[f][a.id] || '-';
+                    
+                    // REGLA: Si es Tarde (T), imprime Presente (P)
+                    if (estado === 'T') estado = 'P';
+                    
+                    csv += `,${estado}`;
+
+                    // Calculo interno para el porcentaje final
+                    if(estado !== '-') totalClases++;
+                    if(estado === 'P') totalPresentes++;
+                });
+
+                // Columna de porcentaje
+                const porcentaje = totalClases > 0 ? Math.round((totalPresentes/totalClases)*100) : 0;
+                csv += `,${porcentaje}%`;
+            }
+
+            // Celdas de Notas
+            if (incNotas) {
+                m.examenes.forEach(e => {
+                    const n = a.notas[e.id] || '';
+                    csv += `,${n}`;
+                });
+            }
+            csv += "\n";
+        });
+        
+        // Descargar CSV
+        const link = document.createElement("a"); 
+        link.setAttribute("href", encodeURI(csv)); 
+        link.setAttribute("download", `Planilla_${m.nombre}.csv`); 
+        document.body.appendChild(link); 
+        link.click(); 
+        link.remove();
+
+    } 
+    // --- MODO PDF ---
+    else {
+        const { jsPDF } = window.jspdf; 
+        const doc = new jsPDF('l'); // 'l' = Landscape (Horizontal) para que entren las fechas
+        
+        doc.setFontSize(18); 
+        doc.text(`Planilla: ${m.nombre}`, 14, 15); 
+        doc.setFontSize(10);
+        doc.text(`Horario: ${m.horario || '-'}`, 14, 22);
+
+        // Construir Cabecera PDF
+        const headRow = [];
+        if (incList) headRow.push('Apellido', 'Nombre');
+        
+        if (incAsist) {
+            fechasAsist.forEach(f => {
+                // Fecha corta vertical para ahorrar espacio
+                headRow.push(f.split('-').reverse().slice(0,2).join('/'));
+            });
+            headRow.push('%');
+        }
+        
+        if (incNotas) {
+            m.examenes.forEach(e => headRow.push(e.nombre));
+        }
+
+        // Construir Cuerpo PDF
+        const body = m.alumnos.map(a => {
+            const row = [];
+            if (incList) {
+                row.push(a.ape, a.nom);
+            }
+            
+            if (incAsist) {
+                let totalClases = 0;
+                let totalPresentes = 0;
+
+                fechasAsist.forEach(f => {
+                    let estado = m.asistencias[f][a.id] || '-';
+                    // REGLA PDF: Tarde se ve como P
+                    if (estado === 'T') estado = 'P';
+                    
+                    row.push(estado);
+
+                    if(estado !== '-') totalClases++;
+                    if(estado === 'P') totalPresentes++;
+                });
+                const porc = totalClases > 0 ? Math.round((totalPresentes/totalClases)*100) + '%' : '-';
+                row.push(porc);
+            }
+
+            if (incNotas) {
+                m.examenes.forEach(e => row.push(a.notas[e.id] || '-'));
+            }
+            return row;
+        });
+
+        // Generar Tabla Principal
+        if (incList || incAsist || incNotas) {
+            doc.autoTable({
+                startY: 30,
+                head: [headRow],
+                body: body,
+                theme: 'grid',
+                styles: { fontSize: 8, cellPadding: 1 }, // Letra chica para que entre todo
+                headStyles: { fillColor: [20, 78, 126], textColor: 255 }
+            });
+        }
+
+        // Generar Tabla de Planificación (En otra hoja si se pide)
+        if (incPlan) {
+            doc.addPage();
+            doc.setFontSize(16);
+            doc.text("Planificación de Clases", 14, 20);
+            
+            // Ordenar fechas de planificación
+            const fechasPlan = Object.keys(m.planificacion || {}).sort();
+            const bodyPlan = fechasPlan.map(f => {
+                const item = m.planificacion[f];
+                // Formatear fecha
+                const fechaNice = f.split('-').reverse().join('/');
+                return [fechaNice, item.tema || '-', item.actClase || '-', item.actTarea || '-'];
+            });
+
+            doc.autoTable({
+                startY: 25,
+                head: [['Fecha', 'Tema / Contenido', 'Actividad', 'Tarea']],
+                body: bodyPlan,
+                styles: { fontSize: 10 },
+                columnStyles: { 0: { cellWidth: 25 } } // Fecha más angosta
+            });
+        }
+
+        doc.save(`Planilla_${m.nombre}.pdf`);
+    }
+    
+    closeModal('modal-export');
+}
+        // ==========================================
+// 📋 FUNCIONES DE ASISTENCIA (PEGAR AL FINAL DEL SCRIPT)
+// ==========================================
+
+function iniciarTomaLista() {
+    // 1. Verificamos que haya una materia abierta
+    if (!activeId) {
+        alert("Error: No se ha seleccionado ninguna materia.");
+        return;
+    }
+
+    // 2. Preparamos la fecha de hoy
+    const hoy = new Date().toISOString().split('T')[0];
+    
+    // 3. Forzamos el valor en el input de fecha (si existe en el HTML)
+    const inputFecha = document.getElementById('input-fecha-lista');
+    if (inputFecha) {
+        inputFecha.value = hoy;
+    }
+
+    // 4. Generamos la lista visual
+    cambiarFechaLista(hoy);
+    
+    // 5. Cambiamos de pantalla a la vista "lista"
+    nav('lista');
+}
+
+function cambiarFechaLista(iso) {
+    activeDateISO = iso; // Guardamos la fecha seleccionada en la variable global
+    
+    // Buscamos la materia activa
+    const m = userData.materias.find(x => x.id === activeId);
+    if (!m) return;
+
+    const container = document.getElementById('lista-check-container');
+    container.innerHTML = ''; // Limpiamos la lista anterior
+
+    // Si no hay alumnos, avisamos
+    if (!m.alumnos || m.alumnos.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-400 mt-10">No hay alumnos inscriptos en esta materia.</div>';
+        return;
+    }
+
+    // Si no existe el objeto de asistencias para esa fecha, usamos uno vacío
+    const asistenciaDia = (m.asistencias && m.asistencias[iso]) ? m.asistencias[iso] : {};
+
+    // Dibujamos la fila por cada alumno
+    m.alumnos.forEach(al => {
+        // Estado actual (o 'P' por defecto si no hay nada guardado)
+        const estado = asistenciaDia[al.id] || 'P';
+        
+        // Definir colores según estado para que se vea lindo
+        let colorClass = '';
+        if(estado === 'P') colorClass = 'bg-green-100 text-green-700 border-green-200'; // Presente
+        else if(estado === 'A') colorClass = 'bg-red-100 text-red-700 border-red-200';   // Ausente
+        else if(estado === 'T') colorClass = 'bg-yellow-100 text-yellow-700 border-yellow-200'; // Tarde
+        else colorClass = 'bg-blue-100 text-blue-700 border-blue-200'; // Justificado
+
+        container.innerHTML += `
+        <div class="bg-white p-3 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm mb-2">
+            <span class="font-bold text-gray-700 text-sm">${al.ape}, ${al.nom}</span>
+            <button id="btn-as-${al.id}" onclick="cycleAsist(${al.id})" 
+                class="w-10 h-10 rounded-full font-bold border-2 flex items-center justify-center transition-all ${colorClass}">
+                ${estado}
+            </button>
+        </div>`;
+    });
+}
+
+function cycleAsist(uid) {
+    const btn = document.getElementById(`btn-as-${uid}`);
+    const estados = ['P', 'A', 'T', 'J']; // Orden de rotación: Presente -> Ausente -> Tarde -> Justificado
+    const actual = btn.innerText;
+    const nuevo = estados[(estados.indexOf(actual) + 1) % estados.length];
+    
+    // Cambiamos el texto del botón
+    btn.innerText = nuevo;
+    
+    // Actualizamos el color al instante según el nuevo estado
+    let nuevaClase = "w-10 h-10 rounded-full font-bold border-2 flex items-center justify-center transition-all ";
+    if(nuevo === 'P') nuevaClase += 'bg-green-100 text-green-700 border-green-200';
+    else if(nuevo === 'A') nuevaClase += 'bg-red-100 text-red-700 border-red-200';
+    else if(nuevo === 'T') nuevaClase += 'bg-yellow-100 text-yellow-700 border-yellow-200';
+    else nuevaClase += 'bg-blue-100 text-blue-700 border-blue-200';
+    
+    btn.className = nuevaClase;
+}
+
+function guardarLista() {
+    const m = userData.materias.find(x => x.id === activeId);
+    
+    // Asegurar que la estructura de datos existe en la materia
+    if (!m.asistencias) m.asistencias = {};
+    
+    // Recolectar datos de los botones visuales
+    const map = {};
+    m.alumnos.forEach(al => {
+        const btn = document.getElementById(`btn-as-${al.id}`);
+        if(btn) {
+            map[al.id] = btn.innerText;
+        }
+    });
+    
+    // Guardar en memoria bajo la fecha activa
+    m.asistencias[activeDateISO] = map;
+    saveData(); // Guardar en Firebase/LocalStorage
+    
+    alert('✅ Asistencia guardada correctamente.');
+    nav('aula'); // Volver al aula
+    setTab('alumnos'); // Mostrar la pestaña alumnos
+}
+
+function cancelarLista() {
+    nav('aula');
+}
     </script>
 </body>
 </html>
+
