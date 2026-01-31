@@ -235,28 +235,42 @@
     <div id="modal-cal-event" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-2" id="event-date-title">--/--</h3><div id="day-events-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div><div class="border-t pt-4"><input id="new-event-text" class="w-full p-2 bg-gray-50 rounded border mb-2" placeholder="Agregar evento..."><div class="flex gap-2"><button onclick="closeModal('modal-cal-event')" class="flex-1 py-2 text-gray-500 font-bold text-xs">CERRAR</button><button onclick="addCalendarEvent()" class="flex-1 py-2 bg-nomade-green text-white rounded font-bold text-xs">AGREGAR</button></div></div></div></div>
     <div id="modal-tarea" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4">Nueva Tarea</h3><input id="input-tarea-txt" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Descripción"><div class="flex gap-2"><button onclick="closeModal('modal-tarea')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarTarea()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-materia" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4" id="title-materia">Nueva Materia</h3><input type="hidden" id="edit-mat-id"><label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label><input id="input-mat-nombre" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Ej: Matemática"><div class="grid grid-cols-2 gap-2"><div><label class="text-xs font-bold text-gray-500 ml-1">INICIO</label><input type="date" id="input-mat-inicio" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border"></div><div><label class="text-xs font-bold text-gray-500 ml-1">FIN</label><input type="date" id="input-mat-fin" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border"></div></div><label class="text-xs font-bold text-gray-500 ml-1">HORARIO</label><input id="input-mat-horario" class="w-full p-2 bg-gray-50 rounded-lg mb-4 border" placeholder="Ej: 18:00 a 22:00"><div class="grid grid-cols-2 gap-2 mb-4"><div><label class="text-xs font-bold text-gray-500 ml-1">DÍA</label><select id="input-mat-dia" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option><option value="Sábado">Sábado</option></select></div><div><label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD</label><select id="input-mat-mod" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Hibrida">Mixta</option><option value="Presencial">Presencial</option><option value="Virtual">Virtual</option></select></div></div><div class="flex gap-2"><button onclick="closeModal('modal-materia')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarMateria()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
-    <div id="modal-tutorial" class="fixed inset-0 z-[90] hidden bg-nomade-blue/95 text-white flex flex-col items-center justify-center p-6 text-center backdrop-blur-sm fade-in">
+   <div id="modal-tutorial" class="fixed inset-0 z-[90] hidden bg-nomade-blue/95 text-white flex flex-col items-center justify-center p-6 text-center backdrop-blur-sm fade-in">
     <div class="max-w-sm w-full bg-white/10 p-6 rounded-3xl border border-white/20 shadow-2xl relative">
-        <div class="mb-4 bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto shadow-lg">
-            <img src="nomade.png" class="w-10 h-10 object-contain" onerror="this.style.display='none'">
-        </div>
-        <h2 class="text-2xl font-black mb-2 tracking-wide uppercase text-nomade-green">¡Bienvenido/a!</h2>
-        <p class="text-sm mb-6 opacity-90">Tu agenda docente digital ahora es más simple.</p>
         
-        <div class="space-y-4 text-left text-xs mb-8">
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-nomade-green rounded-lg"><i data-lucide="book" class="w-4 h-4"></i></div>
-                <div><strong class="block text-nomade-green">Materias & Planificación</strong>Cargá tus cursos, horarios y temas del año.</div>
+        <div id="tut-step-1" class="tut-step">
+            <div class="mb-4 bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                <img src="nomade.png" class="w-10 h-10 object-contain" onerror="this.style.display='none'">
             </div>
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-blue-500 rounded-lg"><i data-lucide="check-square" class="w-4 h-4"></i></div>
-                <div><strong class="block text-blue-300">Asistencia & Notas</strong>Llevá el registro diario y exportalo a Excel/PDF.</div>
-            </div>
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-purple-500 rounded-lg"><i data-lucide="pen-tool" class="w-4 h-4"></i></div>
-                <div><strong class="block text-purple-300">Cuaderno Digital</strong>Escribí o dibujá tus ideas al instante.</div>
-            </div>
+            <h2 class="text-2xl font-black mb-2 text-nomade-green">¡Bienvenido/a!</h2>
+            <p class="text-sm opacity-90 mb-4">Tu nueva agenda digital docente. Organizate en 3 pasos.</p>
         </div>
+
+        <div id="tut-step-2" class="tut-step hidden">
+            <div class="mb-4 text-nomade-green bg-white/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                <i data-lucide="book" class="w-8 h-8"></i>
+            </div>
+            <h2 class="text-xl font-bold mb-2">1. Tus Materias</h2>
+            <p class="text-xs opacity-90 mb-4">Cargá tus materias y horarios. Luego usá la pestaña <strong>Cronograma</strong> para planificar clases y <strong>Alumnos</strong> para tomar asistencia.</p>
+        </div>
+
+        <div id="tut-step-3" class="tut-step hidden">
+            <div class="mb-4 text-purple-300 bg-white/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                <i data-lucide="pen-tool" class="w-8 h-8"></i>
+            </div>
+            <h2 class="text-xl font-bold mb-2">2. Cuaderno y Exportación</h2>
+            <p class="text-xs opacity-90 mb-4">Usá el <strong>Cuaderno</strong> para notas rápidas o dibujos. Al final del mes, descargá todo en <strong>Excel o PDF</strong> desde cada materia.</p>
+        </div>
+
+        <div class="flex justify-center gap-2 mb-6 mt-4">
+            <div class="w-2 h-2 rounded-full bg-white/30" id="dot-1"></div>
+            <div class="w-2 h-2 rounded-full bg-white/30" id="dot-2"></div>
+            <div class="w-2 h-2 rounded-full bg-white/30" id="dot-3"></div>
+        </div>
+
+        <button onclick="nextTutorial()" id="btn-tut-next" class="w-full bg-nomade-green text-white py-3 rounded-xl font-bold shadow-lg uppercase text-xs hover:scale-105 transition">Siguiente ➝</button>
+    </div>
+</div>
 
         <button onclick="closeTutorial()" class="w-full bg-nomade-green text-white py-3 rounded-xl font-bold shadow-lg hover:bg-teal-600 transition uppercase tracking-widest text-sm">¡Comenzar!</button>
     </div>
@@ -321,48 +335,39 @@ const firebaseConfig = {
         let currentUser = null; let userData = { materias: [], eventos: {}, notas: [], tareas: [] }; let isOffline = false; let deferredPrompt;
 
       // --- PARCHE LOGIN ADMIN CONECTADO ---
+// --- REEMPLAZAR handleLogin ---
 async function handleLogin() {
     const u = document.getElementById('login-user').value.trim();
     const p = document.getElementById('login-pass').value.trim();
     const msg = document.getElementById('login-msg');
 
-    if (!u || !p) return alert("Faltan datos de ingreso.");
+    if (!u || !p) return alert("Faltan datos");
 
-    // 1. MODO ADMIN (Emergencia / Offline)
+    // ADMIN LOCAL
     if (u === 'admi' && p === 'adminomade') {
         currentUser = { uid: 'local_admin', email: 'admi@nomade.app' };
-        isOffline = false; // Intentamos que tenga internet
+        if(navigator.onLine) loadAdminUsers(); // Carga la lista si hay internet
         const saved = localStorage.getItem('nomade_data_admin');
         userData = saved ? JSON.parse(saved) : { materias: [], eventos: {}, notas: [], tareas: [] };
         startApp();
         return;
     }
 
-    // 2. MODO DOCENTE (Nube)
-    // Truco: Si ponen "lucia", nosotros leemos "lucia@nomade.app"
+    // DOCENTE
     let email = u.includes('@') ? u : u + '@nomade.app';
-    
     msg.innerText = "Conectando...";
-    msg.style.color = "white";
 
     try {
-        // Intentamos entrar directo a la nube
         await auth.signInWithEmailAndPassword(email, p);
-        // Si pasa de acá, el "auth.onAuthStateChanged" se encarga de abrir la app
-        msg.innerText = "¡Éxito!";
+        // NO esperes acá. El 'auth.onAuthStateChanged' que ya tenés en tu código
+        // detectará el login y ejecutará startApp() automáticamente.
+        msg.innerText = "¡Entrando!";
     } catch (error) {
         console.error(error);
-        msg.innerText = ""; // Limpiar mensaje de carga
-        
-        if (error.code === 'auth/wrong-password') {
-            alert("⛔ CONTRASEÑA INCORRECTA\nRevisá mayúsculas o números.");
-        } else if (error.code === 'auth/user-not-found') {
-            alert("⛔ USUARIO NO ENCONTRADO\nEl usuario '" + u + "' no existe.");
-        } else if (error.code === 'auth/network-request-failed') {
-            alert("⚠️ SIN CONEXIÓN\nVerificá tu internet e intentá de nuevo.");
-        } else {
-            alert("Error de ingreso: " + error.message);
-        }
+        msg.innerText = "";
+        if (error.code === 'auth/wrong-password') alert("⛔ Contraseña incorrecta");
+        else if (error.code === 'auth/user-not-found') alert("⛔ Usuario no encontrado");
+        else alert("Error: " + error.message);
     }
 }
         function startApp() {
@@ -848,81 +853,104 @@ async function handleLogin() {
         };
 
         // OTROS
- async function crearUsuarioDocente() {
-    const uInput = document.getElementById('new-user-username').value.trim(); 
+ // --- REEMPLAZAR crearUsuarioDocente Y AGREGAR loadAdminUsers ---
+
+async function crearUsuarioDocente() {
+    const uInput = document.getElementById('new-user-username').value.trim();
     const pass = document.getElementById('new-user-pass').value;
     const name = document.getElementById('new-user-fullname').value;
 
-    if(!uInput || !pass) return alert("Falta usuario o contraseña.");
-    if(pass.length < 6) return alert("La contraseña debe tener 6 caracteres o más.");
+    if(!uInput || !pass) return alert("Faltan datos");
+    if(pass.length < 6) return alert("Contraseña muy corta (mínimo 6)");
 
-    // Formatear email falso
-    let email = uInput;
-    if (!email.includes('@')) { email = uInput + '@nomade.app'; }
-
-    const btn = document.querySelector('#view-admin button');
-    const txtOriginal = btn.innerText;
-    btn.innerText = "⏳";
+    let email = uInput.includes('@') ? uInput : uInput + '@nomade.app';
+    
+    const btn = document.querySelector('#view-admin button'); // El botón de crear
+    const txt = btn.innerText;
+    btn.innerText = "⏳"; 
     btn.disabled = true;
 
     try {
-        // 1. Usar app secundaria para no sacarte a vos
+        // Usar app secundaria para no cerrarte la sesión a vos
         let adminAuth;
         try {
-            const existingApp = firebase.apps.find(a => a.name === "Secondary");
-            adminAuth = existingApp ? existingApp.auth() : firebase.initializeApp(firebaseConfig, "Secondary").auth();
-        } catch(e) {
-            // Si falla la secundaria, usamos la principal (te va a desloguear, pero crea el usuario seguro)
-            if(confirm("Hubo un error técnico. ¿Querés crear el usuario igual? (Te cerrará la sesión)")) {
-                adminAuth = firebase.auth();
-            } else {
-                throw new Error("Cancelado por el usuario.");
-            }
-        }
+            const app2 = firebase.apps.find(a=>a.name==="Secondary") || firebase.initializeApp(firebaseConfig, "Secondary");
+            adminAuth = app2.auth();
+        } catch(e) { throw e; }
 
-        // 2. Crear credencial
+        // 1. Crear en Auth (Login)
         const cred = await adminAuth.createUserWithEmailAndPassword(email, pass);
         
-        // 3. Preparar datos
-        const newUserData = { 
-            materias: [], 
-            eventos: {}, 
-            notas: [], 
-            tareas: [] 
-        };
-
-        // 4. Escribir en base de datos (Perfil y Datos App)
-        // Usamos dbCloud directamente
+        // 2. Crear en Base de Datos (Para que aparezca en tu lista)
         await dbCloud.collection('users').doc(cred.user.uid).set({
-            email: email,
-            name: name || uInput,
-            role: 'docente',
+            email: email, 
+            name: name || uInput, 
+            role: 'docente', 
             created: new Date().toISOString()
         });
-        
-        await dbCloud.collection('app_data').doc(cred.user.uid).set(newUserData);
 
-        // 5. Cerrar sesión del nuevo (si usamos secundaria)
-        if(adminAuth !== firebase.auth()) await adminAuth.signOut();
-
-        alert(`✅ LISTO: Usuario "${uInput}" creado.\nContraseña: ${pass}`);
+        // 3. Crear Agenda Vacía (Para que no le de error al entrar)
+        await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias:[], eventos:{}, notas:[], tareas:[] });
         
-        // Limpiar
+        await adminAuth.signOut(); // Desloguear al nuevo
+        
+        alert(`✅ LISTO\nUsuario: ${email}\nClave: ${pass}`);
+        
+        // Limpiar campos
         document.getElementById('new-user-username').value = '';
         document.getElementById('new-user-pass').value = '';
         document.getElementById('new-user-fullname').value = '';
 
-    } catch (e) {
-        console.error(e);
-        if (e.code === 'auth/email-already-in-use') {
-            alert("⛔ ESE USUARIO YA EXISTE.\nProbá con otro nombre (ej: " + uInput + "2025).");
-        } else {
-            alert("Error: " + e.message);
-        }
+        // RECARGAR LA LISTA VISUAL
+        loadAdminUsers();
+
+    } catch(e) {
+        if(e.code === 'auth/email-already-in-use') alert("⛔ Ese usuario YA EXISTE.");
+        else alert("Error: " + e.message);
     } finally {
-        btn.innerText = txtOriginal;
-        btn.disabled = false;
+        btn.innerText = txt; 
+        btn.disabled = false; // Desbloquear botón siempre
     }
+}
+
+// ESTA FUNCION ES NUEVA, PEGALA DEBAJO DE LA ANTERIOR
+async function loadAdminUsers() {
+    const list = document.getElementById('admin-user-list');
+    if(!list) return;
+    list.innerHTML = '<div class="text-center mt-2 text-gray-400">Cargando...</div>';
+    
+    try {
+        const snap = await dbCloud.collection('users').orderBy('created', 'desc').get();
+        list.innerHTML = '';
+        
+        if(snap.empty) { list.innerHTML='<p class="text-center text-xs">No hay usuarios.</p>'; return; }
+        
+        snap.forEach(doc => {
+            const u = doc.data();
+            list.innerHTML += `
+            <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-nomade-green flex justify-between items-center mb-2 shadow-sm">
+                <div>
+                    <span class="font-bold block text-nomade-blue text-sm">${u.name}</span>
+                    <span class="text-[10px] text-gray-500">${u.email}</span>
+                </div>
+                <button onclick="deleteUser('${doc.id}')" class="text-red-300 hover:text-red-600 p-2">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </div>`;
+        });
+        lucide.createIcons();
+    } catch(e) {
+        console.error(e);
+        list.innerHTML = '<span class="text-red-400 text-xs">Error cargando lista.</span>';
+    }
+}
+
+// ESTA TAMBIÉN ES NUEVA (PARA BORRAR)
+async function deleteUser(uid) {
+    if(!confirm("¿Borrar usuario de la lista? (El acceso seguirá existiendo en Google, pero se borrarán sus datos)")) return;
+    await dbCloud.collection('users').doc(uid).delete();
+    await dbCloud.collection('app_data').doc(uid).delete();
+    loadAdminUsers(); // Recargar lista
 }
         function nav(v){ ['dashboard','materias','aula','lista','calendario','cuaderno','retro','admin'].forEach(id=>document.getElementById('view-'+id)?.classList.add('hidden')); document.getElementById('view-'+v).classList.remove('hidden'); ['dash','mat','cal','cua','ret'].forEach(k => document.getElementById('nav-'+k).className = 'flex flex-col items-center text-gray-400 w-full justify-center'); const map = {dashboard:'dash', materias:'mat', calendario:'cal', cuaderno:'cua', retro:'ret'}; if(map[v]) document.getElementById('nav-'+map[v]).className = 'flex flex-col items-center text-nomade-green w-full justify-center scale-110 transition'; if(v==='dashboard') initDash(); if(v==='materias') renderMaterias(); if(v==='calendario') renderCalendar(currentMonth, currentYear); lucide.createIcons(); }
        function initDash(){ 
@@ -1323,25 +1351,74 @@ function showToast(message) {
     setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
 
-// --- LÓGICA DEL TUTORIAL ---
+// --- LÓGICA DEL TUTORIAL (WIZARD) ---
+        let tutStep = 1;
 
-function showTutorial() {
-    document.getElementById('modal-tutorial').classList.remove('hidden');
-}
+        function showTutorial(){ 
+            document.getElementById('modal-tutorial').classList.remove('hidden'); 
+            tutStep = 1; 
+            updateTut(); 
+        }
 
-function closeTutorial() {
-    document.getElementById('modal-tutorial').classList.add('hidden');
-    // Guardamos que ya lo vio para que no moleste la próxima
-    localStorage.setItem('tutorial_visto_v1', 'true');
-}
+        function nextTutorial(){ 
+            if(tutStep < 3) { 
+                tutStep++; 
+                updateTut(); 
+            } else { 
+                // Fin del tutorial
+                document.getElementById('modal-tutorial').classList.add('hidden'); 
+                localStorage.setItem('tut_visto', 'ok'); 
+            } 
+        }
 
-function checkFirstTimeTutorial() {
-    // Si NO existe la marca en la memoria, mostramos el tutorial
-    if (!localStorage.getItem('tutorial_visto_v1')) {
-        setTimeout(showTutorial, 1000); // Espera 1 seg para que sea elegante
-    }
-}
+        function updateTut(){
+            // 1. Ocultar todos los pasos y resetear puntos
+            [1,2,3].forEach(i => {
+                const step = document.getElementById(`tut-step-${i}`);
+                const dot = document.getElementById(`dot-${i}`);
+                if(step) step.classList.add('hidden');
+                if(dot) {
+                    dot.classList.remove('bg-nomade-green'); // Sacar color activo
+                    dot.classList.add('bg-white/30');      // Poner color inactivo
+                }
+            });
+            
+            // 2. Mostrar paso actual
+            const currentStep = document.getElementById(`tut-step-${tutStep}`);
+            const currentDot = document.getElementById(`dot-${tutStep}`);
+            
+            if(currentStep) currentStep.classList.remove('hidden');
+            if(currentDot) {
+                currentDot.classList.remove('bg-white/30');
+                currentDot.classList.add('bg-nomade-green'); // Poner color activo
+            }
+            
+            // 3. Actualizar texto del botón
+            const btn = document.getElementById('btn-tut-next');
+            if(btn) btn.innerText = tutStep === 3 ? '¡COMENZAR!' : 'SIGUIENTE ➝';
+            
+            // 4. Refrescar iconos por si acaso
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // --- NOTIFICACIONES TOAST ---
+        function showToast(msg) { 
+            const x = document.getElementById("toast-notification");
+            if(x) {
+                x.innerText = msg; 
+                x.className = "show"; 
+                setTimeout(() => x.className = x.className.replace("show", ""), 3000); 
+            }
+        }
+
+        // --- INICIALIZACIÓN ---
+        window.onload = function() {
+            console.log("Nómade App Lista");
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        };
+
     </script>
+    
     <div id="toast-notification">Notificación</div>
 </body>
 </html>
