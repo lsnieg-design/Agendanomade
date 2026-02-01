@@ -550,6 +550,8 @@
         function renderNotas(){const m=userData.materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); h.innerHTML='<th>Alumno</th>'; m.examenes.forEach((e,i)=>h.innerHTML+=`<th onclick="openExamModal(${i})" class="cursor-pointer hover:text-blue-500">${e.nombre}</th>`); h.innerHTML+='<th>+</th>'; b.innerHTML=''; m.alumnos.forEach((al,i)=>{let r=`<tr><td class="p-2 border-b text-sm">${al.ape}</td>`; m.examenes.forEach(e=>{ r+=`<td class="p-2 border-b"><input class="w-8 p-1 border rounded text-center" value="${al.notas[e.id]||''}" onchange="saveNota(${i},${e.id},this.value)"></td>`; }); r+='<td></td></tr>'; b.innerHTML+=r;});}
         function openExamModal(){openModal('modal-examen');} function guardarExamen(){userData.materias.find(x=>x.id===activeId).examenes.push({id:Date.now(), nombre:document.getElementById('input-exam-nom').value}); saveData(); closeModal('modal-examen'); renderNotas();}
         function saveNota(i,eid,v){userData.materias.find(x=>x.id===activeId).alumnos[i].notas[eid]=v; saveData();}
+       // AGREGAR ESTO PARA QUE ANDE EL BOTÓN DE LA TUERCA
+function openSettings() { document.getElementById('modal-settings').classList.remove('hidden'); }
 
         // ==========================================
         // 7. ASISTENCIA
@@ -625,15 +627,17 @@
         // ==========================================
         // 11. INICIALIZACIÓN FINAL
         // ==========================================
-        window.onload = function() {
-            console.log("Sistema Reiniciado - Nómade V60");
-            lucide.createIcons();
-        };
+       window.onload = function() {
+    console.log("Sistema Reiniciado");
+    auth.signOut(); // <--- ESTO FUERZA EL LOGOUT AL CARGAR
+    lucide.createIcons();
+};
     </script>
     
     <div id="toast-notification">Notificación</div>
 </body>
 </html>
+
 
 
 
