@@ -345,37 +345,45 @@
         // ==========================================
         // 2. SISTEMA DE LOGIN (BLINDADO)
         // ==========================================
-        async function handleLogin() {
-            const u = document.getElementById('login-user').value.trim();
-            const p = document.getElementById('login-pass').value.trim();
-            const msg = document.getElementById('login-msg');
+        // --- LOGIN ACTUALIZADO ---
+async function handleLogin() {
+    const u = document.getElementById('login-user').value.trim();
+    const p = document.getElementById('login-pass').value.trim();
+    const msg = document.getElementById('login-msg');
 
-            if (!u || !p) return alert("Faltan datos");
+    if (!u || !p) return alert("Por favor, completá usuario y contraseña.");
 
-            // MODO ADMIN LOCAL
-            if (u === 'admi' && p === 'adminomade') {
-                currentUser = { uid: 'local_admin', email: 'admi@nomade.app' };
-                loadAdminUsers(); 
-                startApp();
-                return;
-            }
+    // ADMIN LOCAL
+    if (u === 'admi' && p === 'adminomade') {
+        currentUser = { uid: 'local_admin', email: 'admi@nomade.app' };
+        loadAdminUsers();
+        startApp();
+        return;
+    }
 
-            // MODO DOCENTE NUBE
-            let email = u.includes('@') ? u : u + '@nomade.app';
-            msg.innerText = "Verificando...";
-            
-            try {
-                await auth.signInWithEmailAndPassword(email, p);
-                msg.innerText = "¡Entrando!";
-            } catch (error) {
-                console.error(error);
-                msg.innerText = "";
-                if (error.code === 'auth/wrong-password') alert("⛔ Contraseña incorrecta");
-                else if (error.code === 'auth/user-not-found') alert("⛔ Usuario no encontrado");
-                else alert("Error: " + error.message);
-                lucide.createIcons();
-            }
+    // DOCENTE
+    let email = u.includes('@') ? u : u + '@nomade.app';
+    msg.innerText = "Verificando...";
+    
+    try {
+        await auth.signInWithEmailAndPassword(email, p);
+        msg.innerText = "¡Bienvenido!";
+    } catch (error) {
+        console.error(error);
+        msg.innerText = "";
+        
+        // ACÁ ESTÁ EL ARREGLO DEL ERROR:
+        if (error.code === 'auth/invalid-login-credentials' || error.code === 'auth/wrong-password') {
+            alert("⛔ DATOS INCORRECTOS\nRevisá el usuario o la contraseña.");
+        } else if (error.code === 'auth/user-not-found') {
+            alert("⛔ USUARIO NO ENCONTRADO\nVerificá que esté bien escrito.");
+        } else if (error.code === 'auth/too-many-requests') {
+            alert("⏳ DEMASIADOS INTENTOS\nEsperá unos minutos y probá de nuevo.");
+        } else {
+            alert("Error desconocido: " + error.message);
         }
+    }
+}
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -627,6 +635,20 @@ function openSettings() { document.getElementById('modal-settings').classList.re
         // ==========================================
         // 11. INICIALIZACIÓN FINAL
         // ==========================================
+       // --- FUNCIÓN MOSTRAR/OCULTAR CONTRASEÑA ---
+function togglePass(idInput, idIcon) {
+    const input = document.getElementById(idInput);
+    const icon = document.getElementById(idIcon);
+    if (input.type === "password") {
+        input.type = "text";
+        // Cambiar ícono a "ojo tachado" (off)
+        if(icon) icon.innerHTML = '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/>';
+    } else {
+        input.type = "password";
+        // Volver a ícono "ojo" (normal)
+        if(icon) icon.innerHTML = '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>';
+    }
+}
        window.onload = function() {
     console.log("Sistema Reiniciado");
     auth.signOut(); // <--- ESTO FUERZA EL LOGOUT AL CARGAR
@@ -637,6 +659,7 @@ function openSettings() { document.getElementById('modal-settings').classList.re
     <div id="toast-notification">Notificación</div>
 </body>
 </html>
+
 
 
 
