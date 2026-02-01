@@ -83,7 +83,13 @@
         <p class="text-nomade-green text-sm mb-10 font-medium tracking-wide uppercase">Agenda Docente</p>
         <div class="w-full max-w-xs space-y-4">
             <div class="relative"><i data-lucide="user" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i><input type="text" id="login-user" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Usuario"></div>
-            <div class="relative"><i data-lucide="lock" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i><input type="password" id="login-pass" class="w-full p-3 pl-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Contraseña"></div>
+            <div class="relative">
+    <i data-lucide="lock" class="absolute left-3 top-3.5 w-5 h-5 text-white/50"></i>
+    <input type="password" id="login-pass" class="w-full p-3 pl-10 pr-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-nomade-green outline-none transition text-center" placeholder="Contraseña">
+    <button type="button" onclick="togglePass('login-pass', 'icon-eye-login')" class="absolute right-3 top-3.5 text-white/50 hover:text-white">
+        <svg id="icon-eye-login" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+</div>
             <button onclick="handleLogin()" class="bg-nomade-green text-white w-full py-4 rounded-xl font-bold shadow-lg hover:bg-teal-600 transition tracking-widest mt-2 transform active:scale-95">INGRESAR</button>
             <p id="login-msg" class="text-xs mt-4 h-4 text-red-300 font-bold text-center"></p>
         </div>
@@ -659,6 +665,7 @@ function togglePass(idInput, idIcon) {
     <div id="toast-notification">Notificación</div>
 </body>
 </html>
+
 
 
 
