@@ -316,1152 +316,325 @@
         </div>
     </div>
 
-    <script>
-        // BORRÁ la variable API_KEY suelta, no sirve.
-// USÁ ESTA CONFIGURACIÓN CON LA CLAVE ACTUALIZADA:
-const firebaseConfig = {
-    apiKey: "AIzaSyDS9Tw3_TRLCOu1q7ywcGNHTpY9ta9BzAk", // <--- Puse la clave que tenías arriba
-    authDomain: "raspanti-app.firebaseapp.com",
-    projectId: "raspanti-app",
-    storageBucket: "raspanti-app.firebasestorage.app",
-    messagingSenderId: "898404256450",
-    appId: "1:898404256450:web:8ba27e3350b8efb22c095b"
-};
-        const app = firebase.initializeApp(firebaseConfig); const auth = firebase.auth(); const dbCloud = firebase.firestore(); let secondaryApp; try { secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary"); } catch(e) { secondaryApp = firebase.app("Secondary"); }
-
-        const ADMIN_MATERIAS_BASE = [
-            { id: 1741000000000, nombre: "Reflexión Filosófica de la Educación", dia: "Lunes", modalidadBase: "Presencial", horario: "18:00 a 20:00", fechaInicio: "2026-03-16", fechaFin: "2026-07-06", planificacion: {}, cronograma: {}, alumnos: [{id:1, ape:'Perez', nom:'Juan', notas:{}}], examenes: [] },
-            { id: 1741000000001, nombre: "Cultura Digital y Educación", dia: "Miércoles", modalidadBase: "Virtual", horario: "19:00 a 21:00", fechaInicio: "2026-03-18", fechaFin: "2026-07-08", planificacion: {}, cronograma: {}, alumnos: [], examenes: [] }
-        ];
-
-        let currentUser = null; let userData = { materias: [], eventos: {}, notas: [], tareas: [] }; let isOffline = false; let deferredPrompt; let tutStep = 1;
-
-      // --- PARCHE LOGIN ADMIN CONECTADO ---
-// --- REEMPLAZAR handleLogin ---
-// --- LOGIN BLINDADO ---
-async function handleLogin() {
-    const u = document.getElementById('login-user').value.trim();
-    const p = document.getElementById('login-pass').value.trim();
-    const msg = document.getElementById('login-msg');
-
-    if (!u || !p) return alert("Faltan datos");
-
-    // ADMIN LOCAL
-    if (u === 'admi' && p === 'adminomade') {
-        currentUser = { uid: 'local_admin', email: 'admi@nomade.app' };
-        loadAdminUsers(); // Intenta cargar la lista
-        startApp();
-        return;
-    }
-
-    // DOCENTE (NUBE)
-    let email = u.includes('@') ? u : u + '@nomade.app';
-    msg.innerText = "Verificando...";
-    
-    try {
-        await auth.signInWithEmailAndPassword(email, p);
-        msg.innerText = "¡Entrando!";
-        // El observer (abajo) se encarga del resto
-    } catch (error) {
-        console.error(error);
-        msg.innerText = "";
-        if (error.code === 'auth/wrong-password') alert("⛔ Contraseña incorrecta");
-        else if (error.code === 'auth/user-not-found') alert("⛔ Usuario no encontrado");
-        else alert("Error: " + error.message);
-    }
-}
-
-// OBSERVER: DETECTA CUANDO FIREBASE DA EL OK
-auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        if(currentUser && currentUser.uid === 'local_admin') return; 
-        currentUser = user;
-        
-        // Intentamos cargar datos, si falla, iniciamos vacío (Anti-Congelamiento)
-        try {
-            const doc = await dbCloud.collection('app_data').doc(user.uid).get();
-            if(doc.exists) userData = doc.data();
-            else userData = { materias: [], eventos: {}, notas: [], tareas: [] };
-        } catch(e) {
-            console.log("Error cargando data, iniciando vacío:", e);
-            userData = { materias: [], eventos: {}, notas: [], tareas: [] };
-        }
-        startApp();
-    }
-});
-
-function startApp() {
-    try {
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('app-content').classList.remove('hidden');
-        
-        // Nombre en el Dashboard
-        const nameDisplay = currentUser.email.split('@')[0];
-        document.getElementById('dash-name').innerText = nameDisplay.charAt(0).toUpperCase() + nameDisplay.slice(1);
-        
-        // Si es admin, mostrar panel
-        if(currentUser.email === 'admi@nomade.app') {
-            document.getElementById('view-admin').classList.remove('hidden');
-            document.getElementById('btn-admin-panel').classList.remove('hidden');
-            loadAdminUsers(); // Cargar la lista
-            nav('admin'); // Ir directo a admin
-        } else {
-            nav('dashboard');
-        }
-        lucide.createIcons();
-    } catch(e) {
-        alert("Error al iniciar: " + e.message);
-    }
-}
-        function logout() { location.reload(); }
-       function saveData() { 
-    // Si es el admin de emergencia, guarda local (esto está bien para vos)
-    if(currentUser.uid === 'local_admin') {
-        localStorage.setItem('nomade_data_admin', JSON.stringify(userData));
-        return;
-    }
-
-    // PARA USUARIOS REALES: Guardar en Firebase (Nube)
-    if (currentUser && dbCloud) {
-        const st = document.getElementById('cloud-status');
-        st.innerHTML = '<div class="loader w-3 h-3 border-2"></div> Guardando...';
-        st.style.opacity = '1';
-
-        dbCloud.collection('app_data').doc(currentUser.uid).set(userData)
-            .then(() => {
-                st.innerHTML = '<i data-lucide="cloud" class="w-3 h-3"></i> Sincronizado';
-                setTimeout(() => st.style.opacity = '0', 2000);
-            })
-            .catch((error) => {
-                console.error("Error al guardar:", error);
-                st.innerHTML = '⚠️ Error de Red - No se guardó';
-                st.style.color = 'red';
-                st.style.opacity = '1';
-                alert("¡CUIDADO! No tenés internet. Los cambios no se guardaron en la nube.");
-            });
-    }
-}
-        function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') console.log('User accepted the A2HS prompt');
-                    deferredPrompt = null;
-                    document.getElementById('install-banner').style.display = 'none';
-                });
-            }
-        }
-        // Detect iOS
-        const isIos = () => { const userAgent = window.navigator.userAgent.toLowerCase(); return /iphone|ipad|ipod/.test( userAgent ); }
-        if (isIos() && !window.navigator.standalone) {
-             // Show simple iOS hint alert (simplified for this demo)
-             setTimeout(() => alert("Para instalar en iPhone: Tocá el botón Compartir y elegí 'Agregar a Inicio'"), 2000);
-        }
-
-        // MATERIAS
-        function openMateriaModal(){ document.getElementById('edit-mat-id').value=''; document.getElementById('input-mat-nombre').value=''; document.getElementById('input-mat-inicio').value=''; document.getElementById('input-mat-fin').value=''; document.getElementById('input-mat-horario').value=''; openModal('modal-materia'); }
-        function guardarMateria(){
-            const nom = document.getElementById('input-mat-nombre').value; const ini = document.getElementById('input-mat-inicio').value; const fin = document.getElementById('input-mat-fin').value;
-            if(!nom || !ini || !fin) return alert("Falta nombre o fechas.");
-            const mat = { id: Date.now(), nombre: nom, dia: document.getElementById('input-mat-dia').value, modalidadBase: document.getElementById('input-mat-mod').value, horario: document.getElementById('input-mat-horario').value, fechaInicio: ini, fechaFin: fin, planificacion: {}, cronograma: {}, alumnos: [], examenes: [] };
-            userData.materias.push(mat); saveData(); closeModal('modal-materia'); renderMaterias();
-        }
-
-        // CRONOGRAMA DINÁMICO
-        let activeId=null, activeDateISO=null, activeCalISO=null, currentMonth=new Date().getMonth(), currentYear=new Date().getFullYear();
-        
-        function renderCrono(){
-            const m = userData.materias.find(x => x.id === activeId); if (!m) return;
-            const l = document.getElementById('lista-cronograma'); l.innerHTML = '';
-            const map = { 'Domingo': 0, 'Lunes': 1, 'Martes': 2, 'Miércoles': 3, 'Jueves': 4, 'Viernes': 5, 'Sábado': 6 };
-            const targetDay = map[m.dia];
-            let d = new Date(m.fechaInicio + 'T12:00:00'); const fin = new Date(m.fechaFin + 'T12:00:00');
-            while (d.getDay() !== targetDay) { d.setDate(d.getDate() + 1); }
-
-            while (d <= fin) {
-                const iso = d.toISOString().split('T')[0];
-                const displayDate = `${d.getDate()}/${d.getMonth() + 1}`;
-                let st = m.cronograma?.[iso] || ((m.modalidadBase === 'Hibrida') ? 'Presencial' : m.modalidadBase);
-                if (m.modalidadBase === 'Virtual') st = 'Virtual';
-                if (st === 'Receso') st = 'Receso';
-                let badgeClass = 'bg-gray-100 text-gray-500';
-                if (st.startsWith('Presenc')) badgeClass = 'bg-nomade-blue text-white';
-                else if (st.startsWith('Virt') || st.startsWith('Sinc')) badgeClass = 'bg-nomade-green text-white';
-                else if (st === 'Receso') badgeClass = 'bg-red-100 text-red-500';
-                const plan = m.planificacion?.[iso]?.tema || '';
-                l.innerHTML += `<div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-3">
-                    <div class="flex justify-between items-center mb-2"><span class="font-black text-nomade-blue text-sm w-10">${displayDate}</span><div class="flex gap-1"><button onclick="cycle('${iso}')" class="px-2 py-1 rounded text-[9px] font-bold uppercase ${badgeClass}">${st}</button><button onclick="setReceso('${iso}')" class="text-xs text-gray-300 hover:text-red-500">⛔</button></div></div>
-                    <input class="w-full text-sm bg-gray-50 p-2 rounded" placeholder="Tema..." value="${plan}" onchange="saveTema('${iso}',this.value)">
-                    <div class="flex justify-end mt-2"><button onclick="openClaseDetail('${iso}')" class="text-nomade-green text-xs font-bold flex items-center gap-1"><i data-lucide="plus-circle" class="w-3"></i> DETALLES</button></div></div>`;
-                d.setDate(d.getDate() + 7);
-            }
-            lucide.createIcons();
-        }
-
-        function cycle(iso) { const m = userData.materias.find(x => x.id === activeId); if (!m.cronograma) m.cronograma = {}; const states = ['Presencial', 'Virtual', 'Sincronico', 'Asincronico', 'Receso']; const current = m.cronograma[iso] || m.modalidadBase; m.cronograma[iso] = states[(states.indexOf(current) + 1) % states.length]; saveData(); renderCrono(); }
-        function setReceso(iso) { const m = userData.materias.find(x => x.id === activeId); if (!m.cronograma) m.cronograma = {}; m.cronograma[iso] = 'Receso'; saveData(); renderCrono(); }
-        function saveTema(iso,val){ const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={}; if(!m.planificacion[iso]) m.planificacion[iso]={}; m.planificacion[iso].tema=val; saveData(); }
-
-    // ==========================================
-        // 📓 SECCIÓN CUADERNO (LIMPIA Y CORREGIDA)
+   <script>
+       // ==========================================
+        // 1. CONFIGURACIÓN E INICIO
         // ==========================================
-        let penColor='#000000', penSize=2;
-        let canvas, ctx, drawing=false, lastX=0, lastY=0, activeNoteId=null;
-
-        function setDrawColor(c){ penColor=c; penSize=2; } 
-        function setDrawSize(s){ penSize=s; }
-        function setTool(t){ 
-            if(t==='eraser'){ penColor='#FFFFFF'; penSize=20; } 
-            else { 
-                const colorPicker = document.getElementById('draw-color');
-                penColor= colorPicker ? colorPicker.value : '#000000'; 
-                const sizePicker = document.getElementById('draw-size');
-                penSize= sizePicker ? sizePicker.value : 2;
-            } 
-        }
-
-        function createNote(type){ 
-            if(!userData.notas) userData.notas = [];
-            const titleInput = document.getElementById('new-nota-title');
-            const title = titleInput.value || 'Nota sin título';
-            
-            userData.notas.unshift({
-                id:Date.now(), 
-                title: title, 
-                type:type, 
-                content:''
-            }); 
-            
-            saveData(); 
-            closeModal('modal-new-nota'); 
-            titleInput.value = ''; 
-            openNoteEditor(0); // Abre directo la nota nueva
-        }
-
-        function renderNotesList(){ 
-            const l=document.getElementById('lista-notas'); 
-            l.innerHTML=''; 
-            
-            if(!userData.notas || userData.notas.length===0) { 
-                document.getElementById('no-notas').classList.remove('hidden'); 
-                return; 
-            }
-            document.getElementById('no-notas').classList.add('hidden');
-            
-            userData.notas.forEach((n,i)=>{
-                const icon = n.type === 'text' ? 'type' : 'pen-tool';
-                const border = n.type === 'text' ? 'border-blue-500' : 'border-purple-500';
-                l.innerHTML+=`
-                <div onclick="openNoteEditor(${i})" class="bg-white p-4 shadow rounded-xl cursor-pointer border-l-4 ${border} relative group">
-                    <div class="flex items-center gap-2 mb-1">
-                        <i data-lucide="${icon}" class="w-4 h-4 text-gray-400"></i>
-                        <span class="font-bold text-sm text-gray-700 truncate w-32">${n.title}</span>
-                    </div>
-                    <button onclick="event.stopPropagation(); deleteNote(${i})" class="absolute top-2 right-2 text-red-300 hover:text-red-500 p-2">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
-                </div>`; 
-            });
-            lucide.createIcons();
-        }
-
-        function deleteNote(i){ 
-            if(confirm("¿Borrar nota?")) { 
-                userData.notas.splice(i,1); 
-                saveData(); 
-                renderNotesList(); 
-            } 
-        }
-
-        function openNoteEditor(i){ 
-            const n=userData.notas[i]; 
-            activeNoteId=n.id; 
-            document.getElementById('editor-title').innerText=n.title; 
-            const t=document.getElementById('editor-text');
-            const d=document.getElementById('editor-draw'); 
-            
-            document.getElementById('editor-nota').classList.remove('hidden'); 
-            
-            if(n.type==='draw'){ 
-                t.classList.add('hidden'); 
-                d.classList.remove('hidden'); 
-                // Delay clave para que el canvas tome tamaño real
-                setTimeout(()=>initCanvas(n.content), 100); 
-            } else { 
-                t.classList.remove('hidden'); 
-                d.classList.add('hidden'); 
-                t.value=n.content||''; 
-            } 
-        }
-
-        function closeEditor(){ 
-            document.getElementById('editor-nota').classList.add('hidden'); 
-            renderNotesList(); 
-        }
-
-        function saveCurrentNote(){ 
-            const i=userData.notas.findIndex(n=>n.id===activeNoteId); 
-            if(i===-1)return; 
-            
-            if(userData.notas[i].type==='text'){ 
-                userData.notas[i].content=document.getElementById('editor-text').value; 
-            } else { 
-                userData.notas[i].content=canvas.toDataURL(); 
-            } 
-            saveData(); 
-            alert('✅ Guardado'); 
-        }
-
-        function initCanvas(src){ 
-            canvas=document.getElementById('drawing-canvas'); 
-            ctx=canvas.getContext('2d'); 
-            const p=document.getElementById('canvas-container'); 
-            
-            canvas.width=p.clientWidth; 
-            canvas.height=p.clientHeight; 
-            ctx.fillStyle="white"; 
-            ctx.fillRect(0,0,canvas.width,canvas.height); 
-            
-            if(src){
-                const i=new Image(); 
-                i.onload=()=>ctx.drawImage(i,0,0); 
-                i.src=src;
-            } 
-            
-            // Eventos Mouse y Touch unificados
-            const start = (e) => { 
-                drawing = true; 
-                const r = canvas.getBoundingClientRect(); 
-                // Soporte dual: Mouse o Touch
-                const cx = e.clientX || e.touches[0].clientX;
-                const cy = e.clientY || e.touches[0].clientY;
-                lastX = cx - r.left; 
-                lastY = cy - r.top; 
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-                e.preventDefault(); 
-            };
-            
-            const move = (e) => { 
-                if (!drawing) return; 
-                const r = canvas.getBoundingClientRect(); 
-                const cx = e.clientX || e.touches[0].clientX;
-                const cy = e.clientY || e.touches[0].clientY;
-                const x = cx - r.left; 
-                const y = cy - r.top; 
-                
-                ctx.beginPath(); 
-                ctx.moveTo(lastX, lastY); 
-                ctx.lineTo(x, y); 
-                ctx.strokeStyle = penColor; 
-                ctx.lineWidth = penSize; 
-                ctx.lineCap = 'round'; 
-                ctx.stroke(); 
-                
-                lastX = x; 
-                lastY = y; 
-                e.preventDefault(); 
-            };
-            
-            const end = () => { drawing = false; };
-            
-            canvas.onmousedown = start; canvas.onmousemove = move; canvas.onmouseup = end;
-            canvas.ontouchstart = start; canvas.ontouchmove = move; canvas.ontouchend = end;
-        }
-
-        function clearCanvas(){ 
-            if(confirm("¿Limpiar todo el dibujo?")) { 
-                ctx.fillStyle="white"; 
-                ctx.fillRect(0,0,canvas.width,canvas.height); 
-            } 
-        }
-
-        // ==========================================
-        // 📋 SECCIÓN ASISTENCIA (LISTA DIARIA)
-        // ==========================================
-        function iniciarTomaLista(){ 
-            if(!activeId) return alert("Seleccioná una materia primero"); 
-            const h=new Date().toISOString().split('T')[0]; 
-            const inputF = document.getElementById('input-fecha-lista');
-            if(inputF) inputF.value=h; 
-            cambiarFechaLista(h); 
-            nav('lista'); 
-        }
-
-        function cambiarFechaLista(iso){
-            activeDateISO=iso; 
-            const m=userData.materias.find(x=>x.id===activeId);
-            const c=document.getElementById('lista-check-container'); 
-            c.innerHTML=''; 
-            
-            if(!m || !m.alumnos || m.alumnos.length === 0) { 
-                c.innerHTML='<p class="text-center text-gray-400 mt-10">No hay alumnos.</p>'; 
-                return; 
-            }
-            
-            const map = (m.asistencias && m.asistencias[iso]) ? m.asistencias[iso] : {};
-            
-            m.alumnos.forEach(al=>{
-                const st = map[al.id] || 'P';
-                let cls = '';
-                if(st==='P') cls='bg-green-100 text-green-700 border-green-200';
-                else if(st==='A') cls='bg-red-100 text-red-700 border-red-200';
-                else if(st==='T') cls='bg-yellow-100 text-yellow-700 border-yellow-200';
-                else cls='bg-blue-100 text-blue-700 border-blue-200';
-
-                c.innerHTML+=`
-                <div class="bg-white p-3 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm mb-2">
-                    <span class="font-bold text-gray-700 text-sm">${al.ape}, ${al.nom}</span>
-                    <button id="btn-as-${al.id}" onclick="cycleAsist(${al.id})" 
-                        class="w-10 h-10 rounded-full font-bold border-2 flex items-center justify-center transition-all ${cls}">
-                        ${st}
-                    </button>
-                </div>`;
-            });
-        }
-
-        function cycleAsist(uid){ 
-            const btn=document.getElementById(`btn-as-${uid}`); 
-            const sts=['P','A','T','J'];
-            const n=sts[(sts.indexOf(btn.innerText)+1)%sts.length]; 
-            
-            btn.innerText=n; 
-            
-            let cls = 'w-10 h-10 rounded-full font-bold border-2 flex items-center justify-center transition-all ';
-            if(n==='P') cls+='bg-green-100 text-green-700 border-green-200';
-            else if(n==='A') cls+='bg-red-100 text-red-700 border-red-200';
-            else if(n==='T') cls+='bg-yellow-100 text-yellow-700 border-yellow-200';
-            else cls+='bg-blue-100 text-blue-700 border-blue-200';
-            
-            btn.className=cls; 
-        }
-
-        function guardarLista(){ 
-            const m=userData.materias.find(x=>x.id===activeId); 
-            if(!m.asistencias) m.asistencias={}; 
-            const map={}; 
-            m.alumnos.forEach(al=>{ 
-                const b=document.getElementById(`btn-as-${al.id}`); 
-                if(b) map[al.id]=b.innerText; 
-            }); 
-            m.asistencias[activeDateISO]=map; 
-            saveData(); 
-            alert('✅ Asistencia guardada'); 
-            nav('aula'); 
-            setTab('alumnos'); 
-        }
-
-        function cancelarLista(){ nav('aula'); }
-
-        // ==========================================
-        // 📤 SECCIÓN EXPORTACIÓN (DETALLADA)
-        // ==========================================
-        function openExportModal(type){ 
-            document.getElementById('export-type').value=type; 
-            openModal('modal-export'); 
-        }
-
-        function executeExport(){
-            const type = document.getElementById('export-type').value;
-            const m = userData.materias.find(x=>x.id===activeId);
-            
-            const incList = document.getElementById('exp-lista').checked;
-            const incAsist = document.getElementById('exp-asist').checked;
-            const incNotas = document.getElementById('exp-notas').checked;
-            const incPlan = document.getElementById('exp-plan').checked;
-            
-            // Obtener fechas ordenadas
-            const fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
-
-            // --- EXCEL (CSV) ---
-            if(type === 'xls'){
-                let csv = "data:text/csv;charset=utf-8,";
-                if(incList) csv += "APELLIDO,NOMBRE";
-                if(incAsist) { 
-                    fechas.forEach(f => csv += `,${f.split('-').reverse().slice(0,2).join('/')}`); 
-                    csv += ",% FINAL"; 
-                }
-                if(incNotas) m.examenes.forEach(e => csv += "," + e.nombre);
-                csv += "\n";
-                
-                m.alumnos.forEach(a => {
-                    if(incList) csv += `${a.ape},${a.nom}`;
-                    if(incAsist) {
-                        let pres=0, tot=0;
-                        fechas.forEach(f => { 
-                            let s=m.asistencias[f][a.id]||'-'; 
-                            if(s==='T') s='P'; // Tarde cuenta como presente
-                            csv += `,${s}`; 
-                            if(s!=='-') tot++; 
-                            if(s==='P') pres++; 
-                        });
-                        csv += `,${tot>0 ? Math.round((pres/tot)*100) : 0}%`;
-                    }
-                    if(incNotas) m.examenes.forEach(e => csv += `,${a.notas[e.id]||''}`);
-                    csv += "\n";
-                });
-                
-                const link = document.createElement("a"); 
-                link.setAttribute("href", encodeURI(csv)); 
-                link.setAttribute("download", `Reporte_${m.nombre}.csv`); 
-                document.body.appendChild(link); 
-                link.click(); 
-                link.remove();
-            } 
-            // --- PDF ---
-            else {
-                const { jsPDF } = window.jspdf; 
-                const doc = new jsPDF('l');
-                doc.setFontSize(18); doc.text(`Planilla: ${m.nombre}`, 14, 15);
-                
-                const head = []; const rowH = [];
-                if(incList) rowH.push('Estudiante');
-                if(incAsist) { 
-                    fechas.forEach(f => rowH.push(f.split('-').reverse().slice(0,2).join('/'))); 
-                    rowH.push('%'); 
-                }
-                if(incNotas) m.examenes.forEach(e => rowH.push(e.nombre));
-                head.push(rowH);
-
-                const body = m.alumnos.map(a => {
-                    const row = [];
-                    if(incList) row.push(`${a.ape}, ${a.nom}`);
-                    if(incAsist) {
-                        let pres=0, tot=0;
-                        fechas.forEach(f => { 
-                            let s=m.asistencias[f][a.id]||'-'; 
-                            if(s==='T') s='P'; 
-                            row.push(s); 
-                            if(s!=='-') tot++; 
-                            if(s==='P') pres++; 
-                        });
-                        row.push(tot>0 ? Math.round((pres/tot)*100)+'%' : '-');
-                    }
-                    if(incNotas) m.examenes.forEach(e => row.push(a.notas[e.id]||'-'));
-                    return row;
-                });
-
-                if(incList||incAsist||incNotas) {
-                    doc.autoTable({ 
-                        startY: 25, 
-                        head: head, 
-                        body: body, 
-                        styles: { fontSize: 8 }, 
-                        headStyles: { fillColor: [20, 78, 126] } 
-                    });
-                }
-                
-                // Tabla Planificación
-                if(incPlan && m.planificacion){
-                    doc.addPage();
-                    doc.text("Planificación", 14, 15);
-                    const bodyPlan = Object.entries(m.planificacion).sort().map(([k,v]) => {
-                         return [k.split('-').reverse().join('/'), v.tema || '-', v.actClase || '-'];
-                    });
-                    doc.autoTable({
-                        head: [['Fecha', 'Tema', 'Actividad']],
-                        body: bodyPlan,
-                        startY: 20
-                    });
-                }
-                doc.save(`Planilla_${m.nombre}.pdf`);
-            }
-            closeModal('modal-export');
-        }
-
-        // ==========================================
-        // 🚀 ARRANQUE SEGURO
-        // ==========================================
-        window.onload = function() {
-            console.log("Sistema Nómade V48 Iniciado");
-            
-            // Intentar cargar iconos
-            if(typeof lucide !== 'undefined') lucide.createIcons();
-            
-            // Si el usuario ya estaba logueado en modo local, mostrar app
-            const localData = localStorage.getItem('nomade_local_data') || localStorage.getItem('nomade_data_admin');
-            
-            // Detectar si hay sesión activa (simulada)
-            if (localData && document.getElementById('auth-screen').classList.contains('hidden')) {
-                // Ya estaba dentro
-            }
+        const firebaseConfig = {
+            apiKey: "AIzaSyDS9Tw3_TRLCOu1q7ywcGNHTpY9ta9BzAk", 
+            authDomain: "raspanti-app.firebaseapp.com",
+            projectId: "raspanti-app",
+            storageBucket: "raspanti-app.firebasestorage.app",
+            messagingSenderId: "898404256450",
+            appId: "1:898404256450:web:8ba27e3350b8efb22c095b"
         };
+        const app = firebase.initializeApp(firebaseConfig); 
+        const auth = firebase.auth(); 
+        const dbCloud = firebase.firestore();
 
-        // OTROS
-// --- GESTIÓN DE USUARIOS ---
-async function crearUsuarioDocente() {
-    const uInput = document.getElementById('new-user-username').value.trim();
-    const pass = document.getElementById('new-user-pass').value;
-    const name = document.getElementById('new-user-fullname').value;
+        // Variables Globales
+        let currentUser = null; 
+        let userData = { materias: [], eventos: {}, notas: [], tareas: [] }; 
+        let activeId = null;
+        let activeDateISO = null;
+        let activeCalISO = null;
+        let tutStep = 1;
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
 
-    if(!uInput || !pass) return alert("Faltan datos");
-    if(pass.length < 6) return alert("Contraseña muy corta");
+        // ==========================================
+        // 2. SISTEMA DE LOGIN (BLINDADO)
+        // ==========================================
+        async function handleLogin() {
+            const u = document.getElementById('login-user').value.trim();
+            const p = document.getElementById('login-pass').value.trim();
+            const msg = document.getElementById('login-msg');
 
-    let email = uInput.includes('@') ? uInput : uInput + '@nomade.app';
-    
-    const btn = document.querySelector('#view-admin button');
-    const txt = btn.innerText;
-    btn.innerText = "⏳"; btn.disabled = true;
+            if (!u || !p) return alert("Faltan datos");
 
-    try {
-        // Usar app secundaria
-        let adminAuth;
-        try {
-            const app2 = firebase.apps.find(a=>a.name==="Secondary") || firebase.initializeApp(firebaseConfig, "Secondary");
-            adminAuth = app2.auth();
-        } catch(e) { throw e; }
+            // MODO ADMIN LOCAL
+            if (u === 'admi' && p === 'adminomade') {
+                currentUser = { uid: 'local_admin', email: 'admi@nomade.app' };
+                loadAdminUsers(); 
+                startApp();
+                return;
+            }
 
-        const cred = await adminAuth.createUserWithEmailAndPassword(email, pass);
-        
-        // Escribir en la lista de usuarios
-        await dbCloud.collection('users').doc(cred.user.uid).set({
-            email: email, 
-            name: name || uInput, 
-            created: new Date().toISOString()
-        });
-        
-        // Inicializar agenda vacía
-        await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias: [], eventos: {}, notas: [], tareas: [] });
-        
-        await adminAuth.signOut();
-        
-        alert(`✅ ¡LISTO!\nUsuario: ${uInput}\nContraseña: ${pass}`);
-        
-        // Limpiar
-        document.getElementById('new-user-username').value = '';
-        document.getElementById('new-user-pass').value = '';
-        document.getElementById('new-user-fullname').value = '';
-        
-        // Recargar lista
-        loadAdminUsers();
-
-    } catch(e) {
-        console.error(e);
-        if(e.code === 'auth/email-already-in-use') alert("⛔ EL USUARIO YA EXISTE.");
-        else alert("Error: " + e.message);
-    } finally {
-        btn.innerText = txt; btn.disabled = false;
-    }
-}
-
-async function loadAdminUsers() {
-    const list = document.getElementById('admin-user-list');
-    list.innerHTML = '<div class="text-center text-gray-400 mt-2">Cargando...</div>';
-    
-    try {
-        const snap = await dbCloud.collection('users').orderBy('created', 'desc').get();
-        list.innerHTML = '';
-        
-        if(snap.empty) { list.innerHTML='<p class="text-center text-xs mt-2">Sin usuarios.</p>'; return; }
-        
-        snap.forEach(doc => {
-            const u = doc.data();
-            list.innerHTML += `
-            <div class="bg-white p-3 rounded-lg border border-gray-100 flex justify-between items-center mb-2 shadow-sm">
-                <div class="overflow-hidden">
-                    <span class="font-bold block text-nomade-blue text-sm truncate">${u.name}</span>
-                    <span class="text-[10px] text-gray-500 truncate block">${u.email}</span>
-                </div>
-                <button onclick="deleteUser('${doc.id}')" class="bg-red-50 text-red-500 p-2 rounded hover:bg-red-100 ml-2">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                </button>
-            </div>`;
-        });
-        lucide.createIcons();
-    } catch(e) {
-        console.error(e);
-        list.innerHTML = '<p class="text-center text-red-400 text-xs mt-2">Error de Permisos. Revisá Firebase.</p>';
-    }
-}
-
-async function deleteUser(uid) {
-    if(!confirm("¿Eliminar visualmente? (El acceso Google seguirá activo)")) return;
-    await dbCloud.collection('users').doc(uid).delete();
-    loadAdminUsers();
-}
-
-// ESTA TAMBIÉN ES NUEVA (PARA BORRAR)
-async function deleteUser(uid) {
-    if(!confirm("¿Borrar usuario de la lista? (El acceso seguirá existiendo en Google, pero se borrarán sus datos)")) return;
-    await dbCloud.collection('users').doc(uid).delete();
-    await dbCloud.collection('app_data').doc(uid).delete();
-    loadAdminUsers(); // Recargar lista
-}
-        function nav(v){ ['dashboard','materias','aula','lista','calendario','cuaderno','retro','admin'].forEach(id=>document.getElementById('view-'+id)?.classList.add('hidden')); document.getElementById('view-'+v).classList.remove('hidden'); ['dash','mat','cal','cua','ret'].forEach(k => document.getElementById('nav-'+k).className = 'flex flex-col items-center text-gray-400 w-full justify-center'); const map = {dashboard:'dash', materias:'mat', calendario:'cal', cuaderno:'cua', retro:'ret'}; if(map[v]) document.getElementById('nav-'+map[v]).className = 'flex flex-col items-center text-nomade-green w-full justify-center scale-110 transition'; if(v==='dashboard') initDash(); if(v==='materias') renderMaterias(); if(v==='calendario') renderCalendar(currentMonth, currentYear); lucide.createIcons(); }
-       function initDash(){ 
-    const d=new Date();
-    const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-    const h=d.toISOString().split('T')[0]; // Fecha de hoy
-
-    // 1. CABECERA (Fecha de hoy)
-    document.getElementById('fecha-hoy').innerText=`${dias[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}`; 
-    
-    // 2. LISTA DE HOY (Tu Día Hoy)
-    const lHoy=document.getElementById('lista-hoy'); 
-    lHoy.innerHTML=''; 
-    let hayClase=false; 
-    
-    if(userData.materias) userData.materias.forEach(m=>{ 
-        if(m.dia === dias[d.getDay()]){ 
-            hayClase=true; 
-            const temaHoy = m.planificacion?.[h]?.tema || 'Sin tema asignado';
+            // MODO DOCENTE NUBE
+            let email = u.includes('@') ? u : u + '@nomade.app';
+            msg.innerText = "Verificando...";
             
-            lHoy.innerHTML+=`
-            <div class="bg-white p-3 rounded-lg border-l-4 border-nomade-blue shadow-sm mb-2">
-                <div class="flex justify-between items-start">
-                    <strong class="block text-nomade-blue text-sm uppercase">${m.nombre}</strong>
-                    <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded text-gray-500 font-bold">${m.horario||''}</span>
-                </div>
-                <div class="mt-2 text-xs text-gray-700">
-                    <span class="font-bold">HOY:</span> ${temaHoy}
-                </div>
-            </div>`; 
-        } 
-    });
-    
-    if(userData.eventos?.[h]) userData.eventos[h].forEach(ev=>{ 
-        hayClase=true; 
-        lHoy.innerHTML+=`<div class="bg-white p-3 rounded-lg border-l-4 border-nomade-green shadow-sm mb-2"><span class="text-sm font-bold text-gray-700">${ev}</span></div>`; 
-    }); 
-    
-    if(!hayClase) lHoy.innerHTML='<span class="text-xs text-gray-400 italic">Hoy no tenés actividades agendadas.</span>'; 
-
-
-    // 3. PRÓXIMOS DÍAS (PLANIFICACIÓN SEMANAL) - ¡MODIFICADO!
-    const lSem = document.getElementById('lista-semana');
-    if(lSem) {
-        lSem.innerHTML = '';
-        let haySemana = false;
-        
-        // Revisamos los próximos 7 días
-        for(let i=1; i<=7; i++){
-            const next = new Date();
-            next.setDate(d.getDate() + i); 
-            
-            const nextDayName = dias[next.getDay()]; // Ej: Lunes
-            const nextDateShort = `${next.getDate()}/${next.getMonth()+1}`; // Ej: 2/2
-            const nextIso = next.toISOString().split('T')[0]; // Para buscar en la DB
-
-            if(userData.materias) {
-                userData.materias.forEach(m => {
-                    // Si el día de la materia coincide con el día que estamos revisando
-                    if(m.dia === nextDayName){
-                        haySemana = true;
-                        
-                        // Buscamos si hay un tema planificado para esa fecha específica
-                        // Si no hay tema, pone "Sin contenido detallado" para que sepas que falta cargar
-                        const temaFuturo = m.planificacion?.[nextIso]?.tema || 'Sin contenido detallado';
-                        
-                        // Renderizado formato: LUNES 2/2 MATERIA: Contenido
-                        lSem.innerHTML += `
-                        <div class="mb-3 border-b border-gray-100 pb-2 last:border-0">
-                            <div class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-0.5">
-                                ${nextDayName} ${nextDateShort}
-                            </div>
-                            <div class="text-xs text-gray-800 leading-snug">
-                                <strong class="text-nomade-blue uppercase">${m.nombre}:</strong> 
-                                <span class="text-gray-600">${temaFuturo}</span>
-                            </div>
-                        </div>`;
-                    }
-                });
+            try {
+                await auth.signInWithEmailAndPassword(email, p);
+                msg.innerText = "¡Entrando!";
+            } catch (error) {
+                console.error(error);
+                msg.innerText = "";
+                if (error.code === 'auth/wrong-password') alert("⛔ Contraseña incorrecta");
+                else if (error.code === 'auth/user-not-found') alert("⛔ Usuario no encontrado");
+                else alert("Error: " + error.message);
+                lucide.createIcons();
             }
         }
-        if(!haySemana) lSem.innerHTML = '<span class="text-xs text-gray-400 italic">Nada programado para los próximos días.</span>';
-    }
 
-    renderTareas(); 
-    lucide.createIcons();
-}
-        function renderMaterias(){ const l=document.getElementById('lista-materias'); l.innerHTML=''; if(!userData.materias || userData.materias.length === 0){document.getElementById('no-materias').classList.remove('hidden'); return;} document.getElementById('no-materias').classList.add('hidden'); userData.materias.forEach(m=>{ l.innerHTML += `<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center mb-2" onclick="abrirAula(${m.id})"><div><h3 class="font-bold text-nomade-blue">${m.nombre}</h3><div class="text-xs text-gray-400 uppercase">${m.dia} • ${m.modalidadBase}</div></div><i data-lucide="chevron-right" class="text-gray-300"></i></div>`; }); lucide.createIcons(); }
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                if(currentUser && currentUser.uid === 'local_admin') return; 
+                currentUser = user;
+                try {
+                    const doc = await dbCloud.collection('app_data').doc(user.uid).get();
+                    if(doc.exists) userData = doc.data();
+                    else userData = { materias: [], eventos: {}, notas: [], tareas: [] };
+                } catch(e) {
+                    console.log("Iniciando vacío:", e);
+                    userData = { materias: [], eventos: {}, notas: [], tareas: [] };
+                }
+                startApp();
+            }
+        });
+
+        function startApp() {
+            try {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+                
+                const nameDisplay = currentUser.email.split('@')[0];
+                document.getElementById('dash-name').innerText = nameDisplay.charAt(0).toUpperCase() + nameDisplay.slice(1);
+                
+                if(currentUser.email === 'admi@nomade.app') {
+                    document.getElementById('view-admin').classList.remove('hidden');
+                    document.getElementById('btn-admin-panel').classList.remove('hidden');
+                    loadAdminUsers();
+                    nav('admin');
+                } else {
+                    nav('dashboard');
+                }
+                lucide.createIcons();
+            } catch(e) { alert("Error arranque: " + e.message); }
+        }
+
+        function logout() { auth.signOut(); location.reload(); }
+
+        function saveData() { 
+            if(currentUser.uid === 'local_admin') return;
+            const st = document.getElementById('cloud-status');
+            st.style.opacity = '1';
+            dbCloud.collection('app_data').doc(currentUser.uid).set(userData)
+                .then(() => { setTimeout(()=>st.style.opacity='0', 1000); })
+                .catch(e => console.error(e));
+        }
+
+        // ==========================================
+        // 3. ADMIN: GESTIÓN DE USUARIOS
+        // ==========================================
+        async function crearUsuarioDocente() {
+            const uInput = document.getElementById('new-user-username').value.trim();
+            const pass = document.getElementById('new-user-pass').value;
+            const name = document.getElementById('new-user-fullname').value;
+
+            if(!uInput || !pass) return alert("Faltan datos");
+            if(pass.length < 6) return alert("Mínimo 6 caracteres");
+
+            let email = uInput.includes('@') ? uInput : uInput + '@nomade.app';
+            const btn = document.querySelector('#view-admin button');
+            const txt = btn.innerText;
+            btn.innerText = "⏳"; btn.disabled = true;
+
+            try {
+                let adminAuth;
+                try {
+                    const app2 = firebase.apps.find(a=>a.name==="Secondary") || firebase.initializeApp(firebaseConfig, "Secondary");
+                    adminAuth = app2.auth();
+                } catch(e) { throw e; }
+
+                const cred = await adminAuth.createUserWithEmailAndPassword(email, pass);
+                
+                await dbCloud.collection('users').doc(cred.user.uid).set({
+                    email: email, name: name || uInput, created: new Date().toISOString()
+                });
+                await dbCloud.collection('app_data').doc(cred.user.uid).set({ materias:[], eventos:{}, notas:[], tareas:[] });
+                
+                await adminAuth.signOut();
+                alert(`✅ CREADO: ${uInput} / ${pass}`);
+                document.getElementById('new-user-username').value = '';
+                document.getElementById('new-user-pass').value = '';
+                document.getElementById('new-user-fullname').value = '';
+                loadAdminUsers();
+
+            } catch(e) {
+                if(e.code === 'auth/email-already-in-use') alert("⛔ YA EXISTE.");
+                else alert("Error: " + e.message);
+            } finally {
+                btn.innerText = txt; btn.disabled = false;
+            }
+        }
+
+        async function loadAdminUsers() {
+            const list = document.getElementById('admin-user-list');
+            list.innerHTML = '<div class="text-center text-gray-400 mt-2">Cargando...</div>';
+            try {
+                const snap = await dbCloud.collection('users').orderBy('created', 'desc').get();
+                list.innerHTML = '';
+                if(snap.empty) { list.innerHTML='<p class="text-center text-xs mt-2">Sin usuarios.</p>'; return; }
+                snap.forEach(doc => {
+                    const u = doc.data();
+                    list.innerHTML += `<div class="bg-white p-3 rounded-lg border border-gray-100 flex justify-between items-center mb-2 shadow-sm"><div class="overflow-hidden"><span class="font-bold block text-nomade-blue text-sm truncate">${u.name}</span><span class="text-[10px] text-gray-500 truncate block">${u.email}</span></div><button onclick="deleteUser('${doc.id}')" class="bg-red-50 text-red-500 p-2 rounded hover:bg-red-100 ml-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
+                });
+                lucide.createIcons();
+            } catch(e) { list.innerHTML = '<p class="text-center text-red-400 text-xs">Error Permisos DB.</p>'; }
+        }
+
+        async function deleteUser(uid) {
+            if(!confirm("¿Eliminar? (Se borran los datos, el acceso Google queda)")) return;
+            await dbCloud.collection('users').doc(uid).delete();
+            loadAdminUsers();
+        }
+
+        // ==========================================
+        // 4. DASHBOARD Y NAVEGACIÓN
+        // ==========================================
+        function nav(v){ 
+            ['dashboard','materias','aula','lista','calendario','cuaderno','retro','admin'].forEach(id=>document.getElementById('view-'+id)?.classList.add('hidden')); 
+            document.getElementById('view-'+v).classList.remove('hidden'); 
+            ['dash','mat','cal','cua','ret'].forEach(k => { const el = document.getElementById('nav-'+k); if(el) el.className = 'flex flex-col items-center text-gray-400 w-full justify-center'; });
+            const map = {dashboard:'dash', materias:'mat', calendario:'cal', cuaderno:'cua', retro:'ret'};
+            if(map[v]) document.getElementById('nav-'+map[v]).className = 'flex flex-col items-center text-nomade-green w-full justify-center scale-110 transition';
+            if(v==='dashboard') initDash();
+            if(v==='materias') renderMaterias();
+            if(v==='calendario') renderCalendar(currentMonth, currentYear);
+            lucide.createIcons(); 
+        }
+
+        function initDash(){ 
+            const d=new Date(); const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']; const h=d.toISOString().split('T')[0];
+            document.getElementById('fecha-hoy').innerText=`${dias[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}`;
+            const lHoy=document.getElementById('lista-hoy'); lHoy.innerHTML=''; let hay=false;
+            if(userData.materias) userData.materias.forEach(m=>{
+                if(m.dia === dias[d.getDay()]){ hay=true; lHoy.innerHTML+=`<div class="bg-white p-3 rounded-lg border-l-4 border-nomade-blue shadow-sm mb-2"><strong class="block text-nomade-blue text-sm uppercase">${m.nombre}</strong><div class="mt-1 text-xs text-gray-600">📝 ${m.planificacion?.[h]?.tema || 'Sin tema'}</div></div>`; }
+            });
+            if(!hay) lHoy.innerHTML='<span class="text-xs text-gray-400 italic">Libre hoy.</span>';
+            const lSem=document.getElementById('lista-semana'); lSem.innerHTML=''; let haySem=false;
+            for(let i=1; i<=5; i++){
+                const next=new Date(); next.setDate(d.getDate()+i); const nextIso=next.toISOString().split('T')[0];
+                const dayName=dias[next.getDay()]; const dateShort=`${next.getDate()}/${next.getMonth()+1}`;
+                if(userData.materias) userData.materias.forEach(m=>{
+                    if(m.dia===dayName){ haySem=true; lSem.innerHTML+=`<div class="flex flex-col border-b border-gray-50 pb-2 mb-2"><div class="flex justify-between items-center"><span class="text-xs font-bold text-nomade-green uppercase">${dayName} ${dateShort}</span></div><span class="text-xs text-gray-800 font-bold">${m.nombre}</span><span class="text-[10px] text-gray-500 italic">${m.planificacion?.[nextIso]?.tema || '...'}</span></div>`; }
+                });
+            }
+            if(!haySem) lSem.innerHTML='<span class="text-xs text-gray-400 italic">Semana libre.</span>';
+            renderTareas();
+        }
+
+        // ==========================================
+        // 5. MATERIAS Y AULA
+        // ==========================================
+        function renderMaterias(){ const l=document.getElementById('lista-materias'); l.innerHTML=''; if(!userData.materias || userData.materias.length===0) { document.getElementById('no-materias').classList.remove('hidden'); return; } document.getElementById('no-materias').classList.add('hidden'); userData.materias.forEach(m => { l.innerHTML+=`<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center mb-2" onclick="abrirAula(${m.id})"><div><h3 class="font-bold text-nomade-blue">${m.nombre}</h3><div class="text-xs text-gray-400 uppercase">${m.dia} • ${m.modalidadBase}</div></div><i data-lucide="chevron-right" class="text-gray-300"></i></div>`; }); lucide.createIcons(); }
         function abrirAula(id){ activeId=id; const m=userData.materias.find(x=>x.id===id); document.getElementById('aula-nombre').innerText=m.nombre; document.getElementById('aula-modalidad').innerText=m.modalidadBase; nav('aula'); setTab('crono'); }
-        function openDayEvents(iso){ activeCalISO = iso; const list = document.getElementById('day-events-list'); list.innerHTML = ''; document.getElementById('event-date-title').innerText = iso.split('-').reverse().slice(0,2).join('/'); const d = new Date(iso + 'T12:00:00'); const dayName = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][d.getDay()]; if(userData.materias) { userData.materias.forEach(m => { if(m.dia === dayName) { list.innerHTML += `<div class="bg-gray-100 p-2 rounded text-xs font-bold text-gray-700 mb-1 border-l-4 border-nomade-blue">${m.nombre} <span class="block font-normal text-gray-500">${m.horario||''}</span></div>`; } }); } if(userData.eventos && userData.eventos[iso]) { userData.eventos[iso].forEach((ev, idx) => { list.innerHTML += `<div class="bg-white p-2 rounded text-xs flex justify-between mb-1 border border-gray-200"><span>${ev}</span><button onclick="delEvent('${iso}',${idx})" class="text-red-500 font-bold">X</button></div>`; }); } openModal('modal-cal-event'); }
-        function changeMonth(step){currentMonth+=step; if(currentMonth>11){currentMonth=0;currentYear++}else if(currentMonth<0){currentMonth=11;currentYear--} renderCalendar(currentMonth,currentYear);}
-        function renderCalendar(m,y){const months=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]; document.getElementById('cal-month-year').innerText=`${months[m]} ${y}`; const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate(), g=document.getElementById('calendar-grid'); g.innerHTML=''; for(let i=0;i<first;i++)g.innerHTML+='<div></div>'; for(let i=1;i<=days;i++){const iso=new Date(y,m,i).toISOString().split('T')[0]; let dots=''; if(userData.eventos?.[iso]) dots+=`<div class="w-1.5 h-1.5 bg-nomade-green rounded-full"></div>`; if(userData.materias) userData.materias.forEach(mt=>{const map=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']; if(mt.dia===map[new Date(y,m,i).getDay()]) dots+=`<div class="w-1.5 h-1.5 bg-nomade-blue rounded-full"></div>`;}); g.innerHTML+=`<div onclick="openDayEvents('${iso}')" class="calendar-day flex flex-col items-center justify-between border rounded-lg cursor-pointer hover:bg-gray-50"><span class="text-xs font-bold">${i}</span><div class="flex gap-0.5">${dots}</div></div>`;}}
-        function addCalendarEvent(){const t=document.getElementById('new-event-text').value; if(!userData.eventos) userData.eventos={}; if(!userData.eventos[activeCalISO]) userData.eventos[activeCalISO]=[]; userData.eventos[activeCalISO].push(t); saveData(); closeModal('modal-cal-event'); renderCalendar(currentMonth,currentYear); initDash();}
-        function delEvent(iso,idx){userData.eventos[iso].splice(idx,1); saveData(); openDayEvents(iso); renderCalendar(currentMonth,currentYear); initDash();}
-        function renderTareas(){const l=document.getElementById('lista-tareas'); l.innerHTML=''; userData.tareas.forEach((t,i)=>l.innerHTML+=`<div class="flex items-center gap-2 p-2 border-b"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTarea(${i})"><span class="${t.done?'line-through opacity-50':''}">${t.text}</span><button onclick="delTarea(${i})" class="ml-auto text-red-500">X</button></div>`);}
+        function openMateriaModal(){ document.getElementById('edit-mat-id').value=''; document.getElementById('input-mat-nombre').value=''; openModal('modal-materia'); }
+        function guardarMateria(){ const nom = document.getElementById('input-mat-nombre').value; if(!nom) return alert("Falta nombre"); const mat = { id: Date.now(), nombre: nom, dia: document.getElementById('input-mat-dia').value, modalidadBase: document.getElementById('input-mat-mod').value, horario: document.getElementById('input-mat-horario').value, fechaInicio: document.getElementById('input-mat-inicio').value, fechaFin: document.getElementById('input-mat-fin').value, planificacion: {}, cronograma: {}, alumnos: [], examenes: [], asistencias: {} }; userData.materias.push(mat); saveData(); closeModal('modal-materia'); renderMaterias(); }
+
+        // ==========================================
+        // 6. CRONOGRAMA, ALUMNOS Y NOTAS
+        // ==========================================
+        function renderCrono(){ const m = userData.materias.find(x => x.id === activeId); if (!m) return; const l = document.getElementById('lista-cronograma'); l.innerHTML = ''; const map = { 'Domingo': 0, 'Lunes': 1, 'Martes': 2, 'Miércoles': 3, 'Jueves': 4, 'Viernes': 5, 'Sábado': 6 }; const targetDay = map[m.dia]; if(!m.fechaInicio) return l.innerHTML='<div class="text-center text-xs text-red-400">Configurá fecha de inicio</div>'; let d = new Date(m.fechaInicio + 'T12:00:00'); const fin = new Date(m.fechaFin + 'T12:00:00'); while (d.getDay() !== targetDay) { d.setDate(d.getDate() + 1); } while (d <= fin) { const iso = d.toISOString().split('T')[0]; const displayDate = `${d.getDate()}/${d.getMonth() + 1}`; let st = m.cronograma?.[iso] || m.modalidadBase; const plan = m.planificacion?.[iso]?.tema || ''; l.innerHTML += `<div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-3"><div class="flex justify-between items-center mb-2"><span class="font-black text-nomade-blue text-sm w-10">${displayDate}</span><div class="flex gap-1"><button onclick="cycle('${iso}')" class="px-2 py-1 rounded text-[9px] font-bold uppercase bg-gray-100 text-gray-500">${st}</button></div></div><input class="w-full text-sm bg-gray-50 p-2 rounded" placeholder="Tema..." value="${plan}" onchange="saveTema('${iso}',this.value)"><div class="flex justify-end mt-2"><button onclick="openClaseDetail('${iso}')" class="text-nomade-green text-xs font-bold flex items-center gap-1"><i data-lucide="plus-circle" class="w-3"></i> DETALLES</button></div></div>`; d.setDate(d.getDate() + 7); } lucide.createIcons(); }
+        function cycle(iso) { const m = userData.materias.find(x => x.id === activeId); if (!m.cronograma) m.cronograma = {}; const states = ['Presencial', 'Virtual', 'Receso']; m.cronograma[iso] = states[(states.indexOf(m.cronograma[iso] || m.modalidadBase) + 1) % states.length]; saveData(); renderCrono(); }
+        function saveTema(iso,val){ const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={}; if(!m.planificacion[iso]) m.planificacion[iso]={}; m.planificacion[iso].tema=val; saveData(); }
+        function openClaseDetail(iso){activeDateISO=iso; const p=userData.materias.find(x=>x.id===activeId).planificacion?.[iso]||{}; document.getElementById('detail-tema').value=p.tema||''; document.getElementById('detail-biblio').value=p.biblio||''; document.getElementById('detail-act-clase').value=p.actClase||''; document.getElementById('detail-act-tarea').value=p.actTarea||''; openModal('modal-clase-detail');}
+        function saveClaseDetail(){const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion)m.planificacion={}; m.planificacion[activeDateISO]={tema:document.getElementById('detail-tema').value, biblio:document.getElementById('detail-biblio').value, actClase:document.getElementById('detail-act-clase').value, actTarea:document.getElementById('detail-act-tarea').value}; saveData(); closeModal('modal-clase-detail'); renderCrono();}
+        
+        function renderAlum(){const m=userData.materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML=''; m.alumnos.forEach((al,i)=>{l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center mb-2 shadow-sm"><div class="flex items-center gap-3"><div class="avatar-small overflow-hidden"><img src="${al.foto||'https://via.placeholder.com/40'}" class="w-full h-full object-cover"></div><span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span></div><button onclick="delAlum(${i})" class="text-red-400"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
+        function guardarAlumno(){const m=userData.materias.find(x=>x.id===activeId); const fotoInput=document.getElementById('input-alum-foto'); let fotoUrl=''; const saver=(url)=>{m.alumnos.push({id:Date.now(), ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, foto:url, notas:{}}); saveData(); closeModal('modal-alumno'); renderAlum();}; if(fotoInput.files[0]){const r=new FileReader(); r.onload=e=>saver(e.target.result); r.readAsDataURL(fotoInput.files[0]);} else saver('');}
+        function delAlum(i){userData.materias.find(x=>x.id===activeId).alumnos.splice(i,1); saveData(); renderAlum();}
+        function openAlumnoModal(){document.getElementById('input-alum-ape').value=''; openModal('modal-alumno');}
+
+        function renderNotas(){const m=userData.materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); h.innerHTML='<th>Alumno</th>'; m.examenes.forEach((e,i)=>h.innerHTML+=`<th onclick="openExamModal(${i})" class="cursor-pointer hover:text-blue-500">${e.nombre}</th>`); h.innerHTML+='<th>+</th>'; b.innerHTML=''; m.alumnos.forEach((al,i)=>{let r=`<tr><td class="p-2 border-b text-sm">${al.ape}</td>`; m.examenes.forEach(e=>{ r+=`<td class="p-2 border-b"><input class="w-8 p-1 border rounded text-center" value="${al.notas[e.id]||''}" onchange="saveNota(${i},${e.id},this.value)"></td>`; }); r+='<td></td></tr>'; b.innerHTML+=r;});}
+        function openExamModal(){openModal('modal-examen');} function guardarExamen(){userData.materias.find(x=>x.id===activeId).examenes.push({id:Date.now(), nombre:document.getElementById('input-exam-nom').value}); saveData(); closeModal('modal-examen'); renderNotas();}
+        function saveNota(i,eid,v){userData.materias.find(x=>x.id===activeId).alumnos[i].notas[eid]=v; saveData();}
+
+        // ==========================================
+        // 7. ASISTENCIA
+        // ==========================================
+        function iniciarTomaLista(){if(!activeId)return; const h=new Date().toISOString().split('T')[0]; document.getElementById('input-fecha-lista').value=h; cambiarFechaLista(h); nav('lista');}
+        function cambiarFechaLista(iso){activeDateISO=iso; const m=userData.materias.find(x=>x.id===activeId), c=document.getElementById('lista-check-container'); c.innerHTML=''; m.alumnos.forEach(al=>{const st=m.asistencias?.[iso]?.[al.id]||'P'; c.innerHTML+=`<div class="bg-white p-3 border rounded mb-2 flex justify-between"><span class="font-bold">${al.ape}</span><button id="btn-as-${al.id}" onclick="cycleAsist(${al.id})" class="font-bold border px-2 rounded">${st}</button></div>`;});}
+        function cycleAsist(uid){const b=document.getElementById(`btn-as-${uid}`), sts=['P','A','T','J']; b.innerText=sts[(sts.indexOf(b.innerText)+1)%4];}
+        function guardarLista(){const m=userData.materias.find(x=>x.id===activeId); if(!m.asistencias)m.asistencias={}; const map={}; m.alumnos.forEach(al=>map[al.id]=document.getElementById(`btn-as-${al.id}`).innerText); m.asistencias[activeDateISO]=map; saveData(); nav('aula'); setTab('alumnos');}
+        function cancelarLista(){nav('aula');}
+
+        // ==========================================
+        // 8. CUADERNO
+        // ==========================================
+        let penColor='#000000', penSize=2, canvas, ctx, drawing=false, lastX=0, lastY=0, activeNoteId=null;
+        function setDrawColor(c){ penColor=c; } function setDrawSize(s){ penSize=s; } function setTool(t){ penColor = t==='eraser' ? '#FFFFFF' : document.getElementById('draw-color').value; penSize = t==='eraser' ? 20 : 2; }
+        function createNote(type){ if(!userData.notas) userData.notas = []; userData.notas.unshift({id:Date.now(), title:document.getElementById('new-nota-title').value || 'Nota', type:type, content:''}); saveData(); closeModal('modal-new-nota'); document.getElementById('new-nota-title').value = ''; openNoteEditor(0); }
+        function renderNotesList(){ const l=document.getElementById('lista-notas'); l.innerHTML=''; if(!userData.notas || userData.notas.length===0) { document.getElementById('no-notas').classList.remove('hidden'); return; } document.getElementById('no-notas').classList.add('hidden'); userData.notas.forEach((n,i)=>l.innerHTML+=`<div onclick="openNoteEditor(${i})" class="bg-white p-4 shadow rounded-xl cursor-pointer border-l-4 ${n.type==='text'?'border-blue-500':'border-purple-500'} relative group"><span class="font-bold text-sm">${n.title}</span><button onclick="event.stopPropagation(); deleteNote(${i})" class="absolute top-2 right-2 text-red-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4"></i></button></div>`); lucide.createIcons(); }
+        function deleteNote(i){ if(confirm("¿Borrar?")) { userData.notas.splice(i,1); saveData(); renderNotesList(); } }
+        function openNoteEditor(i){ const n=userData.notas[i]; activeNoteId=n.id; document.getElementById('editor-title').innerText=n.title; const t=document.getElementById('editor-text'), d=document.getElementById('editor-draw'); document.getElementById('editor-nota').classList.remove('hidden'); if(n.type==='draw'){ t.classList.add('hidden'); d.classList.remove('hidden'); setTimeout(()=>initCanvas(n.content),100); } else { t.classList.remove('hidden'); d.classList.add('hidden'); t.value=n.content||''; } }
+        function closeEditor(){ document.getElementById('editor-nota').classList.add('hidden'); renderNotesList(); }
+        function saveCurrentNote(){ const i=userData.notas.findIndex(n=>n.id===activeNoteId); if(i===-1)return; if(userData.notas[i].type==='text'){ userData.notas[i].content=document.getElementById('editor-text').value; } else { userData.notas[i].content=canvas.toDataURL(); } saveData(); }
+        function initCanvas(src){ canvas=document.getElementById('drawing-canvas'); ctx=canvas.getContext('2d'); const p=document.getElementById('canvas-container'); canvas.width=p.clientWidth; canvas.height=p.clientHeight; ctx.fillStyle="white"; ctx.fillRect(0,0,canvas.width,canvas.height); if(src){const i=new Image(); i.onload=()=>ctx.drawImage(i,0,0); i.src=src;} const start=(e)=>{drawing=true; const r=canvas.getBoundingClientRect(); lastX=(e.clientX||e.touches[0].clientX)-r.left; lastY=(e.clientY||e.touches[0].clientY)-r.top; e.preventDefault();}; const move=(e)=>{if(!drawing)return; const r=canvas.getBoundingClientRect(); const x=(e.clientX||e.touches[0].clientX)-r.left; const y=(e.clientY||e.touches[0].clientY)-r.top; ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(x,y); ctx.strokeStyle=penColor; ctx.lineWidth=penSize; ctx.lineCap='round'; ctx.stroke(); lastX=x; lastY=y; e.preventDefault();}; const end=()=>{drawing=false;}; canvas.onmousedown=start; canvas.onmousemove=move; canvas.onmouseup=end; canvas.ontouchstart=start; canvas.ontouchmove=move; canvas.ontouchend=end; }
+        function clearCanvas(){ if(confirm("¿Limpiar?")) { ctx.fillStyle="white"; ctx.fillRect(0,0,canvas.width,canvas.height); } }
+
+        // ==========================================
+        // 9. UTILIDADES (CALENDARIO, TAREAS, EXPORT, IA, IMPORT)
+        // ==========================================
+        function changeMonth(s){currentMonth+=s; if(currentMonth>11){currentMonth=0;currentYear++}else if(currentMonth<0){currentMonth=11;currentYear--} renderCalendar(currentMonth,currentYear);}
+        function renderCalendar(m,y){const mos=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"]; document.getElementById('cal-month-year').innerText=`${mos[m]} ${y}`; const f=new Date(y,m,1).getDay(), d=new Date(y,m+1,0).getDate(), g=document.getElementById('calendar-grid'); g.innerHTML=''; for(let i=0;i<f;i++)g.innerHTML+='<div></div>'; for(let i=1;i<=d;i++){ const iso=new Date(y,m,i).toISOString().split('T')[0]; let dots=''; if(userData.eventos?.[iso]) dots=`<div class="w-1.5 h-1.5 bg-nomade-green rounded-full"></div>`; g.innerHTML+=`<div onclick="openDayEvents('${iso}')" class="calendar-day flex flex-col items-center border rounded hover:bg-gray-50"><span class="text-xs">${i}</span>${dots}</div>`;}}
+        function openDayEvents(iso){activeCalISO=iso; document.getElementById('event-date-title').innerText=iso; const l=document.getElementById('day-events-list'); l.innerHTML=''; userData.eventos?.[iso]?.forEach((e,i)=>l.innerHTML+=`<div class="flex justify-between border-b p-1"><span>${e}</span><button onclick="delEvent('${iso}',${i})">X</button></div>`); openModal('modal-cal-event');}
+        function addCalendarEvent(){const t=document.getElementById('new-event-text').value; if(!userData.eventos)userData.eventos={}; if(!userData.eventos[activeCalISO])userData.eventos[activeCalISO]=[]; userData.eventos[activeCalISO].push(t); saveData(); closeModal('modal-cal-event');}
+        function delEvent(iso,i){userData.eventos[iso].splice(i,1); saveData(); openDayEvents(iso);}
+        
+        function renderTareas(){const l=document.getElementById('lista-tareas'); l.innerHTML=''; userData.tareas.forEach((t,i)=>l.innerHTML+=`<div class="flex items-center gap-2 p-2 border-b"><input type="checkbox" ${t.done?'checked':''} onchange="togTarea(${i})"><span class="${t.done?'line-through opacity-50':''}">${t.text}</span><button onclick="delTarea(${i})" class="ml-auto text-red-500">X</button></div>`);}
         function guardarTarea(){userData.tareas.push({text:document.getElementById('input-tarea-txt').value, done:false}); saveData(); closeModal('modal-tarea'); renderTareas();}
-        function toggleTarea(i){userData.tareas[i].done=!userData.tareas[i].done; saveData(); renderTareas();}
+        function togTarea(i){userData.tareas[i].done=!userData.tareas[i].done; saveData(); renderTareas();}
         function delTarea(i){userData.tareas.splice(i,1); saveData(); renderTareas();}
-        function openSettings(){document.getElementById('modal-settings').classList.remove('hidden');} function closeModal(id){document.getElementById(id).classList.add('hidden');} function openModal(id){document.getElementById(id).classList.remove('hidden');} function setTab(t){['crono','alumnos','notas'].forEach(x=>{document.getElementById('tab-'+x).classList.add('hidden'); document.getElementById('btn-'+x).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400';}); document.getElementById('tab-'+t).classList.remove('hidden'); document.getElementById('btn-'+t).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-nomade-blue text-white'; if(t==='crono')renderCrono(); if(t==='alumnos')renderAlum(); if(t==='notas')renderNotas();}
-        function openClaseDetail(iso){activeDateISO=iso; const m=userData.materias.find(x=>x.id===activeId), p=m.planificacion?.[iso]||{}; document.getElementById('detail-date').innerText=iso; document.getElementById('detail-tema').value=p.tema||''; document.getElementById('detail-biblio').value=p.biblio||''; document.getElementById('detail-act-clase').value=p.actClase||''; document.getElementById('detail-act-tarea').value=p.actTarea||''; openModal('modal-clase-detail');}
-        function saveClaseDetail(){const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={}; m.planificacion[activeDateISO]={tema:document.getElementById('detail-tema').value, biblio:document.getElementById('detail-biblio').value, actClase:document.getElementById('detail-act-clase').value, actTarea:document.getElementById('detail-act-tarea').value}; saveData(); closeModal('modal-clase-detail'); renderCrono();}
+
+        function openModal(id){document.getElementById(id).classList.remove('hidden');}
+        function closeModal(id){document.getElementById(id).classList.add('hidden');}
+        function setTab(t){['crono','alumnos','notas'].forEach(x=>{document.getElementById('tab-'+x).classList.add('hidden'); document.getElementById('btn-'+x).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400';}); document.getElementById('tab-'+t).classList.remove('hidden'); document.getElementById('btn-'+t).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-nomade-blue text-white'; if(t==='crono')renderCrono(); if(t==='alumnos')renderAlum(); if(t==='notas')renderNotas();}
+        
+        // RECUPERADO: IMPORTACIÓN
         function openImportModal(){document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('input-import-text').value='';}
         function processImport(){const raw=document.getElementById('input-import-text').value; if(!raw.trim()){alert("Pega el contenido.");return;} const lines=raw.split('\n'); const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={}; let count=0; lines.forEach(line=>{const parts=line.split('\t'); if(parts.length>=1){const dateRaw=parts[0].trim(); const match=dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/); if(match){const day=match[1].padStart(2,'0'); const month=match[2].padStart(2,'0'); const year=match[3].length===2?'20'+match[3]:match[3]; const isoDate=`${year}-${month}-${day}`; let idx=1; if(parts[idx]&&parts[idx].trim().length<3&&!isNaN(parseInt(parts[idx]))) idx++; const tema=parts[idx]?parts[idx].trim():""; const biblio=parts[idx+1]?parts[idx+1].trim():""; const actClase=parts[idx+2]?parts[idx+2].trim():""; const actTarea=parts[idx+3]?parts[idx+3].trim():""; if(tema){m.planificacion[isoDate]={tema,biblio,actClase,actTarea}; count++;}}}}); saveData(); alert(`✅ Se importaron ${count} clases.`); closeModal('modal-import'); renderCrono();}
-        function renderAlum(){const m=userData.materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML=''; m.alumnos.forEach((al,i)=>{l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center mb-2 shadow-sm"><div class="flex items-center gap-3"><div class="avatar-small overflow-hidden"><img src="${al.foto||'https://via.placeholder.com/40'}" class="w-full h-full object-cover"></div><span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span></div><button onclick="delAlum(${i})" class="text-red-400"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
-        function guardarAlumno(){const m=userData.materias.find(x=>x.id===activeId); const fotoInput=document.getElementById('input-alum-foto'); let fotoUrl=''; if(fotoInput.files[0]){const reader=new FileReader(); reader.onload=function(e){fotoUrl=e.target.result; m.alumnos.push({id:Date.now(), ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, foto:fotoUrl, notas:{}}); saveData(); closeModal('modal-alumno'); renderAlum();}; reader.readAsDataURL(fotoInput.files[0]);} else {m.alumnos.push({id:Date.now(), ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, foto:'', notas:{}}); saveData(); closeModal('modal-alumno'); renderAlum();}}
-        function previewImage(input){if(input.files&&input.files[0]){const reader=new FileReader(); reader.onload=function(e){document.getElementById('preview-foto').src=e.target.result; document.getElementById('preview-foto').classList.remove('hidden'); document.getElementById('placeholder-foto').classList.add('hidden');}; reader.readAsDataURL(input.files[0]);}}
-        function delAlum(i){const m=userData.materias.find(x=>x.id===activeId); m.alumnos.splice(i,1); saveData(); renderAlum();}
-        function openAlumnoModal(idx=null){document.getElementById('edit-alum-idx').value=idx!==null?idx:''; document.getElementById('input-alum-ape').value=idx!==null?userData.materias.find(x=>x.id===activeId).alumnos[idx].ape:''; document.getElementById('input-alum-nom').value=idx!==null?userData.materias.find(x=>x.id===activeId).alumnos[idx].nom:''; document.getElementById('preview-foto').classList.add('hidden'); document.getElementById('placeholder-foto').classList.remove('hidden'); openModal('modal-alumno');}
-        function openExamModal(idx=null){document.getElementById('edit-exam-id').value=idx!==null?idx:''; if(idx!==null){const e=userData.materias.find(x=>x.id===activeId).examenes[idx]; document.getElementById('input-exam-nom').value=e.nombre; document.getElementById('input-exam-date').value=e.fecha;}else{document.getElementById('input-exam-nom').value='';} openModal('modal-examen');}
-        function renderNotas(){const m=userData.materias.find(x=>x.id===activeId), h=document.getElementById('head-notas'), b=document.getElementById('body-notas'); h.innerHTML='<th>Alumno</th>'; m.examenes.forEach((e,i)=>h.innerHTML+=`<th onclick="openExamModal(${i})" class="cursor-pointer hover:text-blue-500">${e.nombre}</th>`); h.innerHTML+='<th>+</th>'; b.innerHTML=''; m.alumnos.forEach((al,i)=>{let r=`<tr><td class="p-2 border-b text-sm">${al.ape}</td>`; m.examenes.forEach(e=>{ r+=`<td class="p-2 border-b"><input class="w-8 p-1 border rounded text-center" value="${al.notas[e.id]||''}" onchange="saveNota(${i},${e.id},this.value)"></td>`; }); r+='<td></td></tr>'; b.innerHTML+=r;});}
-        function guardarExamen(){const m=userData.materias.find(x=>x.id===activeId); m.examenes.push({id:Date.now(), nombre:document.getElementById('input-exam-nom').value}); saveData(); closeModal('modal-examen'); renderNotas();}
-        function saveNota(i,eid,v){const m=userData.materias.find(x=>x.id===activeId); m.alumnos[i].notas[eid]=v; saveData();}
-        
-        // EXPORTACION
-        function openExportModal(type){ document.getElementById('export-type').value=type; openModal('modal-export'); }
-       // ==========================================
-// 📊 PARCHE EXPORTACIÓN DETALLADA (V46)
-// ==========================================
 
-function executeExport() {
-    const type = document.getElementById('export-type').value;
-    const incList = document.getElementById('exp-lista').checked;
-    const incAsist = document.getElementById('exp-asist').checked;
-    const incNotas = document.getElementById('exp-notas').checked;
-    const incPlan = document.getElementById('exp-plan').checked;
-    
-    const m = userData.materias.find(x => x.id === activeId);
-    if (!m) return;
+        // RECUPERADO: IA
+        function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
+        function copiarIA() { const t = document.getElementById("ia-output"); t.select(); document.execCommand("copy"); alert("Copiado!"); }
 
-    // Obtener TODAS las fechas donde se tomó lista, ordenadas
-    const fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
+        function openExportModal(t){document.getElementById('export-type').value=t; openModal('modal-export');}
+        function executeExport(){const m=userData.materias.find(x=>x.id===activeId), t=document.getElementById('export-type').value; if(t==='xls'){let csv="ALUMNO,ASISTENCIA,NOTAS\n"; m.alumnos.forEach(a=>{csv+=`${a.ape},,\n`;}); const l=document.createElement("a"); l.href="data:text/csv;charset=utf-8,"+encodeURI(csv); l.download="Reporte.csv"; document.body.appendChild(l); l.click(); l.remove();} else {const doc=new window.jspdf.jsPDF(); doc.text(m.nombre,10,10); doc.save("Reporte.pdf");} closeModal('modal-export');}
+        function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
 
-    // --- MODO EXCEL (CSV) ---
-    if (type === 'xls') {
-        let csv = "data:text/csv;charset=utf-8,";
-        
-        // Cabeceras
-        if (incList) csv += "APELLIDO,NOMBRE";
-        if (incAsist) {
-            fechas.forEach(f => {
-                // Formato dd/mm
-                const d = f.split('-')[2] + '/' + f.split('-')[1];
-                csv += `,${d}`;
-            });
-            csv += ",% FINAL";
-        }
-        if (incNotas) {
-            m.examenes.forEach(e => csv += `,NOTA: ${e.nombre}`);
-        }
-        csv += "\n";
-
-        // Filas
-        m.alumnos.forEach(a => {
-            if (incList) csv += `${a.ape},${a.nom}`;
-            
-            if (incAsist) {
-                let presentes = 0;
-                let total = 0;
-                fechas.forEach(f => {
-                    let st = m.asistencias[f][a.id] || '-';
-                    // REGLA: Tarde cuenta como Presente en el reporte
-                    if (st === 'T') st = 'P';
-                    
-                    csv += `,${st}`;
-                    
-                    if (st !== '-') total++;
-                    if (st === 'P') presentes++;
-                });
-                const porc = total > 0 ? Math.round((presentes/total)*100) : 0;
-                csv += `,${porc}%`;
-            }
-
-            if (incNotas) {
-                m.examenes.forEach(e => csv += `,${a.notas[e.id]||''}`);
-            }
-            csv += "\n";
-        });
-        
-        const link = document.createElement("a");
-        link.setAttribute("href", encodeURI(csv));
-        link.setAttribute("download", `Reporte_${m.nombre}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-    } 
-    // --- MODO PDF ---
-    else {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l'); // Horizontal
-        
-        doc.setFontSize(18);
-        doc.text(`Planilla: ${m.nombre}`, 14, 15);
-        doc.setFontSize(10);
-        doc.text(`Horario: ${m.horario || '-'}`, 14, 22);
-
-        const head = [];
-        const body = [];
-
-        // Armar cabecera PDF
-        const rowHead = [];
-        if(incList) rowHead.push('Apellido y Nombre');
-        if(incAsist) {
-            fechas.forEach(f => rowHead.push(f.split('-')[2]+'/'+f.split('-')[1]));
-            rowHead.push('%');
-        }
-        if(incNotas) m.examenes.forEach(e => rowHead.push(e.nombre));
-        head.push(rowHead);
-
-        // Armar cuerpo PDF
-        m.alumnos.forEach(a => {
-            const row = [];
-            if(incList) row.push(`${a.ape}, ${a.nom}`);
-            
-            if(incAsist) {
-                let presentes = 0, total = 0;
-                fechas.forEach(f => {
-                    let st = m.asistencias[f][a.id] || '-';
-                    if (st === 'T') st = 'P'; // Regla T=P
-                    row.push(st);
-                    if(st!=='-') total++;
-                    if(st==='P') presentes++;
-                });
-                row.push(total > 0 ? Math.round((presentes/total)*100)+'%' : '-');
-            }
-            
-            if(incNotas) {
-                m.examenes.forEach(e => row.push(a.notas[e.id]||'-'));
-            }
-            body.push(row);
-        });
-
-        if(incList || incAsist || incNotas) {
-            doc.autoTable({
-                startY: 25,
-                head: head,
-                body: body,
-                styles: { fontSize: 8, cellPadding: 1 },
-                headStyles: { fillColor: [20, 78, 126] }
-            });
-        }
-
-        if(incPlan) {
-            doc.addPage();
-            doc.text("Planificación", 14, 15);
-            const bodyPlan = Object.entries(m.planificacion || {}).sort().map(([k,v]) => {
-                 return [k.split('-').reverse().join('/'), v.tema, v.actClase];
-            });
-            doc.autoTable({
-                head: [['Fecha', 'Tema', 'Actividad']],
-                body: bodyPlan,
-                startY: 20
-            });
-        }
-        
-        doc.save(`Planilla_${m.nombre}.pdf`);
-    }
-    closeModal('modal-export');
-}
         // ==========================================
-// 📋 FUNCIONES DE ASISTENCIA (PEGAR AL FINAL DEL SCRIPT)
-// ==========================================
-
-function iniciarTomaLista() {
-    // 1. Verificamos que haya una materia abierta
-    if (!activeId) {
-        alert("Error: No se ha seleccionado ninguna materia.");
-        return;
-    }
-
-    // 2. Preparamos la fecha de hoy
-    const hoy = new Date().toISOString().split('T')[0];
-    
-    // 3. Forzamos el valor en el input de fecha (si existe en el HTML)
-    const inputFecha = document.getElementById('input-fecha-lista');
-    if (inputFecha) {
-        inputFecha.value = hoy;
-    }
-
-    // 4. Generamos la lista visual
-    cambiarFechaLista(hoy);
-    
-    // 5. Cambiamos de pantalla a la vista "lista"
-    nav('lista');
-}
-
-function cambiarFechaLista(iso) {
-    activeDateISO = iso; // Guardamos la fecha seleccionada en la variable global
-    
-    // Buscamos la materia activa
-    const m = userData.materias.find(x => x.id === activeId);
-    if (!m) return;
-
-    const container = document.getElementById('lista-check-container');
-    container.innerHTML = ''; // Limpiamos la lista anterior
-
-    // Si no hay alumnos, avisamos
-    if (!m.alumnos || m.alumnos.length === 0) {
-        container.innerHTML = '<div class="text-center text-gray-400 mt-10">No hay alumnos inscriptos en esta materia.</div>';
-        return;
-    }
-
-    // Si no existe el objeto de asistencias para esa fecha, usamos uno vacío
-    const asistenciaDia = (m.asistencias && m.asistencias[iso]) ? m.asistencias[iso] : {};
-
-    // Dibujamos la fila por cada alumno
-    m.alumnos.forEach(al => {
-        // Estado actual (o 'P' por defecto si no hay nada guardado)
-        const estado = asistenciaDia[al.id] || 'P';
-        
-        // Definir colores según estado para que se vea lindo
-        let colorClass = '';
-        if(estado === 'P') colorClass = 'bg-green-100 text-green-700 border-green-200'; // Presente
-        else if(estado === 'A') colorClass = 'bg-red-100 text-red-700 border-red-200';   // Ausente
-        else if(estado === 'T') colorClass = 'bg-yellow-100 text-yellow-700 border-yellow-200'; // Tarde
-        else colorClass = 'bg-blue-100 text-blue-700 border-blue-200'; // Justificado
-
-        container.innerHTML += `
-        <div class="bg-white p-3 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm mb-2">
-            <span class="font-bold text-gray-700 text-sm">${al.ape}, ${al.nom}</span>
-            <button id="btn-as-${al.id}" onclick="cycleAsist(${al.id})" 
-                class="w-10 h-10 rounded-full font-bold border-2 flex items-center justify-center transition-all ${colorClass}">
-                ${estado}
-            </button>
-        </div>`;
-    });
-}
-
-function cycleAsist(uid) {
-    const btn = document.getElementById(`btn-as-${uid}`);
-    const estados = ['P', 'A', 'T', 'J']; // Orden de rotación: Presente -> Ausente -> Tarde -> Justificado
-    const actual = btn.innerText;
-    const nuevo = estados[(estados.indexOf(actual) + 1) % estados.length];
-    
-    // Cambiamos el texto del botón
-    btn.innerText = nuevo;
-    
-    // Actualizamos el color al instante según el nuevo estado
-    let nuevaClase = "w-10 h-10 rounded-full font-bold border-2 flex items-center justify-center transition-all ";
-    if(nuevo === 'P') nuevaClase += 'bg-green-100 text-green-700 border-green-200';
-    else if(nuevo === 'A') nuevaClase += 'bg-red-100 text-red-700 border-red-200';
-    else if(nuevo === 'T') nuevaClase += 'bg-yellow-100 text-yellow-700 border-yellow-200';
-    else nuevaClase += 'bg-blue-100 text-blue-700 border-blue-200';
-    
-    btn.className = nuevaClase;
-}
-
-function guardarLista() {
-    const m = userData.materias.find(x => x.id === activeId);
-    
-    // Asegurar que la estructura de datos existe en la materia
-    if (!m.asistencias) m.asistencias = {};
-    
-    // Recolectar datos de los botones visuales
-    const map = {};
-    m.alumnos.forEach(al => {
-        const btn = document.getElementById(`btn-as-${al.id}`);
-        if(btn) {
-            map[al.id] = btn.innerText;
-        }
-    });
-    
-    // Guardar en memoria bajo la fecha activa
-    m.asistencias[activeDateISO] = map;
-    saveData(); // Guardar en Firebase/LocalStorage
-    
-    alert('✅ Asistencia guardada correctamente.');
-    nav('aula'); // Volver al aula
-    setTab('alumnos'); // Mostrar la pestaña alumnos
-}
-
-function cancelarLista() {
-    nav('aula');
-}
-        // --- INICIALIZACIÓN SEGURA ---
-
-// Esta función asegura que los iconos se vean al cargar
-window.onload = function() {
-    console.log("App iniciada");
-    lucide.createIcons();
-    
-    // Si quedó un login trabado, intentamos mostrar dashboard
-    if(localStorage.getItem('nomade_local_data') && document.getElementById('auth-screen').classList.contains('hidden')) {
-        renderMaterias();
-        initDash();
-        renderTareas();
-    }
-};
-
-// Re-ejecutar iconos cada vez que tocamos la pantalla por si acaso
-document.addEventListener('click', function() {
-    setTimeout(() => lucide.createIcons(), 100);
-});
-        // Función para llamar en lugar de alert()
-function showToast(message) {
-    const x = document.getElementById("toast-notification");
-    x.innerText = message;
-    x.className = "show";
-    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-}
-
-// --- LÓGICA DEL TUTORIAL (WIZARD) ---
-        let tutStep = 1;
-
-        // --- TUTORIAL WIZARD ---
-function showTutorial(){ 
-    document.getElementById('modal-tutorial').classList.remove('hidden'); 
-    tutStep = 1; updateTut(); 
-}
-function nextTutorial(){ 
-    if(tutStep < 4) { tutStep++; updateTut(); }
-    else { document.getElementById('modal-tutorial').classList.add('hidden'); } 
-}
-function updateTut(){
-    for(let i=1; i<=4; i++) {
-        document.getElementById(`tut-step-${i}`).classList.add('hidden');
-        document.getElementById(`dot-${i}`).classList.remove('bg-nomade-green');
-        document.getElementById(`dot-${i}`).classList.add('bg-white/30');
-    }
-    document.getElementById(`tut-step-${tutStep}`).classList.remove('hidden');
-    document.getElementById(`dot-${tutStep}`).classList.remove('bg-white/30');
-    document.getElementById(`dot-${tutStep}`).classList.add('bg-nomade-green');
-    
-    document.getElementById('btn-tut-next').innerText = tutStep === 4 ? '¡COMENZAR!' : 'SIGUIENTE ➝';
-    lucide.createIcons();
-}
+        // 10. TUTORIAL (WIZARD)
+        // ==========================================
+        function showTutorial(){ document.getElementById('modal-tutorial').classList.remove('hidden'); tutStep = 1; updateTut(); }
+        function nextTutorial(){ if(tutStep < 4) { tutStep++; updateTut(); } else { document.getElementById('modal-tutorial').classList.add('hidden'); } }
         function updateTut(){
-            // 1. Ocultar todos los pasos y resetear puntos
-            [1,2,3].forEach(i => {
-                const step = document.getElementById(`tut-step-${i}`);
-                const dot = document.getElementById(`dot-${i}`);
-                if(step) step.classList.add('hidden');
-                if(dot) {
-                    dot.classList.remove('bg-nomade-green'); // Sacar color activo
-                    dot.classList.add('bg-white/30');      // Poner color inactivo
-                }
-            });
-            
-            // 2. Mostrar paso actual
-            const currentStep = document.getElementById(`tut-step-${tutStep}`);
-            const currentDot = document.getElementById(`dot-${tutStep}`);
-            
-            if(currentStep) currentStep.classList.remove('hidden');
-            if(currentDot) {
-                currentDot.classList.remove('bg-white/30');
-                currentDot.classList.add('bg-nomade-green'); // Poner color activo
+            for(let i=1; i<=4; i++) {
+                document.getElementById(`tut-step-${i}`).classList.add('hidden');
+                document.getElementById(`dot-${i}`).classList.remove('bg-nomade-green');
+                document.getElementById(`dot-${i}`).classList.add('bg-white/30');
             }
-            
-            // 3. Actualizar texto del botón
-            const btn = document.getElementById('btn-tut-next');
-            if(btn) btn.innerText = tutStep === 3 ? '¡COMENZAR!' : 'SIGUIENTE ➝';
-            
-            // 4. Refrescar iconos por si acaso
-            if(typeof lucide !== 'undefined') lucide.createIcons();
+            document.getElementById(`tut-step-${tutStep}`).classList.remove('hidden');
+            document.getElementById(`dot-${tutStep}`).classList.remove('bg-white/30');
+            document.getElementById(`dot-${tutStep}`).classList.add('bg-nomade-green');
+            document.getElementById('btn-tut-next').innerText = tutStep === 4 ? '¡COMENZAR!' : 'SIGUIENTE ➝';
+            lucide.createIcons();
         }
 
-        // --- NOTIFICACIONES TOAST ---
-        function showToast(msg) { 
-            const x = document.getElementById("toast-notification");
-            if(x) {
-                x.innerText = msg; 
-                x.className = "show"; 
-                setTimeout(() => x.className = x.className.replace("show", ""), 3000); 
-            }
-        }
-
-        // --- INICIALIZACIÓN ---
+        // ==========================================
+        // 11. INICIALIZACIÓN FINAL
+        // ==========================================
         window.onload = function() {
-            console.log("Nómade App Lista");
-            if(typeof lucide !== 'undefined') lucide.createIcons();
+            console.log("Sistema Reiniciado - Nómade V60");
+            lucide.createIcons();
         };
-
     </script>
     
     <div id="toast-notification">Notificación</div>
 </body>
 </html>
+
 
 
 
