@@ -249,7 +249,10 @@
 
     <div id="modal-settings" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center"><h3 class="text-lg font-black text-nomade-blue mb-6">Configuración</h3><button onclick="showTutorial(); closeModal('modal-settings')" class="w-full py-3 bg-blue-50 text-blue-600 font-bold rounded-lg text-xs mb-2 flex items-center justify-center gap-2">
     <i data-lucide="help-circle"></i> VER TUTORIAL
-</button><button onclick="logout()" class="bg-red-50 text-red-600 w-full py-3 rounded-lg font-bold text-sm shadow mb-2">CERRAR SESIÓN</button><button onclick="closeModal('modal-settings')" class="block w-full mt-4 text-gray-400 text-sm font-bold">Cerrar</button></div></div>
+<button onclick="openModal('modal-pass-change'); closeModal('modal-settings')" class="w-full py-3 bg-gray-100 text-gray-600 font-bold rounded-lg text-xs mb-2 flex items-center justify-center gap-2 hover:bg-gray-200">
+        <i data-lucide="key"></i> CAMBIAR CONTRASEÑA
+    </button>
+    </button><button onclick="logout()" class="bg-red-50 text-red-600 w-full py-3 rounded-lg font-bold text-sm shadow mb-2">CERRAR SESIÓN</button><button onclick="closeModal('modal-settings')" class="block w-full mt-4 text-gray-400 text-sm font-bold">Cerrar</button></div></div>
     <div id="modal-new-nota" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4">Nueva Nota</h3><input id="new-nota-title" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Título"><div class="grid grid-cols-2 gap-3 mb-4"><button onclick="createNote('text')" class="p-4 bg-blue-50 rounded-xl border border-blue-100 flex flex-col items-center gap-2 hover:bg-blue-100"><i data-lucide="type" class="w-6 h-6 text-blue-600"></i><span class="text-xs font-bold text-blue-800">TEXTO</span></button><button onclick="createNote('draw')" class="p-4 bg-purple-50 rounded-xl border border-purple-100 flex flex-col items-center gap-2 hover:bg-purple-100"><i data-lucide="pen-tool" class="w-6 h-6 text-purple-600"></i><span class="text-xs font-bold text-purple-800">DIBUJO</span></button></div><button onclick="closeModal('modal-new-nota')" class="w-full text-gray-400 text-sm font-bold">Cancelar</button></div></div>
     <div id="modal-cal-event" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-2" id="event-date-title">--/--</h3><div id="day-events-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div><div class="border-t pt-4"><input id="new-event-text" class="w-full p-2 bg-gray-50 rounded border mb-2" placeholder="Agregar evento..."><div class="flex gap-2"><button onclick="closeModal('modal-cal-event')" class="flex-1 py-2 text-gray-500 font-bold text-xs">CERRAR</button><button onclick="addCalendarEvent()" class="flex-1 py-2 bg-nomade-green text-white rounded font-bold text-xs">AGREGAR</button></div></div></div></div>
     <div id="modal-tarea" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4">Nueva Tarea</h3><input id="input-tarea-txt" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Descripción"><div class="flex gap-2"><button onclick="closeModal('modal-tarea')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarTarea()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
@@ -723,6 +726,87 @@ function togglePass(idInput, idIcon) {
         if(icon) icon.innerHTML = '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>';
     }
 }
+       // --- CAMBIO DE CONTRASEÑA PROPIO ---
+async function guardarNuevaPassPropia() {
+    const newPass = document.getElementById('input-new-own-pass').value;
+    
+    if (newPass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
+    
+    const btn = document.querySelector('#modal-pass-change button.bg-nomade-green');
+    const txt = btn.innerText;
+    btn.innerText = "GUARDANDO...";
+    btn.disabled = true;
+
+    try {
+        const user = firebase.auth().currentUser;
+        if(user) {
+            await user.updatePassword(newPass);
+            alert("✅ ¡Éxito! Tu contraseña se cambió.\nUsala la próxima vez que ingreses.");
+            closeModal('modal-pass-change');
+            document.getElementById('input-new-own-pass').value = ''; // Limpiar
+        }
+    } catch (e) {
+        console.error(e);
+        if (e.code === 'auth/requires-recent-login') {
+            alert("🔒 SEGURIDAD:\nPara cambiar tu clave, necesitamos confirmar que sos vos.\n\nPor favor, cerrá sesión y volvé a entrar.");
+            logout();
+        } else {
+            alert("Error: " + e.message);
+        }
+    } finally {
+        btn.innerText = txt;
+        btn.disabled = false;
+    }
+}
+       // ==========================================
+// 12. INSTALACIÓN APP (PWA)
+// ==========================================
+let deferredPrompt; // Variable para guardar el evento de instalación
+
+// Detectar si se puede instalar (Android/Chrome)
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevenir que Chrome muestre su barra automática fea
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Mostrar nuestro cartel lindo
+    const banner = document.getElementById('install-banner');
+    if (banner) {
+        banner.classList.remove('hidden');
+        banner.classList.add('flex'); // Asegurar que use flexbox
+    }
+});
+
+async function installPWA() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt(); // Mostrar la pregunta del sistema
+        
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`Resultado instalación: ${outcome}`);
+        
+        deferredPrompt = null; // Limpiar variable
+        document.getElementById('install-banner').classList.add('hidden');
+    }
+}
+
+function cerrarBanner() {
+    document.getElementById('install-banner').classList.add('hidden');
+}
+
+// Detectar iOS (iPhone/iPad) para mostrar aviso manual
+// (En iOS no existe botón de instalar automático, hay que explicarles)
+const isIos = () => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(userAgent);
+}
+const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+if (isIos() && !isInStandaloneMode()) {
+    // Esperar un poquito y mostrar aviso flotante
+    setTimeout(() => {
+        showToast("📱 Para instalar en iPhone: Tocá 'Compartir' y elegí 'Agregar a Inicio'");
+    }, 3000);
+}
        window.onload = function() {
     console.log("Sistema Reiniciado");
     auth.signOut(); // <--- ESTO FUERZA EL LOGOUT AL CARGAR
@@ -731,8 +815,44 @@ function togglePass(idInput, idIcon) {
     </script>
     
     <div id="toast-notification">Notificación</div>
+    <div id="modal-pass-change" class="fixed inset-0 bg-black/50 z-[80] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+        <h3 class="text-lg font-black text-nomade-blue mb-2">Nueva Contraseña</h3>
+        <p class="text-xs text-gray-500 mb-4">Ingresá tu nueva clave personal.</p>
+        
+        <div class="relative mb-4">
+            <input id="input-new-own-pass" type="password" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-center" placeholder="Mínimo 6 caracteres">
+            <button onclick="togglePass('input-new-own-pass', 'eye-own-pass')" class="absolute right-3 top-3.5 text-gray-400">
+                <svg id="eye-own-pass" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+        </div>
+
+        <div class="flex gap-2">
+            <button onclick="closeModal('modal-pass-change')" class="flex-1 py-3 text-gray-500 font-bold text-xs">CANCELAR</button>
+            <button onclick="guardarNuevaPassPropia()" class="flex-1 py-3 bg-nomade-green text-white rounded-lg font-bold shadow text-xs">CONFIRMAR</button>
+        </div>
+    </div>
+</div>
+    <div id="install-banner" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-nomade-green p-4 z-[100] hidden shadow-[0_-5px_20px_rgba(0,0,0,0.1)] flex-col fade-in">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <img src="nomade.png" class="w-12 h-12 rounded-xl bg-white shadow-sm border border-gray-100 object-contain p-1" onerror="this.src='https://placehold.co/50x50?text=App'">
+            <div>
+                <h3 class="font-black text-nomade-blue text-sm uppercase tracking-wide">Instalar Nómade</h3>
+                <p class="text-xs text-gray-500">Acceso directo sin internet</p>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="cerrarBanner()" class="text-xs font-bold text-gray-400 px-3 py-2 hover:text-gray-600">LUEGO</button>
+            <button onclick="installPWA()" class="text-xs font-bold bg-nomade-green text-white px-4 py-2 rounded-lg shadow-md hover:bg-teal-600 transition animate-pulse">
+                INSTALAR
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
+
 
 
 
