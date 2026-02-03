@@ -2,17 +2,26 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nómade | Agenda Docente</title>
-    
     <link rel="manifest" href="manifest.json">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#144E7E">
-    <link rel="apple-touch-icon" href="nomade.png">
-
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
+    
+    <style> ... </style>
+</head>
+
+<body> <div id="app-content"> ... </div>
+
+
+    <div id="modal-materia" ...> ... </div>
+    <div id="modal-settings" ...> ... </div>
+    <div id="toast-notification">Notificación</div>
+
+    <div id="install-banner" class="..."> ... </div>
+
+    <div id="connection-toast" class="fixed top-0 left-0 right-0 bg-red-500 text-white text-xs font-bold text-center py-2 z-[100] hidden transition-transform transform -translate-y-full">
+        📡 SIN CONEXIÓN - Trabajando en modo offline
+    </div>
         tailwind.config = {
             theme: {
                 extend: {
@@ -169,7 +178,16 @@
 
             <div id="view-materias" class="hidden fade-in space-y-4">
                 <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-nomade-blue">Mis Materias</h2><button onclick="openMateriaModal()" class="bg-nomade-blue text-white p-2 rounded-lg shadow hover:bg-blue-900"><i data-lucide="plus"></i></button></div>
-                <div id="lista-materias" class="space-y-3"></div><p id="no-materias" class="text-center text-gray-400 text-sm mt-10 hidden">No hay materias.</p>
+                <div id="lista-materias" class="space-y-3"></div><div id="no-materias" class="hidden flex flex-col items-center justify-center py-10 opacity-70 fade-in">
+    <div class="bg-gray-100 p-6 rounded-full mb-4">
+        <i data-lucide="book-open" class="w-12 h-12 text-gray-300"></i>
+    </div>
+    <h3 class="text-nomade-blue font-bold text-lg mb-1">¡Está muy vacío aquí!</h3>
+    <p class="text-gray-400 text-xs mb-6 text-center max-w-[200px]">Cargá tus materias para empezar a organizar tu agenda.</p>
+    <button onclick="openMateriaModal()" class="bg-nomade-blue text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:scale-105 transition flex items-center gap-2">
+        <i data-lucide="plus"></i> CREAR PRIMERA MATERIA
+    </button>
+</div>
             </div>
 
             <div id="view-calendario" class="hidden fade-in h-full flex flex-col">
@@ -236,7 +254,20 @@
             <div id="view-cuaderno" class="hidden fade-in space-y-4">
                 <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-nomade-blue">Cuaderno</h2><button onclick="openModal('modal-new-nota')" class="bg-nomade-blue text-white p-2 rounded-lg shadow"><i data-lucide="plus"></i></button></div>
                 <div id="lista-notas" class="grid grid-cols-2 gap-3"></div>
-                <p id="no-notas" class="text-center text-gray-400 text-sm mt-10 hidden">Sin notas guardadas.</p>
+               <div id="no-notas" class="hidden flex flex-col items-center justify-center py-10 opacity-70 fade-in">
+    <div class="bg-purple-50 p-6 rounded-full mb-4">
+        <i data-lucide="pen-tool" class="w-12 h-12 text-purple-300"></i>
+    </div>
+    
+    <h3 class="text-nomade-blue font-bold text-lg mb-1">Tu cuaderno te espera</h3>
+    <p class="text-gray-400 text-xs mb-6 text-center max-w-[220px]">
+        Guardá ideas rápidas, dibujá esquemas o escribí recordatorios importantes.
+    </p>
+    
+    <button onclick="openModal('modal-new-nota')" class="bg-nomade-blue text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:scale-105 transition flex items-center gap-2">
+        <i data-lucide="plus"></i> CREAR PRIMERA NOTA
+    </button>
+</div>
                 
                 <div id="editor-nota" class="hidden fixed inset-0 bg-white z-50 flex flex-col">
                     <div class="p-4 bg-nomade-blue text-white flex justify-between items-center shadow"><button onclick="closeEditor()" class="flex items-center gap-1 font-bold text-xs"><i data-lucide="arrow-left" class="w-4"></i> VOLVER</button><span id="editor-title" class="font-bold">Editar</span><button onclick="saveCurrentNote()" class="bg-white text-nomade-blue px-3 py-1 rounded font-bold text-xs">GUARDAR</button></div>
@@ -708,7 +739,18 @@ function openSettings() { document.getElementById('modal-settings').classList.re
         function deleteNote(i){ if(confirm("¿Borrar?")) { userData.notas.splice(i,1); saveData(); renderNotesList(); } }
         function openNoteEditor(i){ const n=userData.notas[i]; activeNoteId=n.id; document.getElementById('editor-title').innerText=n.title; const t=document.getElementById('editor-text'), d=document.getElementById('editor-draw'); document.getElementById('editor-nota').classList.remove('hidden'); if(n.type==='draw'){ t.classList.add('hidden'); d.classList.remove('hidden'); setTimeout(()=>initCanvas(n.content),100); } else { t.classList.remove('hidden'); d.classList.add('hidden'); t.value=n.content||''; } }
         function closeEditor(){ document.getElementById('editor-nota').classList.add('hidden'); renderNotesList(); }
-        function saveCurrentNote(){ const i=userData.notas.findIndex(n=>n.id===activeNoteId); if(i===-1)return; if(userData.notas[i].type==='text'){ userData.notas[i].content=document.getElementById('editor-text').value; } else { userData.notas[i].content=canvas.toDataURL(); } saveData(); }
+        function saveCurrentNote(){ const i=userData.notas.findIndex(n=>n.id===activeNoteId); if(i===-1)return; if(userData.notas[i].type==='text'){ userData.notas[i].content=document.getElementById('editor-text').value; } else { userData.notas[i].content=canvas.toDataURL(); } saveData(); // Agregalo al final de saveCurrentNote()
+const btn = document.querySelector('#editor-nota button.bg-nomade-blue'); // El botón de guardar
+const originalText = btn.innerHTML;
+
+btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> ¡LISTO!';
+btn.classList.replace('bg-nomade-blue', 'bg-green-500'); // Se pone verde
+
+setTimeout(() => {
+    btn.innerHTML = originalText;
+    btn.classList.replace('bg-green-500', 'bg-nomade-blue'); // Vuelve a azul
+    lucide.createIcons();
+}, 2000);}
         function initCanvas(src){ canvas=document.getElementById('drawing-canvas'); ctx=canvas.getContext('2d'); const p=document.getElementById('canvas-container'); canvas.width=p.clientWidth; canvas.height=p.clientHeight; ctx.fillStyle="white"; ctx.fillRect(0,0,canvas.width,canvas.height); if(src){const i=new Image(); i.onload=()=>ctx.drawImage(i,0,0); i.src=src;} const start=(e)=>{drawing=true; const r=canvas.getBoundingClientRect(); lastX=(e.clientX||e.touches[0].clientX)-r.left; lastY=(e.clientY||e.touches[0].clientY)-r.top; e.preventDefault();}; const move=(e)=>{if(!drawing)return; const r=canvas.getBoundingClientRect(); const x=(e.clientX||e.touches[0].clientX)-r.left; const y=(e.clientY||e.touches[0].clientY)-r.top; ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(x,y); ctx.strokeStyle=penColor; ctx.lineWidth=penSize; ctx.lineCap='round'; ctx.stroke(); lastX=x; lastY=y; e.preventDefault();}; const end=()=>{drawing=false;}; canvas.onmousedown=start; canvas.onmousemove=move; canvas.onmouseup=end; canvas.ontouchstart=start; canvas.ontouchmove=move; canvas.ontouchend=end; }
         function clearCanvas(){ if(confirm("¿Limpiar?")) { ctx.fillStyle="white"; ctx.fillRect(0,0,canvas.width,canvas.height); } }
 
@@ -858,11 +900,31 @@ if (isIos() && !isInStandaloneMode()) {
         showToast("📱 Para instalar en iPhone: Tocá 'Compartir' y elegí 'Agregar a Inicio'");
     }, 3000);
 }
+       // --- DETECTOR DE CONEXIÓN ---
+window.addEventListener('offline', () => {
+    const t = document.getElementById('connection-toast');
+    t.classList.remove('hidden');
+    t.classList.remove('-translate-y-full'); // Baja
+    t.innerText = "📡 SIN INTERNET - Los cambios se guardarán al volver.";
+    t.className = "fixed top-0 left-0 right-0 bg-gray-800 text-white text-xs font-bold text-center py-2 z-[100] transition-transform";
+});
+
+window.addEventListener('online', () => {
+    const t = document.getElementById('connection-toast');
+    t.innerText = "✅ CONEXIÓN RESTABLECIDA";
+    t.className = "fixed top-0 left-0 right-0 bg-green-500 text-white text-xs font-bold text-center py-2 z-[100] transition-transform";
+    
+    // Ocultar después de 3 segundos
+    setTimeout(() => {
+        t.classList.add('-translate-y-full'); // Sube
+    }, 3000);
+});
        window.onload = function() {
     console.log("Sistema Reiniciado");
     auth.signOut(); // <--- ESTO FUERZA EL LOGOUT AL CARGAR
     lucide.createIcons();
 };
+       
     </script>
     
     <div id="toast-notification">Notificación</div>
@@ -903,6 +965,7 @@ if (isIos() && !isInStandaloneMode()) {
 </div>
 </body>
 </html>
+
 
 
 
