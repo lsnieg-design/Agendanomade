@@ -260,7 +260,7 @@
         <nav id="navbar" class="fixed bottom-0 w-full bg-white border-t border-gray-200 h-16 flex justify-around items-center z-30 pb-safe-bottom shadow-[0_-5px_10px_rgba(0,0,0,0.05)]">
             <button onclick="nav('dashboard')" id="nav-dash" class="flex flex-col items-center text-nomade-blue w-full justify-center"><i data-lucide="layout-dashboard" class="w-5 mb-1"></i><span class="text-[9px] font-bold">INICIO</span></button>
             <button onclick="nav('materias')" id="nav-mat" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="book" class="w-5 mb-1"></i><span class="text-[9px] font-bold">MATERIAS</span></button>
-           <button onclick="nav('retro')" id="nav-ret" class="hidden flex flex-col items-center text-gray-400 w-full justify-center">
+          <button onclick="nav('retro')" id="nav-ret" style="display: none;" class="flex flex-col items-center text-gray-400 w-full justify-center">
     <i data-lucide="sparkles" class="w-5 mb-1"></i>
     <span class="text-[9px] font-bold">IA</span>
 </button>
@@ -463,7 +463,17 @@ async function handleLogin() {
                 
                 const nameDisplay = currentUser.email.split('@')[0];
                 document.getElementById('dash-name').innerText = nameDisplay.charAt(0).toUpperCase() + nameDisplay.slice(1);
-                
+               if(currentUser.email === 'admi@nomade.app') {
+            document.getElementById('view-admin').classList.remove('hidden');
+            document.getElementById('btn-admin-panel').classList.remove('hidden');
+            
+            // --- ESTA ES LA LÍNEA NUEVA Y DEFINITIVA ---
+            document.getElementById('nav-ret').style.display = 'flex'; 
+            // (Esto fuerza que se vea, pisando el "none" del HTML)
+            
+            loadAdminUsers();
+            nav('admin');
+        } 
                 if(currentUser.email === 'admi@nomade.app') {
                     document.getElementById('view-admin').classList.remove('hidden');
                     document.getElementById('btn-admin-panel').classList.remove('hidden');
@@ -891,6 +901,7 @@ if (isIos() && !isInStandaloneMode()) {
 </div>
 </body>
 </html>
+
 
 
 
