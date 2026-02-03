@@ -2,26 +2,18 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Nómade | Agenda Docente</title>
+    
     <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#144E7E">
+    <link rel="apple-touch-icon" href="nomade.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <style> ... </style>
-</head>
-
-<body> <div id="app-content"> ... </div>
-
-
-    <div id="modal-materia" ...> ... </div>
-    <div id="modal-settings" ...> ... </div>
-    <div id="toast-notification">Notificación</div>
-
-    <div id="install-banner" class="..."> ... </div>
-
-    <div id="connection-toast" class="fixed top-0 left-0 right-0 bg-red-500 text-white text-xs font-bold text-center py-2 z-[100] hidden transition-transform transform -translate-y-full">
-        📡 SIN CONEXIÓN - Trabajando en modo offline
-    </div>
+    <script>
         tailwind.config = {
             theme: {
                 extend: {
@@ -33,13 +25,8 @@
             }
         }
     </script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    
+    <style>
 
     <style>
         body { background-color: #FAF7F0; font-family: 'Segoe UI', system-ui, sans-serif; overscroll-behavior: none; color: #2C3E50; }
@@ -921,7 +908,7 @@ window.addEventListener('online', () => {
 });
        window.onload = function() {
     console.log("Sistema Reiniciado");
-    auth.signOut(); // <--- ESTO FUERZA EL LOGOUT AL CARGAR
+    
     lucide.createIcons();
 };
        
@@ -965,6 +952,7 @@ window.addEventListener('online', () => {
 </div>
 </body>
 </html>
+
 
 
 
