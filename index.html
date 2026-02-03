@@ -456,36 +456,38 @@ async function handleLogin() {
             }
         });
 
-        function startApp() {
-            try {
-                document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('app-content').classList.remove('hidden');
-                
-                const nameDisplay = currentUser.email.split('@')[0];
-                document.getElementById('dash-name').innerText = nameDisplay.charAt(0).toUpperCase() + nameDisplay.slice(1);
-               if(currentUser.email === 'admi@nomade.app') {
+       function startApp() {
+    try {
+        // 1. Ocultar login y mostrar app
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('app-content').classList.remove('hidden');
+        
+        // 2. Poner nombre en el dashboard
+        const nameDisplay = currentUser.email.split('@')[0];
+        document.getElementById('dash-name').innerText = nameDisplay.charAt(0).toUpperCase() + nameDisplay.slice(1);
+        
+        // 3. Chequeo: ¿Es Admin o Docente?
+        if(currentUser.email === 'admi@nomade.app') {
+            // --- MODO ADMIN ---
             document.getElementById('view-admin').classList.remove('hidden');
             document.getElementById('btn-admin-panel').classList.remove('hidden');
             
-            // --- ESTA ES LA LÍNEA NUEVA Y DEFINITIVA ---
+            // ACÁ ESTÁ EL TRUCO: Forzamos que se vea el botón IA usando FLEX
             document.getElementById('nav-ret').style.display = 'flex'; 
-            // (Esto fuerza que se vea, pisando el "none" del HTML)
             
             loadAdminUsers();
-            nav('admin');
-        } 
-                if(currentUser.email === 'admi@nomade.app') {
-                    document.getElementById('view-admin').classList.remove('hidden');
-                    document.getElementById('btn-admin-panel').classList.remove('hidden');
-                    document.getElementById('nav-ret').classList.remove('hidden'); // <--- MUESTRA EL BOTÓN IA
-                    loadAdminUsers();
-                    nav('admin');
-                } else {
-                    nav('dashboard');
-                }
-                lucide.createIcons();
-            } catch(e) { alert("Error arranque: " + e.message); }
+            nav('admin'); // Admin va directo a su panel
+        } else {
+            // --- MODO DOCENTE ---
+            // (El botón IA sigue oculto porque en el HTML tiene display:none)
+            nav('dashboard'); // Docente va al inicio
         }
+
+        lucide.createIcons();
+    } catch(e) { 
+        alert("Error arranque: " + e.message); 
+    }
+}
 
         function logout() { auth.signOut(); location.reload(); }
 
@@ -901,6 +903,7 @@ if (isIos() && !isInStandaloneMode()) {
 </div>
 </body>
 </html>
+
 
 
 
