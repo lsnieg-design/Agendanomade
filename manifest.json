@@ -1,6 +1,6 @@
 {
   "name": "Nómade Agenda Docente",
-  "short_name": "Nómade",
+  "short_name": "Agenda Docente",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#FAF7F0",
