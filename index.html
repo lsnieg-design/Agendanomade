@@ -657,19 +657,42 @@ async function guardarEdicion(nuevoNombre) {
 }
 
         // ==========================================
-        // 4. DASHBOARD Y NAVEGACIÓN
-        // ==========================================
-        function nav(v){ 
-            ['dashboard','materias','aula','lista','calendario','cuaderno','retro','admin'].forEach(id=>document.getElementById('view-'+id)?.classList.add('hidden')); 
-            document.getElementById('view-'+v).classList.remove('hidden'); 
-            ['dash','mat','cal','cua','ret'].forEach(k => { const el = document.getElementById('nav-'+k); if(el) el.className = 'flex flex-col items-center text-gray-400 w-full justify-center'; });
-            const map = {dashboard:'dash', materias:'mat', calendario:'cal', cuaderno:'cua', retro:'ret'};
-            if(map[v]) document.getElementById('nav-'+map[v]).className = 'flex flex-col items-center text-nomade-green w-full justify-center scale-110 transition';
-            if(v==='dashboard') initDash();
-            if(v==='materias') renderMaterias();
-            if(v==='calendario') renderCalendar(currentMonth, currentYear);
-            lucide.createIcons(); 
-        }
+// 4. DASHBOARD Y NAVEGACIÓN (CORREGIDO)
+// ==========================================
+function nav(v) {
+    // 1. Ocultar todas las vistas
+    ['dashboard', 'materias', 'aula', 'lista', 'calendario', 'cuaderno', 'retro', 'admin'].forEach(id => {
+        const el = document.getElementById('view-' + id);
+        if (el) el.classList.add('hidden');
+    });
+
+    // 2. Mostrar la vista elegida
+    const view = document.getElementById('view-' + v);
+    if (view) view.classList.remove('hidden');
+
+    // 3. Apagar todos los íconos del menú
+    ['dash', 'mat', 'cal', 'cua', 'ret'].forEach(k => {
+        const el = document.getElementById('nav-' + k);
+        if (el) el.className = 'flex flex-col items-center text-gray-400 w-full justify-center';
+    });
+
+    // 4. Encender el ícono actual (Verde y grande)
+    const map = { dashboard: 'dash', materias: 'mat', calendario: 'cal', cuaderno: 'cua', retro: 'ret' };
+    if (map[v]) {
+        const activeBtn = document.getElementById('nav-' + map[v]);
+        if (activeBtn) activeBtn.className = 'flex flex-col items-center text-nomade-green w-full justify-center scale-110 transition';
+    }
+
+    // 5. CARGAR LOS DATOS DE LA SECCIÓN (Esto es lo que faltaba)
+    if (v === 'dashboard') initDash();
+    if (v === 'materias') renderMaterias();
+    if (v === 'calendario') renderCalendar(currentMonth, currentYear);
+    
+    // 👇 ESTA LÍNEA ES LA MAGIA QUE HACE APARECER EL CARTEL 👇
+    if (v === 'cuaderno') renderNotesList(); 
+
+    lucide.createIcons();
+}
 
         function initDash(){ 
             const d=new Date(); const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']; const h=d.toISOString().split('T')[0];
@@ -996,6 +1019,7 @@ window.addEventListener('online', () => {
 </div>
 </body>
 </html>
+
 
 
 
