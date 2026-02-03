@@ -241,10 +241,20 @@
             <div id="view-cuaderno" class="hidden fade-in space-y-4">
                 <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-nomade-blue">Cuaderno</h2><button onclick="openModal('modal-new-nota')" class="bg-nomade-blue text-white p-2 rounded-lg shadow"><i data-lucide="plus"></i></button></div>
                 <div id="lista-notas" class="grid grid-cols-2 gap-3"></div>
-               <div id="no-notas" class="hidden flex flex-col items-center justify-center py-10 opacity-70 fade-in">
+               <<div id="no-notas" class="hidden flex flex-col items-center justify-center py-10 opacity-70 fade-in">
     <div class="bg-purple-50 p-6 rounded-full mb-4">
         <i data-lucide="pen-tool" class="w-12 h-12 text-purple-300"></i>
     </div>
+    
+    <h3 class="text-nomade-blue font-bold text-lg mb-1">Tu cuaderno te espera</h3>
+    <p class="text-gray-400 text-xs mb-6 text-center max-w-[220px]">
+        Guardá ideas rápidas, dibujá esquemas o escribí recordatorios importantes.
+    </p>
+    
+    <button onclick="openModal('modal-new-nota')" class="bg-nomade-blue text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:scale-105 transition flex items-center gap-2">
+        <i data-lucide="plus"></i> CREAR PRIMERA NOTA
+    </button>
+</div>
     
     <h3 class="text-nomade-blue font-bold text-lg mb-1">Tu cuaderno te espera</h3>
     <p class="text-gray-400 text-xs mb-6 text-center max-w-[220px]">
@@ -957,6 +967,7 @@ window.addEventListener('online', () => {
 </div>
 </body>
 </html>
+
 
 
 
