@@ -260,7 +260,10 @@
         <nav id="navbar" class="fixed bottom-0 w-full bg-white border-t border-gray-200 h-16 flex justify-around items-center z-30 pb-safe-bottom shadow-[0_-5px_10px_rgba(0,0,0,0.05)]">
             <button onclick="nav('dashboard')" id="nav-dash" class="flex flex-col items-center text-nomade-blue w-full justify-center"><i data-lucide="layout-dashboard" class="w-5 mb-1"></i><span class="text-[9px] font-bold">INICIO</span></button>
             <button onclick="nav('materias')" id="nav-mat" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="book" class="w-5 mb-1"></i><span class="text-[9px] font-bold">MATERIAS</span></button>
-            <button onclick="nav('retro')" id="nav-ret" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="sparkles" class="w-5 mb-1"></i><span class="text-[9px] font-bold">IA</span></button>
+           <button onclick="nav('retro')" id="nav-ret" class="hidden flex flex-col items-center text-gray-400 w-full justify-center">
+    <i data-lucide="sparkles" class="w-5 mb-1"></i>
+    <span class="text-[9px] font-bold">IA</span>
+</button>
             <button onclick="nav('calendario')" id="nav-cal" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="calendar" class="w-5 mb-1"></i><span class="text-[9px] font-bold">CALENDARIO</span></button>
             <button onclick="nav('cuaderno')" id="nav-cua" class="flex flex-col items-center text-gray-400 w-full justify-center"><i data-lucide="notebook" class="w-5 mb-1"></i><span class="text-[9px] font-bold">CUADERNO</span></button>
         </nav>
@@ -464,6 +467,7 @@ async function handleLogin() {
                 if(currentUser.email === 'admi@nomade.app') {
                     document.getElementById('view-admin').classList.remove('hidden');
                     document.getElementById('btn-admin-panel').classList.remove('hidden');
+                    document.getElementById('nav-ret').classList.remove('hidden'); // <--- MUESTRA EL BOTÓN IA
                     loadAdminUsers();
                     nav('admin');
                 } else {
@@ -887,6 +891,7 @@ if (isIos() && !isInStandaloneMode()) {
 </div>
 </body>
 </html>
+
 
 
 
