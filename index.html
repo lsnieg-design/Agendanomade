@@ -26,7 +26,7 @@
         }
     </script>
     
-    <style>
+   
 
     <style>
         body { background-color: #FAF7F0; font-family: 'Segoe UI', system-ui, sans-serif; overscroll-behavior: none; color: #2C3E50; }
@@ -131,6 +131,32 @@
     #install-banner {
         z-index: 9999;
         transition: transform 0.3s ease-out;
+    }
+        /* 1. Calendario Ancho Completo */
+    #calendar-grid {
+        width: 100%;
+        max-width: 100%;
+        gap: 2px; /* Espacio pequeño entre días */
+    }
+    .calendar-day {
+        min-height: 70px; /* Altura cómoda para el dedo */
+        height: auto;
+    }
+
+    /* 2. Fondos de Hoja para el Cuaderno */
+    .bg-liso { background-color: white; }
+    
+    .bg-rayado {
+        background-color: white;
+        background-image: repeating-linear-gradient(transparent, transparent 29px, #e5e7eb 30px);
+        background-attachment: local;
+    }
+    
+    .bg-cuadriculado {
+        background-color: white;
+        background-image: linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
+        background-size: 20px 20px;
+        background-attachment: local;
     }
     </style>
 </head>
@@ -300,23 +326,33 @@
                         <textarea id="editor-text" class="w-full h-full p-4 bg-nomade-cream text-nomade-text text-lg leading-relaxed outline-none resize-none hidden" placeholder="Escribe aquí..."></textarea>
                        <div id="editor-draw" class="hidden h-full flex flex-col relative">
     <div class="flex flex-wrap items-center gap-2 mb-2 p-2 bg-gray-50 rounded-lg shadow-sm border border-gray-100 justify-between">
-        
         <div class="flex items-center gap-2">
             <input type="color" id="draw-color" value="#000000" onchange="setDrawColor(this.value)" class="w-8 h-8 rounded cursor-pointer border-0 p-0 shadow-sm">
-            <input type="range" id="draw-size" min="1" max="15" value="2" onchange="setDrawSize(this.value)" class="w-20 accent-nomade-blue">
+            <input type="range" id="draw-size" min="1" max="20" value="2" onchange="setDrawSize(this.value)" class="w-20 accent-nomade-blue">
             <button onclick="setTool('pen')" class="p-2 bg-white border rounded text-nomade-blue shadow-sm active:scale-95"><i data-lucide="pen-tool" class="w-4"></i></button>
             <button onclick="setTool('eraser')" class="p-2 bg-white border rounded text-gray-500 shadow-sm active:scale-95"><i data-lucide="eraser" class="w-4"></i></button>
         </div>
-
         <div class="flex items-center gap-2">
              <div class="flex bg-gray-200 rounded p-0.5">
-                <button onclick="setBg('bg-liso')" class="w-6 h-6 bg-white rounded flex items-center justify-center text-[8px] font-bold border border-gray-300">⬜</button>
-                <button onclick="setBg('bg-rayado')" class="w-6 h-6 bg-white rounded flex items-center justify-center text-[8px] font-bold border border-gray-300 mx-1">≡</button>
-                <button onclick="setBg('bg-cuadriculado')" class="w-6 h-6 bg-white rounded flex items-center justify-center text-[8px] font-bold border border-gray-300">▦</button>
+                <button onclick="setBg('bg-liso')" class="w-6 h-6 bg-white rounded flex items-center justify-center text-[8px] font-bold border border-gray-300 shadow-sm">⬜</button>
+                <button onclick="setBg('bg-rayado')" class="w-6 h-6 bg-white rounded flex items-center justify-center text-[8px] font-bold border border-gray-300 mx-1 shadow-sm">≡</button>
+                <button onclick="setBg('bg-cuadriculado')" class="w-6 h-6 bg-white rounded flex items-center justify-center text-[8px] font-bold border border-gray-300 shadow-sm">▦</button>
             </div>
              <button onclick="clearCanvas()" class="text-red-500 bg-red-50 p-2 rounded hover:bg-red-100"><i data-lucide="trash-2" class="w-4"></i></button>
         </div>
     </div>
+
+    <div class="absolute bottom-4 right-4 z-10">
+        <button id="btn-stylus" onclick="toggleStylusMode()" class="bg-white text-gray-400 p-3 rounded-full shadow-xl border border-gray-200 flex items-center gap-2 transition-all active:scale-95">
+            <i data-lucide="pen-tool" class="w-5 h-5"></i>
+            <span id="stylus-text" class="text-[10px] font-bold hidden">SOLO LÁPIZ ON</span>
+        </button>
+    </div>
+
+    <div id="canvas-container" class="bg-liso flex-1 shadow-inner border border-gray-200 rounded-lg overflow-hidden relative touch-none">
+        <canvas id="drawing-canvas"></canvas>
+    </div>
+</div>
 
     <div class="absolute bottom-4 right-4 z-10">
         <button id="btn-stylus" onclick="toggleStylusMode()" class="bg-white text-gray-400 p-3 rounded-full shadow-xl border border-gray-200 flex items-center gap-2 transition-all">
@@ -372,9 +408,58 @@
     <div id="modal-new-nota" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4">Nueva Nota</h3><input id="new-nota-title" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Título"><div class="grid grid-cols-2 gap-3 mb-4"><button onclick="createNote('text')" class="p-4 bg-blue-50 rounded-xl border border-blue-100 flex flex-col items-center gap-2 hover:bg-blue-100"><i data-lucide="type" class="w-6 h-6 text-blue-600"></i><span class="text-xs font-bold text-blue-800">TEXTO</span></button><button onclick="createNote('draw')" class="p-4 bg-purple-50 rounded-xl border border-purple-100 flex flex-col items-center gap-2 hover:bg-purple-100"><i data-lucide="pen-tool" class="w-6 h-6 text-purple-600"></i><span class="text-xs font-bold text-purple-800">DIBUJO</span></button></div><button onclick="closeModal('modal-new-nota')" class="w-full text-gray-400 text-sm font-bold">Cancelar</button></div></div>
     <div id="modal-cal-event" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-2" id="event-date-title">--/--</h3><div id="day-events-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div><div class="border-t pt-4"><input id="new-event-text" class="w-full p-2 bg-gray-50 rounded border mb-2" placeholder="Agregar evento..."><div class="flex gap-2"><button onclick="closeModal('modal-cal-event')" class="flex-1 py-2 text-gray-500 font-bold text-xs">CERRAR</button><button onclick="addCalendarEvent()" class="flex-1 py-2 bg-nomade-green text-white rounded font-bold text-xs">AGREGAR</button></div></div></div></div>
     <div id="modal-tarea" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4">Nueva Tarea</h3><input id="input-tarea-txt" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold" placeholder="Descripción"><div class="flex gap-2"><button onclick="closeModal('modal-tarea')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarTarea()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
-    <div id="modal-materia" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4" id="title-materia">Nueva Materia</h3><input type="hidden" id="edit-mat-id"><label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label><input id="input-mat-nombre" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Ej: Matemática"><div class="grid grid-cols-2 gap-2"><div><label class="text-xs font-bold text-gray-500 ml-1">INICIO</label><input type="date" id="input-mat-inicio" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border"></div><div><label class="text-xs font-bold text-gray-500 ml-1">FIN</label><input type="date" id="input-mat-fin" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border"></div></div><label class="text-xs font-bold text-gray-500 ml-1">HORARIO</label><input id="input-mat-horario" class="w-full p-2 bg-gray-50 rounded-lg mb-4 border" placeholder="Ej: 18:00 a 22:00"><div class="grid grid-cols-2 gap-2 mb-4"><div><label class="text-xs font-bold text-gray-500 ml-1">DÍA</label><select id="input-mat-dia" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option><option value="Sábado">Sábado</option></select></div><div><label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD</label><select id="input-mat-mod" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-gray-700"><option value="Hibrida">Mixta</option><option value="Presencial">Presencial</option><option value="Virtual">Virtual</option></select></div></div><div class="flex gap-2"><button id="btn-delete-materia" onclick="borrarMateria()" type="button" class="hidden w-full mb-4 text-red-500 text-xs font-bold border border-red-200 bg-red-50 py-2 rounded-lg flex items-center justify-center gap-2">
-    <i data-lucide="trash-2" class="w-4 h-4"></i> ELIMINAR ESTA MATERIA
-</button><button onclick="closeModal('modal-materia')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarMateria()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
+    <div id="modal-materia" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+        <h3 class="text-lg font-black text-nomade-blue mb-4" id="title-materia">Nueva Materia</h3>
+        <input type="hidden" id="edit-mat-id"> <label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label>
+        <input id="input-mat-nombre" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Ej: Matemática">
+        
+        <div class="grid grid-cols-2 gap-2">
+            <div>
+                <label class="text-xs font-bold text-gray-500 ml-1">INICIO</label>
+                <input type="date" id="input-mat-inicio" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-500 ml-1">FIN</label>
+                <input type="date" id="input-mat-fin" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border">
+            </div>
+        </div>
+        
+        <label class="text-xs font-bold text-gray-500 ml-1">HORARIO</label>
+        <input id="input-mat-horario" class="w-full p-2 bg-gray-50 rounded-lg mb-4 border" placeholder="Ej: 18:00 a 22:00">
+        
+        <div class="grid grid-cols-2 gap-2 mb-4">
+            <div>
+                <label class="text-xs font-bold text-gray-500 ml-1">DÍA</label>
+                <select id="input-mat-dia" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-gray-700">
+                    <option value="Lunes">Lunes</option>
+                    <option value="Martes">Martes</option>
+                    <option value="Miércoles">Miércoles</option>
+                    <option value="Jueves">Jueves</option>
+                    <option value="Viernes">Viernes</option>
+                    <option value="Sábado">Sábado</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD</label>
+                <select id="input-mat-mod" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-gray-700">
+                    <option value="Hibrida">Mixta</option>
+                    <option value="Presencial">Presencial</option>
+                    <option value="Virtual">Virtual</option>
+                </select>
+            </div>
+        </div>
+
+        <button id="btn-delete-materia" onclick="borrarMateria()" type="button" class="hidden w-full mb-4 text-red-500 text-xs font-bold border border-red-200 bg-red-50 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-red-100 transition">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> ELIMINAR ESTA MATERIA
+        </button>
+
+        <div class="flex gap-2">
+            <button onclick="closeModal('modal-materia')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button>
+            <button onclick="guardarMateria()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button>
+        </div>
+    </div>
+</div>
   <div id="modal-tutorial" class="fixed inset-0 z-[90] hidden bg-nomade-blue/95 text-white flex flex-col items-center justify-center p-6 text-center backdrop-blur-sm fade-in">
         <div class="max-w-sm w-full bg-white/10 p-6 rounded-3xl border border-white/20 shadow-2xl relative">
             
@@ -1217,6 +1302,168 @@ function openMateriaModal() {
     document.getElementById('btn-delete-materia').classList.add('hidden'); // Ocultar borrar
     openModal('modal-materia'); 
 }
+       // ==========================================
+// PEGAR ESTO AL FINAL DE TU SCRIPT (ANTES DE </script>)
+// ==========================================
+
+// --- 1. LÓGICA DE EDICIÓN Y BORRADO DE MATERIAS ---
+function editarMateriaActual() {
+    const m = userData.materias.find(x => x.id === activeId);
+    if (!m) return;
+
+    document.getElementById('title-materia').innerText = "Editar Materia";
+    document.getElementById('edit-mat-id').value = m.id;
+    document.getElementById('input-mat-nombre').value = m.nombre;
+    document.getElementById('input-mat-dia').value = m.dia;
+    document.getElementById('input-mat-mod').value = m.modalidadBase;
+    document.getElementById('input-mat-horario').value = m.horario;
+    document.getElementById('input-mat-inicio').value = m.fechaInicio;
+    document.getElementById('input-mat-fin').value = m.fechaFin;
+
+    // Mostrar botón rojo de borrar
+    document.getElementById('btn-delete-materia').classList.remove('hidden');
+    openModal('modal-materia');
+}
+
+function borrarMateria() {
+    if (!confirm("⚠️ ¿Eliminar materia?\nSe perderán todas las notas y alumnos.")) return;
+    
+    // Filtrar para borrar
+    userData.materias = userData.materias.filter(x => x.id !== parseInt(document.getElementById('edit-mat-id').value));
+    saveData();
+    closeModal('modal-materia');
+    nav('materias'); // Volver al inicio
+}
+
+// Sobrescribimos guardarMateria para que soporte edición
+window.guardarMateria = function() {
+    const idExistente = document.getElementById('edit-mat-id').value;
+    const nom = document.getElementById('input-mat-nombre').value;
+    if (!nom) return alert("Falta nombre");
+
+    if (idExistente) {
+        // MODO EDICIÓN
+        const index = userData.materias.findIndex(x => x.id === parseInt(idExistente));
+        if (index !== -1) {
+            userData.materias[index].nombre = nom;
+            userData.materias[index].dia = document.getElementById('input-mat-dia').value;
+            userData.materias[index].modalidadBase = document.getElementById('input-mat-mod').value;
+            userData.materias[index].horario = document.getElementById('input-mat-horario').value;
+            userData.materias[index].fechaInicio = document.getElementById('input-mat-inicio').value;
+            userData.materias[index].fechaFin = document.getElementById('input-mat-fin').value;
+            
+            // Actualizar título si estamos adentro
+            if (activeId === parseInt(idExistente)) {
+                document.getElementById('aula-nombre').innerText = nom;
+                document.getElementById('aula-modalidad').innerText = userData.materias[index].modalidadBase;
+            }
+        }
+    } else {
+        // MODO CREACIÓN NUEVA
+        const mat = { 
+            id: Date.now(), nombre: nom, 
+            dia: document.getElementById('input-mat-dia').value, 
+            modalidadBase: document.getElementById('input-mat-mod').value, 
+            horario: document.getElementById('input-mat-horario').value, 
+            fechaInicio: document.getElementById('input-mat-inicio').value, 
+            fechaFin: document.getElementById('input-mat-fin').value, 
+            planificacion: {}, cronograma: {}, alumnos: [], examenes: [], asistencias: {} 
+        };
+        userData.materias.push(mat);
+    }
+    saveData();
+    closeModal('modal-materia');
+    renderMaterias();
+}
+
+// Limpiar modal al crear nueva
+window.openMateriaModal = function() { 
+    document.getElementById('title-materia').innerText = "Nueva Materia";
+    document.getElementById('edit-mat-id').value = ''; 
+    document.getElementById('input-mat-nombre').value = ''; 
+    document.getElementById('btn-delete-materia').classList.add('hidden');
+    openModal('modal-materia'); 
+}
+
+// --- 2. LÓGICA DE CUADERNO MEJORADO ---
+let stylusMode = false;
+
+function setBg(clase) {
+    document.getElementById('canvas-container').className = `flex-1 shadow-inner border border-gray-200 rounded-lg overflow-hidden relative touch-none ${clase}`;
+}
+
+function toggleStylusMode() {
+    stylusMode = !stylusMode;
+    const btn = document.getElementById('btn-stylus');
+    const txt = document.getElementById('stylus-text');
+    if (stylusMode) {
+        btn.classList.replace('bg-white', 'bg-nomade-blue');
+        btn.classList.replace('text-gray-400', 'text-white');
+        txt.classList.remove('hidden');
+    } else {
+        btn.classList.replace('bg-nomade-blue', 'bg-white');
+        btn.classList.replace('text-white', 'text-gray-400');
+        txt.classList.add('hidden');
+    }
+}
+
+// Sobrescribimos initCanvas para soportar stylus y fondos
+window.initCanvas = function(src) {
+    canvas = document.getElementById('drawing-canvas');
+    ctx = canvas.getContext('2d');
+    const p = document.getElementById('canvas-container');
+    
+    // Ajustar tamaño real
+    canvas.width = p.clientWidth;
+    canvas.height = p.clientHeight;
+    
+    // Limpiar pero dejar transparente (para ver el fondo rayado)
+    ctx.clearRect(0, 0, canvas.width, canvas.height); 
+
+    if(src){ const i=new Image(); i.onload=()=>ctx.drawImage(i,0,0); i.src=src; }
+
+    function getPos(e) { 
+        const r = canvas.getBoundingClientRect(); 
+        return { x: e.clientX - r.left, y: e.clientY - r.top }; 
+    }
+
+    function start(e) {
+        // SI MODO LÁPIZ ESTÁ ON, Y EL EVENTO NO ES 'pen' (ES DEDO), IGNORAR
+        if (stylusMode && e.pointerType !== 'pen') return;
+        drawing = true;
+        const pos = getPos(e);
+        lastX = pos.x; lastY = pos.y;
+        e.preventDefault();
+    }
+
+    function move(e) {
+        if (!drawing) return;
+        if (stylusMode && e.pointerType !== 'pen') return;
+        
+        const pos = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.strokeStyle = penColor;
+        ctx.lineWidth = penSize;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        lastX = pos.x; lastY = pos.y;
+        e.preventDefault();
+    }
+
+    function end() { drawing = false; }
+
+    // Usamos pointer events que detectan si es lápiz o dedo
+    canvas.onpointerdown = start;
+    canvas.onpointermove = move;
+    canvas.onpointerup = end;
+    canvas.onpointercancel = end;
+}
+
+window.clearCanvas = function(){ 
+    if(confirm("¿Limpiar?")) ctx.clearRect(0, 0, canvas.width, canvas.height); 
+}
     </script>
     
     <div id="toast-notification">Notificación</div>
@@ -1257,3 +1504,4 @@ function openMateriaModal() {
 </div>
 </body>
 </html>
+
