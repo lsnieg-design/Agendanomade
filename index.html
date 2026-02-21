@@ -1166,14 +1166,20 @@ function saveClaseDetail(){
             openModal('modal-export');
         }
 
-        function executeExport() {
+        async function executeExport() {
+            const btnExport = document.querySelector('#modal-export button.bg-nomade-green');
+            const originalText = btnExport.innerHTML;
+            
             try {
+                btnExport.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> PROCESANDO...';
+                btnExport.disabled = true;
+                await new Promise(r => setTimeout(r, 100));
+
                 const m = userData.materias.find(x => x.id === activeId);
                 const t = document.getElementById('export-type').value;
                 const dashNameEl = document.getElementById('dash-name');
                 const docName = dashNameEl ? dashNameEl.innerText : 'Docente';
                 
-                // Leemos qué seleccionaste en la ventanita
                 const incListaAsist = document.getElementById('exp-lista').checked;
                 const incNotas = document.getElementById('exp-notas').checked;
                 
@@ -1248,19 +1254,25 @@ function saveClaseDetail(){
                     URL.revokeObjectURL(url);
                     
                 } else {
-                    // --- MODO PDF ---
+                    // --- MODO PDF AJUSTADO PARA A4 ---
+                    if (!window.jspdf || !window.jspdf.jsPDF) {
+                        throw new Error("La librería de PDF no cargó. Intentá de nuevo.");
+                    }
+                    
                     const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF('landscape'); 
+                    // Forzamos tamaño A4 y orientación horizontal
+                    const doc = new jsPDF({ orientation: 'landscape', format: 'a4' }); 
+                    
                     doc.setFontSize(16);
                     doc.setTextColor(20, 78, 126);
-                    doc.text(`Materia: ${m.nombre}`, 14, 20);
+                    doc.text(`Materia: ${m.nombre}`, 10, 15); // Márgenes más chicos
                     
                     doc.setFontSize(10);
                     doc.setTextColor(100, 100, 100);
-                    doc.text(`Docente: ${docName}`, 14, 27);
-                    doc.text(`Días: ${m.dia} (${m.horario || 'Sin horario'})   |   Modalidad: ${m.modalidadBase}`, 14, 33);
+                    doc.text(`Docente: ${docName}`, 10, 22);
+                    doc.text(`Días: ${m.dia} (${m.horario || 'Sin horario'})   |   Modalidad: ${m.modalidadBase}`, 10, 28);
                     
-                    let startY = 42;
+                    let startY = 35;
 
                     if (incListaAsist || incNotas) {
                         let head = ["Apellido", "Nombre"];
@@ -1280,14 +1292,21 @@ function saveClaseDetail(){
 
                         if (body.length === 0) body = [["Sin alumnos registrados", ""]];
 
-                        doc.autoTable({ startY: startY, head: [head], body: body, styles: { fontSize: 8 }, headStyles: { fillColor: [20, 78, 126] } });
-                        startY = (doc.lastAutoTable ? doc.lastAutoTable.finalY : startY) + 15;
+                        doc.autoTable({ 
+                            startY: startY, 
+                            head: [head], 
+                            body: body, 
+                            styles: { fontSize: 8, overflow: 'linebreak' }, 
+                            headStyles: { fillColor: [20, 78, 126] },
+                            margin: { left: 10, right: 10 } // Aprovechar el ancho de página
+                        });
+                        startY = (doc.lastAutoTable ? doc.lastAutoTable.finalY : startY) + 12;
                     }
 
                     if (incPlan && m.planificacion) {
                         doc.setFontSize(14);
                         doc.setTextColor(20, 78, 126);
-                        doc.text("Planificación", 14, startY);
+                        doc.text("Planificación", 10, startY);
                         
                         let pHead = ["Fecha", "Mod."]; 
                         if(pTema) pHead.push("Tema / Contenido");
@@ -1326,19 +1345,34 @@ function saveClaseDetail(){
                             startY: startY + 5, 
                             head: [pHead], 
                             body: planBody, 
-                            styles: { fontSize: 8, cellWidth: 'wrap' }, 
+                            styles: { 
+                                fontSize: 7, // Letra un poco más chica para que entre todo bien
+                                overflow: 'linebreak', // Esto obliga al texto largo a bajar de renglón
+                                cellPadding: 2,
+                                valign: 'middle'
+                            }, 
                             headStyles: { fillColor: [31, 161, 148] },
-                            columnStyles: { 0: { cellWidth: 15 }, 1: { cellWidth: 12 } } 
+                            columnStyles: { 
+                                0: { cellWidth: 12 }, // Fecha fija
+                                1: { cellWidth: 10 }  // Mod fija
+                                // El resto de las columnas se acomodan solas al espacio libre
+                            },
+                            margin: { left: 10, right: 10 } // Márgenes chicos para aprovechar la A4
                         });
                     }
                     
                     doc.save(`Nomade_${m.nombre}.pdf`);
                 }
+                
                 closeModal('modal-export');
-                lucide.createIcons();
+                
             } catch (error) {
                 console.error(error);
-                alert("Hubo un error al generar el archivo: " + error.message);
+                alert("Ups! Hubo un error: " + error.message);
+            } finally {
+                btnExport.innerHTML = originalText;
+                btnExport.disabled = false;
+                lucide.createIcons();
             }
         }
 
@@ -1460,6 +1494,7 @@ function saveClaseDetail(){
     </script>
 </body>
 </html>
+
 
 
 
