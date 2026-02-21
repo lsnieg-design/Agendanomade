@@ -1166,15 +1166,8 @@ function saveClaseDetail(){
             openModal('modal-export');
         }
 
-        async function executeExport() {
-            const btnExport = document.querySelector('#modal-export button.bg-nomade-green');
-            const originalText = btnExport.innerHTML;
-            
+       function executeExport() {
             try {
-                btnExport.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> PROCESANDO...';
-                btnExport.disabled = true;
-                await new Promise(r => setTimeout(r, 100));
-
                 const m = userData.materias.find(x => x.id === activeId);
                 const t = document.getElementById('export-type').value;
                 const dashNameEl = document.getElementById('dash-name');
@@ -1250,22 +1243,25 @@ function saveClaseDetail(){
                     const l = document.createElement("a");
                     l.href = url;
                     l.download = `Nomade_${m.nombre}.csv`;
+                    // Agregamos el link al documento temporalmente para que los celulares no lo bloqueen
+                    document.body.appendChild(l);
                     l.click();
+                    document.body.removeChild(l);
                     URL.revokeObjectURL(url);
                     
                 } else {
-                    // --- MODO PDF AJUSTADO PARA A4 ---
+                    // --- MODO PDF ---
                     if (!window.jspdf || !window.jspdf.jsPDF) {
-                        throw new Error("La librería de PDF no cargó. Intentá de nuevo.");
+                        alert("Cargando el creador de PDF, intentá de nuevo en 3 segundos...");
+                        return;
                     }
                     
                     const { jsPDF } = window.jspdf;
-                    // Forzamos tamaño A4 y orientación horizontal
                     const doc = new jsPDF({ orientation: 'landscape', format: 'a4' }); 
                     
                     doc.setFontSize(16);
                     doc.setTextColor(20, 78, 126);
-                    doc.text(`Materia: ${m.nombre}`, 10, 15); // Márgenes más chicos
+                    doc.text(`Materia: ${m.nombre}`, 10, 15);
                     
                     doc.setFontSize(10);
                     doc.setTextColor(100, 100, 100);
@@ -1298,7 +1294,7 @@ function saveClaseDetail(){
                             body: body, 
                             styles: { fontSize: 8, overflow: 'linebreak' }, 
                             headStyles: { fillColor: [20, 78, 126] },
-                            margin: { left: 10, right: 10 } // Aprovechar el ancho de página
+                            margin: { left: 10, right: 10 } 
                         });
                         startY = (doc.lastAutoTable ? doc.lastAutoTable.finalY : startY) + 12;
                     }
@@ -1346,18 +1342,17 @@ function saveClaseDetail(){
                             head: [pHead], 
                             body: planBody, 
                             styles: { 
-                                fontSize: 7, // Letra un poco más chica para que entre todo bien
-                                overflow: 'linebreak', // Esto obliga al texto largo a bajar de renglón
+                                fontSize: 7, 
+                                overflow: 'linebreak', 
                                 cellPadding: 2,
                                 valign: 'middle'
                             }, 
                             headStyles: { fillColor: [31, 161, 148] },
                             columnStyles: { 
-                                0: { cellWidth: 12 }, // Fecha fija
-                                1: { cellWidth: 10 }  // Mod fija
-                                // El resto de las columnas se acomodan solas al espacio libre
+                                0: { cellWidth: 12 }, 
+                                1: { cellWidth: 10 }  
                             },
-                            margin: { left: 10, right: 10 } // Márgenes chicos para aprovechar la A4
+                            margin: { left: 10, right: 10 } 
                         });
                     }
                     
@@ -1369,10 +1364,6 @@ function saveClaseDetail(){
             } catch (error) {
                 console.error(error);
                 alert("Ups! Hubo un error: " + error.message);
-            } finally {
-                btnExport.innerHTML = originalText;
-                btnExport.disabled = false;
-                lucide.createIcons();
             }
         }
 
@@ -1494,6 +1485,7 @@ function saveClaseDetail(){
     </script>
 </body>
 </html>
+
 
 
 
