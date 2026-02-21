@@ -479,24 +479,37 @@
                 <textarea id="detail-act-tarea" placeholder="No hay tarea registrada para esta clase." class="w-full bg-nomade-cream rounded-xl p-3 border-0 text-sm text-gray-700 leading-relaxed focus:ring-2 focus:ring-nomade-green outline-none resize-none h-24 placeholder:text-gray-400 placeholder:italic"></textarea>
             </div>
 
-            <div class="bg-white p-4 rounded-2xl border border-yellow-100 shadow-md relative overflow-hidden">
+           <div class="bg-white p-4 rounded-2xl border border-yellow-100 shadow-md relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-1.5 h-full bg-yellow-400"></div>
                 <label class="text-[11px] font-black text-yellow-600 flex items-center gap-1.5 mb-3 uppercase tracking-wider"><i data-lucide="link" class="w-4 h-4"></i> Links y Recursos</label>
                 <div class="space-y-2">
-                    <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-500 w-14">VIDEO:</span><input type="text" id="detail-link-video" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="URL del video..."></div>
-                    <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-500 w-14">PLACAS:</span><input type="text" id="detail-link-placas" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="URL de la presentación..."></div>
-                    <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-500 w-14">BIBLIO:</span><input type="text" id="detail-link-biblio" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="URL de la lectura..."></div>
-                    <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-500 w-14">RECURSO:</span><input type="text" id="detail-link-recursos" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="URL del recurso..."></div>
-                    <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-500 w-14">OTROS:</span><input type="text" id="detail-link-otros" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="Cualquier otro link..."></div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-[10px] font-bold text-gray-500 w-14">VIDEO:</span>
+                        <input type="text" id="detail-link-video" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="URL del video...">
+                        <button type="button" onclick="abrirLinkDesdeClase('detail-link-video')" class="bg-yellow-100 p-2 rounded text-yellow-700 hover:bg-yellow-200 transition" title="Abrir enlace"><i data-lucide="external-link" class="w-4 h-4"></i></button>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-[10px] font-bold text-gray-500 w-14">PLACAS:</span>
+                        <input type="text" id="detail-link-placas" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="URL de la presentación...">
+                        <button type="button" onclick="abrirLinkDesdeClase('detail-link-placas')" class="bg-yellow-100 p-2 rounded text-yellow-700 hover:bg-yellow-200 transition" title="Abrir enlace"><i data-lucide="external-link" class="w-4 h-4"></i></button>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-[10px] font-bold text-gray-500 w-14">BIBLIO:</span>
+                        <input type="text" id="detail-link-biblio" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="URL de la lectura...">
+                        <button type="button" onclick="abrirLinkDesdeClase('detail-link-biblio')" class="bg-yellow-100 p-2 rounded text-yellow-700 hover:bg-yellow-200 transition" title="Abrir enlace"><i data-lucide="external-link" class="w-4 h-4"></i></button>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-[10px] font-bold text-gray-500 w-14">RECURSO:</span>
+                        <input type="text" id="detail-link-recursos" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="URL del recurso...">
+                        <button type="button" onclick="abrirLinkDesdeClase('detail-link-recursos')" class="bg-yellow-100 p-2 rounded text-yellow-700 hover:bg-yellow-200 transition" title="Abrir enlace"><i data-lucide="external-link" class="w-4 h-4"></i></button>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-[10px] font-bold text-gray-500 w-14">OTROS:</span>
+                        <input type="text" id="detail-link-otros" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="Cualquier otro link...">
+                        <button type="button" onclick="abrirLinkDesdeClase('detail-link-otros')" class="bg-yellow-100 p-2 rounded text-yellow-700 hover:bg-yellow-200 transition" title="Abrir enlace"><i data-lucide="external-link" class="w-4 h-4"></i></button>
+                    </div>
                 </div>
             </div>
-
-        <div class="p-4 bg-white border-t border-gray-100 flex gap-3 z-10">
-            <button onclick="closeModal('modal-clase-detail')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider hover:bg-gray-200 transition">CERRAR</button>
-            <button onclick="saveClaseDetail()" class="flex-[2] py-3.5 bg-nomade-blue text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-blue-900 transition active:scale-95"><i data-lucide="save" class="w-4 h-4"></i> GUARDAR CAMBIOS</button>
-        </div>
-    </div>
-</div>
    
     <div id="modal-export" class="fixed inset-0 bg-black/60 z-[80] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
@@ -1502,7 +1515,21 @@ function saveClaseDetail(){
                 setTimeout(() => { t.classList.add('-translate-y-full'); }, 3000);
             }
         });
-
+function abrirLinkDesdeClase(inputId) {
+            let url = document.getElementById(inputId).value.trim();
+            if (!url) {
+                alert("Primero tenés que pegar un link en este casillero.");
+                return;
+            }
+            
+            // Si el profe pegó www.google.com sin el http, se lo agregamos para que ande
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            
+            // Abre en una pestaña nueva
+            window.open(url, '_blank');
+        }
         window.onload = function() {
             console.log("Sistema Reiniciado");
             auth.signOut();
@@ -1512,6 +1539,7 @@ function saveClaseDetail(){
     </script>
 </body>
 </html>
+
 
 
 
