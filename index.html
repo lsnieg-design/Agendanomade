@@ -1166,12 +1166,12 @@ function saveClaseDetail(){
             openModal('modal-export');
         }
 
-       function executeExport() {
+     function executeExport() {
             try {
                 const m = userData.materias.find(x => x.id === activeId);
                 const t = document.getElementById('export-type').value;
                 const dashNameEl = document.getElementById('dash-name');
-                const docName = dashNameEl ? dashNameEl.innerText : 'Docente';
+                const docName = dashNameEl ? (dashNameEl.innerText || 'Docente') : 'Docente';
                 
                 const incListaAsist = document.getElementById('exp-lista').checked;
                 const incNotas = document.getElementById('exp-notas').checked;
@@ -1184,28 +1184,36 @@ function saveClaseDetail(){
                 
                 const incPlan = pTema || pBiblio || pAct || pTarea || pLinks;
 
+                // Función auxiliar para limpiar textos (evita nulos o saltos de línea feos)
+                const cl = (s) => (s ? String(s).replace(/"/g, '""').replace(/\n/g, ' ') : '');
+
                 if (t === 'xls') {
                     // --- MODO EXCEL ---
-                    let csv = `MATERIA:,${m.nombre}\nDOCENTE:,${docName}\nDÍAS:,${m.dia} (${m.horario || 'Sin horario'})\nMODALIDAD:,${m.modalidadBase}\n\n`;
+                    let csv = `MATERIA:,${cl(m.nombre)}\nDOCENTE:,${cl(docName)}\nDÍAS:,${cl(m.dia)} (${cl(m.horario) || 'Sin horario'})\nMODALIDAD:,${cl(m.modalidadBase)}\n\n`;
                     
                     if (incListaAsist || incNotas) {
                         csv += "APELLIDO,NOMBRE";
                         let fechasAsist = [];
-                        if(m.asistencias) fechasAsist = Object.keys(m.asistencias).sort();
+                        if (m.asistencias && typeof m.asistencias === 'object') {
+                            fechasAsist = Object.keys(m.asistencias).sort();
+                        }
+                        
                         if (incListaAsist) fechasAsist.forEach(f => csv += `,Asist. ${f}`);
-                        if (incNotas && m.examenes) m.examenes.forEach(e => csv += `,Nota: ${e.nombre}`);
+                        if (incNotas && Array.isArray(m.examenes)) m.examenes.forEach(e => csv += `,Nota: ${cl(e.nombre)}`);
                         csv += "\n";
 
-                        (m.alumnos || []).forEach(al => {
-                            let row = `"${al.ape}","${al.nom}"`;
-                            if (incListaAsist) fechasAsist.forEach(f => row += `,${m.asistencias[f][al.id] || '-'}`);
-                            if (incNotas && m.examenes) m.examenes.forEach(e => row += `,${al.notas[e.id] || '-'}`);
-                            csv += row + "\n";
-                        });
+                        if (Array.isArray(m.alumnos)) {
+                            m.alumnos.forEach(al => {
+                                let row = `"${cl(al.ape)}","${cl(al.nom)}"`;
+                                if (incListaAsist) fechasAsist.forEach(f => row += `,${(m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-'}`);
+                                if (incNotas && Array.isArray(m.examenes)) m.examenes.forEach(e => row += `,${(al.notas && al.notas[e.id]) ? al.notas[e.id] : '-'}`);
+                                csv += row + "\n";
+                            });
+                        }
                         csv += "\n\n";
                     }
 
-                    if (incPlan && m.planificacion) {
+                    if (incPlan && m.planificacion && typeof m.planificacion === 'object') {
                         csv += "PLANIFICACIÓN\nFECHA,MODALIDAD";
                         if(pTema) csv += ",TEMA / CONTENIDO";
                         if(pBiblio) csv += ",BIBLIOGRAFÍA";
@@ -1216,10 +1224,9 @@ function saveClaseDetail(){
 
                         Object.keys(m.planificacion).sort().forEach(f => {
                             const p = m.planificacion[f] || {};
-                            const mod = (m.cronograma && m.cronograma[f]) ? m.cronograma[f] : m.modalidadBase;
-                            const cl = (s) => (s||'').replace(/"/g, '""').replace(/\n/g, ' '); 
+                            const mod = (m.cronograma && m.cronograma[f]) ? m.cronograma[f] : (m.modalidadBase || 'Presencial');
                             
-                            let row = `"${f}","${mod}"`; 
+                            let row = `"${f}","${cl(mod)}"`; 
                             if(pTema) row += `,"${cl(p.tema)}"`;
                             if(pBiblio) row += `,"${cl(p.biblio)}"`;
                             if(pAct) row += `,"${cl(p.actClase)}"`;
@@ -1227,32 +1234,34 @@ function saveClaseDetail(){
                             
                             if(pLinks) {
                                 let lks = [];
-                                if(p.linkVideo) lks.push("Video: " + p.linkVideo);
-                                if(p.linkPlacas) lks.push("Placas: " + p.linkPlacas);
-                                if(p.linkBiblio) lks.push("Biblio: " + p.linkBiblio);
-                                if(p.linkRecursos) lks.push("Recurso: " + p.linkRecursos);
-                                if(p.linkOtros) lks.push("Otros: " + p.linkOtros);
+                                if(p.linkVideo) lks.push("Vid: " + p.linkVideo);
+                                if(p.linkPlacas) lks.push("Pla: " + p.linkPlacas);
+                                if(p.linkBiblio) lks.push("Bib: " + p.linkBiblio);
+                                if(p.linkRecursos) lks.push("Rec: " + p.linkRecursos);
+                                if(p.linkOtros) lks.push("Otr: " + p.linkOtros);
                                 row += `,"${cl(lks.join(' | '))}"`;
                             }
                             csv += row + "\n";
                         });
                     }
 
+                    // Descarga directa Excel
                     const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
                     const url = URL.createObjectURL(blob);
                     const l = document.createElement("a");
                     l.href = url;
-                    l.download = `Nomade_${m.nombre}.csv`;
-                    // Agregamos el link al documento temporalmente para que los celulares no lo bloqueen
+                    l.download = `Nomade_${cl(m.nombre).replace(/ /g, '_')}.csv`;
                     document.body.appendChild(l);
                     l.click();
-                    document.body.removeChild(l);
-                    URL.revokeObjectURL(url);
+                    setTimeout(() => {
+                        document.body.removeChild(l);
+                        window.URL.revokeObjectURL(url);
+                    }, 100);
                     
                 } else {
                     // --- MODO PDF ---
-                    if (!window.jspdf || !window.jspdf.jsPDF) {
-                        alert("Cargando el creador de PDF, intentá de nuevo en 3 segundos...");
+                    if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+                        alert("El motor de PDF está cargando... Esperá unos segundos y volvé a tocar el botón.");
                         return;
                     }
                     
@@ -1261,45 +1270,60 @@ function saveClaseDetail(){
                     
                     doc.setFontSize(16);
                     doc.setTextColor(20, 78, 126);
-                    doc.text(`Materia: ${m.nombre}`, 10, 15);
+                    doc.text(`Materia: ${cl(m.nombre)}`, 10, 15);
                     
                     doc.setFontSize(10);
                     doc.setTextColor(100, 100, 100);
-                    doc.text(`Docente: ${docName}`, 10, 22);
-                    doc.text(`Días: ${m.dia} (${m.horario || 'Sin horario'})   |   Modalidad: ${m.modalidadBase}`, 10, 28);
+                    doc.text(`Docente: ${cl(docName)}`, 10, 22);
+                    doc.text(`Días: ${cl(m.dia)} (${cl(m.horario) || 'Sin horario'})   |   Modalidad: ${cl(m.modalidadBase)}`, 10, 28);
                     
                     let startY = 35;
 
                     if (incListaAsist || incNotas) {
                         let head = ["Apellido", "Nombre"];
                         let fechasAsist = [];
-                        if (m.asistencias) m.asistencias = m.asistencias || {};
-                        fechasAsist = Object.keys(m.asistencias).sort();
                         
-                        if (incListaAsist) fechasAsist.forEach(f => { const p = f.split('-'); head.push(`${p[2]}/${p[1]}`); });
-                        if (incNotas && m.examenes) m.examenes.forEach(e => head.push(e.nombre.substring(0,6)));
-
-                        let body = (m.alumnos || []).map(al => {
-                            let row = [al.ape, al.nom];
-                            if (incListaAsist) fechasAsist.forEach(f => row.push(m.asistencias[f][al.id] || '-'));
-                            if (incNotas && m.examenes) m.examenes.forEach(e => row.push(al.notas[e.id] || '-'));
-                            return row;
+                        if (m.asistencias && typeof m.asistencias === 'object') {
+                            fechasAsist = Object.keys(m.asistencias).sort();
+                        }
+                        
+                        if (incListaAsist) fechasAsist.forEach(f => { 
+                            const p = f.split('-'); 
+                            if(p.length === 3) head.push(`${p[2]}/${p[1]}`); 
+                            else head.push(f);
                         });
+                        
+                        if (incNotas && Array.isArray(m.examenes)) {
+                            m.examenes.forEach(e => head.push(cl(e.nombre).substring(0,6)));
+                        }
 
-                        if (body.length === 0) body = [["Sin alumnos registrados", ""]];
+                        let body = [];
+                        if (Array.isArray(m.alumnos) && m.alumnos.length > 0) {
+                            body = m.alumnos.map(al => {
+                                let row = [cl(al.ape), cl(al.nom)];
+                                if (incListaAsist) fechasAsist.forEach(f => row.push((m.asistencias[f] && m.asistencias[f][al.id]) ? String(m.asistencias[f][al.id]) : '-'));
+                                if (incNotas && Array.isArray(m.examenes)) m.examenes.forEach(e => row.push((al.notas && al.notas[e.id]) ? String(al.notas[e.id]) : '-'));
+                                return row;
+                            });
+                        } else {
+                            body = [["Sin alumnos registrados", ""]];
+                        }
 
-                        doc.autoTable({ 
-                            startY: startY, 
-                            head: [head], 
-                            body: body, 
-                            styles: { fontSize: 8, overflow: 'linebreak' }, 
-                            headStyles: { fillColor: [20, 78, 126] },
-                            margin: { left: 10, right: 10 } 
-                        });
-                        startY = (doc.lastAutoTable ? doc.lastAutoTable.finalY : startY) + 12;
+                        // Usamos AutoTable de forma segura
+                        if (typeof doc.autoTable === 'function') {
+                            doc.autoTable({ 
+                                startY: startY, 
+                                head: [head], 
+                                body: body, 
+                                styles: { fontSize: 8, overflow: 'linebreak' }, 
+                                headStyles: { fillColor: [20, 78, 126] },
+                                margin: { left: 10, right: 10 } 
+                            });
+                            startY = (doc.lastAutoTable ? doc.lastAutoTable.finalY : startY) + 12;
+                        }
                     }
 
-                    if (incPlan && m.planificacion) {
+                    if (incPlan && m.planificacion && typeof m.planificacion === 'object') {
                         doc.setFontSize(14);
                         doc.setTextColor(20, 78, 126);
                         doc.text("Planificación", 10, startY);
@@ -1312,16 +1336,18 @@ function saveClaseDetail(){
                         if(pLinks) pHead.push("Recursos");
 
                         let planBody = [];
-                        Object.keys(m.planificacion || {}).sort().forEach(f => {
-                            const p = m.planificacion[f];
+                        Object.keys(m.planificacion).sort().forEach(f => {
+                            const p = m.planificacion[f] || {};
                             const fp = f.split('-');
-                            const mod = (m.cronograma && m.cronograma[f]) ? m.cronograma[f] : m.modalidadBase;
-                            let row = [`${fp[2]}/${fp[1]}`, mod.substring(0,4)]; 
+                            const fechaVisual = fp.length === 3 ? `${fp[2]}/${fp[1]}` : f;
+                            const mod = (m.cronograma && m.cronograma[f]) ? m.cronograma[f] : (m.modalidadBase || 'Pres');
                             
-                            if(pTema) row.push(p.tema || '-');
-                            if(pBiblio) row.push(p.biblio || '-');
-                            if(pAct) row.push(p.actClase || '-');
-                            if(pTarea) row.push(p.actTarea || '-');
+                            let row = [fechaVisual, mod.substring(0,4)]; 
+                            
+                            if(pTema) row.push(cl(p.tema) || '-');
+                            if(pBiblio) row.push(cl(p.biblio) || '-');
+                            if(pAct) row.push(cl(p.actClase) || '-');
+                            if(pTarea) row.push(cl(p.actTarea) || '-');
                             
                             if(pLinks) {
                                 let lks = [];
@@ -1330,43 +1356,44 @@ function saveClaseDetail(){
                                 if(p.linkBiblio) lks.push("Bib: " + p.linkBiblio);
                                 if(p.linkRecursos) lks.push("Rec: " + p.linkRecursos);
                                 if(p.linkOtros) lks.push("Otr: " + p.linkOtros);
-                                row.push(lks.join('\n') || '-');
+                                row.push(lks.length > 0 ? cl(lks.join('\n')) : '-');
                             }
                             planBody.push(row);
                         });
                         
                         if (planBody.length === 0) planBody = [["No hay clases planificadas aún", ""]];
 
-                        doc.autoTable({ 
-                            startY: startY + 5, 
-                            head: [pHead], 
-                            body: planBody, 
-                            styles: { 
-                                fontSize: 7, 
-                                overflow: 'linebreak', 
-                                cellPadding: 2,
-                                valign: 'middle'
-                            }, 
-                            headStyles: { fillColor: [31, 161, 148] },
-                            columnStyles: { 
-                                0: { cellWidth: 12 }, 
-                                1: { cellWidth: 10 }  
-                            },
-                            margin: { left: 10, right: 10 } 
-                        });
+                        if (typeof doc.autoTable === 'function') {
+                            doc.autoTable({ 
+                                startY: startY + 5, 
+                                head: [pHead], 
+                                body: planBody, 
+                                styles: { 
+                                    fontSize: 7, 
+                                    overflow: 'linebreak', 
+                                    cellPadding: 2,
+                                    valign: 'middle'
+                                }, 
+                                headStyles: { fillColor: [31, 161, 148] },
+                                columnStyles: { 
+                                    0: { cellWidth: 12 }, 
+                                    1: { cellWidth: 10 }  
+                                },
+                                margin: { left: 10, right: 10 } 
+                            });
+                        }
                     }
                     
-                    doc.save(`Nomade_${m.nombre}.pdf`);
+                    doc.save(`Nomade_${cl(m.nombre).replace(/ /g, '_')}.pdf`);
                 }
                 
                 closeModal('modal-export');
                 
             } catch (error) {
-                console.error(error);
-                alert("Ups! Hubo un error: " + error.message);
+                console.error("Error completo en exportación:", error);
+                alert("Uy, algo falló al exportar. Si tenés información incompleta en la materia, revisá que esté todo cargado. (Error: " + error.message + ")");
             }
         }
-
         function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
 
         function showTutorial(){ document.getElementById('modal-tutorial').classList.remove('hidden'); tutStep = 1; updateTut(); }
@@ -1485,6 +1512,7 @@ function saveClaseDetail(){
     </script>
 </body>
 </html>
+
 
 
 
