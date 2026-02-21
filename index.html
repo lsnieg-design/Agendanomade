@@ -461,14 +461,20 @@
             <div class="bg-white p-4 rounded-2xl border border-green-100 shadow-md relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-1.5 h-full bg-nomade-green"></div>
                 <label class="text-[11px] font-black text-nomade-green flex items-center gap-1.5 mb-2 uppercase tracking-wider"><i data-lucide="home" class="w-4 h-4"></i> Tarea Asignada</label>
-                <textarea id="detail-act-tarea" class="w-full bg-nomade-cream rounded-xl p-3 border-0 text-sm text-gray-700 leading-relaxed focus:ring-2 focus:ring-nomade-green outline-none resize-none h-24"></textarea>
+                <textarea id="detail-act-tarea" placeholder="No hay tarea registrada para esta clase." class="w-full bg-nomade-cream rounded-xl p-3 border-0 text-sm text-gray-700 leading-relaxed focus:ring-2 focus:ring-nomade-green outline-none resize-none h-24 placeholder:text-gray-400 placeholder:italic"></textarea>
             </div>
-<div class="bg-white p-4 rounded-2xl border border-yellow-100 shadow-md relative overflow-hidden">
+
+            <div class="bg-white p-4 rounded-2xl border border-yellow-100 shadow-md relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-1.5 h-full bg-yellow-400"></div>
-                <label class="text-[11px] font-black text-yellow-600 flex items-center gap-1.5 mb-2 uppercase tracking-wider"><i data-lucide="link" class="w-4 h-4"></i> Links y Recursos</label>
-                <textarea id="detail-links" class="w-full bg-yellow-50/30 rounded-xl p-3 border-0 text-sm text-gray-700 leading-relaxed focus:ring-2 focus:ring-yellow-200 outline-none resize-none h-16" placeholder="Pegá acá links de YouTube, Drive, Genially..."></textarea>
+                <label class="text-[11px] font-black text-yellow-600 flex items-center gap-1.5 mb-3 uppercase tracking-wider"><i data-lucide="link" class="w-4 h-4"></i> Links y Recursos</label>
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-500 w-14">VIDEO:</span><input type="text" id="detail-link-video" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="URL del video..."></div>
+                    <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-500 w-14">PLACAS:</span><input type="text" id="detail-link-placas" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="URL de la presentación..."></div>
+                    <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-500 w-14">BIBLIO:</span><input type="text" id="detail-link-biblio" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="URL de la lectura..."></div>
+                    <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-500 w-14">RECURSO:</span><input type="text" id="detail-link-recursos" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="URL del recurso..."></div>
+                    <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-500 w-14">OTROS:</span><input type="text" id="detail-link-otros" class="flex-1 bg-yellow-50/30 rounded p-2 border border-yellow-100 text-xs outline-none focus:ring-2 focus:ring-yellow-200" placeholder="Cualquier otro link..."></div>
+                </div>
             </div>
-        </div>
 
         <div class="p-4 bg-white border-t border-gray-100 flex gap-3 z-10">
             <button onclick="closeModal('modal-clase-detail')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider hover:bg-gray-200 transition">CERRAR</button>
@@ -477,35 +483,32 @@
     </div>
 </div>
    
-    <div id="modal-export" class="fixed inset-0 bg-black/50 z-[80] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 class="text-lg font-black text-nomade-blue mb-4">Exportar Materia</h3>
-            <p class="text-xs text-gray-500 mb-4">Seleccioná qué querés incluir:</p>
-            <div class="space-y-3 mb-6">
-                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"><input type="checkbox" id="exp-lista" class="w-5 h-5 text-nomade-green" checked><span class="font-bold text-sm text-gray-700">Lista de Alumnos</span></label>
-                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"><input type="checkbox" id="exp-asist" class="w-5 h-5 text-nomade-green" checked><span class="font-bold text-sm text-gray-700">Asistencia</span></label>
-                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"><input type="checkbox" id="exp-notas" class="w-5 h-5 text-nomade-green" checked><span class="font-bold text-sm text-gray-700">Notas</span></label>
-                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"><input type="checkbox" id="exp-plan" class="w-5 h-5 text-nomade-green"><span class="font-bold text-sm text-gray-700">Planificación (Temas)</span></label>
+    <div id="modal-export" class="fixed inset-0 bg-black/60 z-[80] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-black text-nomade-blue">Exportar Materia</h3>
+                <button onclick="closeModal('modal-export')" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 transition"><i data-lucide="x" class="w-4 h-4 text-gray-500"></i></button>
             </div>
+            
+            <p class="text-[10px] font-black text-gray-400 mb-2 uppercase tracking-wider">DATOS DE ALUMNOS</p>
+            <div class="space-y-2 mb-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-lista" class="w-5 h-5 text-nomade-green rounded focus:ring-0" checked><span class="font-bold text-sm text-gray-700">Asistencia y Alumnos</span></label>
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-notas" class="w-5 h-5 text-nomade-green rounded focus:ring-0" checked><span class="font-bold text-sm text-gray-700">Libro de Notas</span></label>
+            </div>
+
+            <p class="text-[10px] font-black text-nomade-blue mb-2 uppercase tracking-wider mt-4">COLUMNAS DE PLANIFICACIÓN</p>
+            <div class="space-y-3 mb-6 bg-blue-50/40 p-4 rounded-2xl border border-blue-100">
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-tema" class="w-5 h-5 text-nomade-blue rounded focus:ring-0" checked><span class="font-bold text-sm text-nomade-blue">Tema / Contenido</span></label>
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-biblio" class="w-5 h-5 text-nomade-blue rounded focus:ring-0" checked><span class="font-bold text-sm text-nomade-blue">Bibliografía</span></label>
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-act" class="w-5 h-5 text-nomade-blue rounded focus:ring-0"><span class="font-medium text-sm text-gray-700">Actividades en Clase</span></label>
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-tarea" class="w-5 h-5 text-nomade-blue rounded focus:ring-0"><span class="font-medium text-sm text-gray-700">Tareas Asignadas</span></label>
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-links" class="w-5 h-5 text-nomade-blue rounded focus:ring-0"><span class="font-medium text-sm text-gray-700">Links y Recursos</span></label>
+            </div>
+
             <input type="hidden" id="export-type">
-            <div class="flex gap-2"><button onclick="closeModal('modal-export')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="executeExport()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">DESCARGAR</button></div>
-        </div>
-    </div>
-    
-    <div id="toast-notification">Notificación</div>
-    <div id="modal-pass-change" class="fixed inset-0 bg-black/50 z-[80] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 class="text-lg font-black text-nomade-blue mb-2">Nueva Contraseña</h3>
-            <p class="text-xs text-gray-500 mb-4">Ingresá tu nueva clave personal.</p>
-            <div class="relative mb-4">
-                <input id="input-new-own-pass" type="password" class="w-full p-3 bg-gray-50 rounded-lg border font-bold text-center" placeholder="Mínimo 6 caracteres">
-                <button onclick="togglePass('input-new-own-pass', 'eye-own-pass')" class="absolute right-3 top-3.5 text-gray-400">
-                    <svg id="eye-own-pass" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                </button>
-            </div>
             <div class="flex gap-2">
-                <button onclick="closeModal('modal-pass-change')" class="flex-1 py-3 text-gray-500 font-bold text-xs">CANCELAR</button>
-                <button onclick="guardarNuevaPassPropia()" class="flex-1 py-3 bg-nomade-green text-white rounded-lg font-bold shadow text-xs">CONFIRMAR</button>
+                <button onclick="closeModal('modal-export')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider">CANCELAR</button>
+                <button onclick="executeExport()" class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95"><i data-lucide="download" class="w-4 h-4"></i> EXPORTAR AHORA</button>
             </div>
         </div>
     </div>
@@ -896,7 +899,13 @@ function openClaseDetail(iso){
     document.getElementById('detail-biblio').value = clean(p.biblio); 
     document.getElementById('detail-act-clase').value = clean(p.actClase); 
     document.getElementById('detail-act-tarea').value = clean(p.actTarea); 
-    document.getElementById('detail-links').value = clean(p.links); // <-- Carga el link
+    
+    // Cargar links separados (y si tenías algo guardado en el diseño viejo, lo manda a "Otros")
+    document.getElementById('detail-link-video').value = clean(p.linkVideo);
+    document.getElementById('detail-link-placas').value = clean(p.linkPlacas);
+    document.getElementById('detail-link-biblio').value = clean(p.linkBiblio);
+    document.getElementById('detail-link-recursos').value = clean(p.linkRecursos);
+    document.getElementById('detail-link-otros').value = clean(p.linkOtros || p.links); 
     
     openModal('modal-clase-detail');
     lucide.createIcons();
@@ -911,14 +920,18 @@ function saveClaseDetail(){
         biblio: document.getElementById('detail-biblio').value.trim(), 
         actClase: document.getElementById('detail-act-clase').value.trim(), 
         actTarea: document.getElementById('detail-act-tarea').value.trim(),
-        links: document.getElementById('detail-links').value.trim() // <-- Guarda el link
+        // Guardar links separados
+        linkVideo: document.getElementById('detail-link-video').value.trim(),
+        linkPlacas: document.getElementById('detail-link-placas').value.trim(),
+        linkBiblio: document.getElementById('detail-link-biblio').value.trim(),
+        linkRecursos: document.getElementById('detail-link-recursos').value.trim(),
+        linkOtros: document.getElementById('detail-link-otros').value.trim()
     }; 
     
     saveData(); 
     closeModal('modal-clase-detail'); 
     renderCrono(); 
 }
-      
         function renderAlum(){const m=userData.materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML=''; m.alumnos.forEach((al,i)=>{l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center mb-2 shadow-sm"><div class="flex items-center gap-3"><div class="avatar-small overflow-hidden"><img src="${al.foto||'https://via.placeholder.com/40'}" class="w-full h-full object-cover"></div><span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span></div><button onclick="delAlum(${i})" class="text-red-400"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
         function guardarAlumno(){const m=userData.materias.find(x=>x.id===activeId); const fotoInput=document.getElementById('input-alum-foto'); let fotoUrl=''; const saver=(url)=>{m.alumnos.push({id:Date.now(), ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, foto:url, notas:{}}); saveData(); closeModal('modal-alumno'); renderAlum();}; if(fotoInput.files[0]){const r=new FileReader(); r.onload=e=>saver(e.target.result); r.readAsDataURL(fotoInput.files[0]);} else saver('');}
         function delAlum(i){userData.materias.find(x=>x.id===activeId).alumnos.splice(i,1); saveData(); renderAlum();}
@@ -1129,44 +1142,76 @@ function saveClaseDetail(){
 function executeExport() {
     const m = userData.materias.find(x => x.id === activeId);
     const t = document.getElementById('export-type').value;
+    const docName = document.getElementById('dash-name').innerText; // Toma tu nombre del inicio
     
-    // Leemos qué quiere exportar
-    const incLista = document.getElementById('exp-lista').checked;
-    const incAsist = document.getElementById('exp-asist').checked;
+    // Leemos qué seleccionaste
+    const incListaAsist = document.getElementById('exp-lista').checked;
     const incNotas = document.getElementById('exp-notas').checked;
-    const incPlan = document.getElementById('exp-plan').checked;
+    
+    const pTema = document.getElementById('exp-plan-tema').checked;
+    const pBiblio = document.getElementById('exp-plan-biblio').checked;
+    const pAct = document.getElementById('exp-plan-act').checked;
+    const pTarea = document.getElementById('exp-plan-tarea').checked;
+    const pLinks = document.getElementById('exp-plan-links').checked;
+    
+    const incPlan = pTema || pBiblio || pAct || pTarea || pLinks;
 
     if (t === 'xls') {
-        let csv = "APELLIDO,NOMBRE";
-        let fechasAsist = [];
-        if(m.asistencias) fechasAsist = Object.keys(m.asistencias).sort();
+        // ENCABEZADO FORMAL EXCEL
+        let csv = `MATERIA:,${m.nombre}\nDOCENTE:,${docName}\nDÍAS:,${m.dia} (${m.horario || 'Sin horario'})\nMODALIDAD:,${m.modalidadBase}\n\n`;
         
-        // Cabeceras de Excel
-        if (incAsist) fechasAsist.forEach(f => csv += `,Asist. ${f}`);
-        if (incNotas && m.examenes) m.examenes.forEach(e => csv += `,Nota: ${e.nombre}`);
-        csv += "\n";
+        // TABLA ALUMNOS
+        if (incListaAsist || incNotas) {
+            csv += "APELLIDO,NOMBRE";
+            let fechasAsist = [];
+            if(m.asistencias) fechasAsist = Object.keys(m.asistencias).sort();
+            if (incListaAsist) fechasAsist.forEach(f => csv += `,Asist. ${f}`);
+            if (incNotas && m.examenes) m.examenes.forEach(e => csv += `,Nota: ${e.nombre}`);
+            csv += "\n";
 
-        // Alumnos y Notas/Asistencias
-        if (incLista || incAsist || incNotas) {
             m.alumnos.forEach(al => {
                 let row = `"${al.ape}","${al.nom}"`;
-                if (incAsist) fechasAsist.forEach(f => row += `,${m.asistencias[f][al.id] || '-'}`);
+                if (incListaAsist) fechasAsist.forEach(f => row += `,${m.asistencias[f][al.id] || '-'}`);
                 if (incNotas && m.examenes) m.examenes.forEach(e => row += `,${al.notas[e.id] || '-'}`);
+                csv += row + "\n";
+            });
+            csv += "\n\n";
+        }
+
+        // TABLA PLANIFICACIÓN A MEDIDA
+        if (incPlan && m.planificacion) {
+            csv += "PLANIFICACIÓN\nFECHA,MODALIDAD";
+            if(pTema) csv += ",TEMA / CONTENIDO";
+            if(pBiblio) csv += ",BIBLIOGRAFÍA";
+            if(pAct) csv += ",ACTIVIDAD EN CLASE";
+            if(pTarea) csv += ",TAREA";
+            if(pLinks) csv += ",LINKS Y RECURSOS";
+            csv += "\n";
+
+            Object.keys(m.planificacion).sort().forEach(f => {
+                const p = m.planificacion[f] || {};
+                const mod = m.cronograma?.[f] || m.modalidadBase;
+                const cl = (s) => (s||'').replace(/"/g, '""').replace(/\n/g, ' '); 
+                
+                let row = `"${f}","${mod}"`; // La fecha y la modalidad salen siempre
+                if(pTema) row += `,"${cl(p.tema)}"`;
+                if(pBiblio) row += `,"${cl(p.biblio)}"`;
+                if(pAct) row += `,"${cl(p.actClase)}"`;
+                if(pTarea) row += `,"${cl(p.actTarea)}"`;
+                
+                if(pLinks) {
+                    let lks = [];
+                    if(p.linkVideo) lks.push("Video: " + p.linkVideo);
+                    if(p.linkPlacas) lks.push("Placas: " + p.linkPlacas);
+                    if(p.linkBiblio) lks.push("Biblio: " + p.linkBiblio);
+                    if(p.linkRecursos) lks.push("Recurso: " + p.linkRecursos);
+                    if(p.linkOtros) lks.push("Otros: " + p.linkOtros);
+                    row += `,"${cl(lks.join(' | '))}"`;
+                }
                 csv += row + "\n";
             });
         }
 
-        // Planificación abajo de todo
-        if (incPlan && m.planificacion) {
-            csv += "\n\nPLANIFICACION\nFECHA,TEMA,BIBLIOGRAFIA,ACTIVIDAD,TAREA,LINKS\n";
-            Object.keys(m.planificacion).sort().forEach(f => {
-                const p = m.planificacion[f];
-                const cl = (s) => (s||'').replace(/"/g, '""').replace(/\n/g, ' '); // Limpia saltos de línea para Excel
-                csv += `"${f}","${cl(p.tema)}","${cl(p.biblio)}","${cl(p.actClase)}","${cl(p.actTarea)}","${cl(p.links)}"\n`;
-            });
-        }
-
-        // Forzar UTF-8 para que las ñ y tildes se vean bien
         const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const l = document.createElement("a");
@@ -1176,23 +1221,30 @@ function executeExport() {
         URL.revokeObjectURL(url);
         
     } else {
-        // MODO PDF ELEGANTE
-        const doc = new window.jspdf.jsPDF();
-        doc.setFontSize(18);
-        doc.text(`Reporte: ${m.nombre}`, 14, 20);
-        let startY = 30;
+        // ENCABEZADO FORMAL PDF (Formato Horizontal)
+        const doc = new window.jspdf.jsPDF('landscape'); // 'landscape' acuesta la hoja
+        doc.setFontSize(16);
+        doc.setTextColor(20, 78, 126);
+        doc.text(`Materia: ${m.nombre}`, 14, 20);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Docente: ${docName}`, 14, 27);
+        doc.text(`Días: ${m.dia} (${m.horario || 'Sin horario'})   |   Modalidad: ${m.modalidadBase}`, 14, 33);
+        
+        let startY = 42;
 
-        if (incLista || incAsist || incNotas) {
+        if (incListaAsist || incNotas) {
             let head = ["Apellido", "Nombre"];
             let fechasAsist = [];
             if (m.asistencias) fechasAsist = Object.keys(m.asistencias).sort();
             
-            if (incAsist) fechasAsist.forEach(f => { const p = f.split('-'); head.push(`${p[2]}/${p[1]}`); });
+            if (incListaAsist) fechasAsist.forEach(f => { const p = f.split('-'); head.push(`${p[2]}/${p[1]}`); });
             if (incNotas && m.examenes) m.examenes.forEach(e => head.push(e.nombre.substring(0,6)));
 
             let body = m.alumnos.map(al => {
                 let row = [al.ape, al.nom];
-                if (incAsist) fechasAsist.forEach(f => row.push(m.asistencias[f][al.id] || '-'));
+                if (incListaAsist) fechasAsist.forEach(f => row.push(m.asistencias[f][al.id] || '-'));
                 if (incNotas && m.examenes) m.examenes.forEach(e => row.push(al.notas[e.id] || '-'));
                 return row;
             });
@@ -1203,19 +1255,54 @@ function executeExport() {
 
         if (incPlan && m.planificacion) {
             doc.setFontSize(14);
+            doc.setTextColor(20, 78, 126);
             doc.text("Planificación", 14, startY);
+            
+            let pHead = ["Fecha", "Mod."]; // Siempre mostramos Fecha y Modalidad
+            if(pTema) pHead.push("Tema / Contenido");
+            if(pBiblio) pHead.push("Bibliografía");
+            if(pAct) pHead.push("Actividad en Clase");
+            if(pTarea) pHead.push("Tarea");
+            if(pLinks) pHead.push("Recursos");
+
             let planBody = [];
-            Object.keys(m.planificacion).sort().forEach(f => {
-                const p = f.split('-');
-                planBody.push([`${p[2]}/${p[1]}`, m.planificacion[f].tema || '-']);
+            Object.keys(m.planificacion || {}).sort().forEach(f => {
+                const p = m.planificacion[f];
+                const fp = f.split('-');
+                const mod = m.cronograma?.[f] || m.modalidadBase;
+                let row = [`${fp[2]}/${fp[1]}`, mod.substring(0,4)]; // Acorta la modalidad para que ocupe menos (ej: Pres, Virt)
+                
+                if(pTema) row.push(p.tema || '-');
+                if(pBiblio) row.push(p.biblio || '-');
+                if(pAct) row.push(p.actClase || '-');
+                if(pTarea) row.push(p.actTarea || '-');
+                
+                if(pLinks) {
+                    let lks = [];
+                    if(p.linkVideo) lks.push("Vid: " + p.linkVideo);
+                    if(p.linkPlacas) lks.push("Pla: " + p.linkPlacas);
+                    if(p.linkBiblio) lks.push("Bib: " + p.linkBiblio);
+                    if(p.linkRecursos) lks.push("Rec: " + p.linkRecursos);
+                    if(p.linkOtros) lks.push("Otr: " + p.linkOtros);
+                    row.push(lks.join('\n') || '-');
+                }
+                planBody.push(row);
             });
             
-            doc.autoTable({ startY: startY + 5, head: [["Fecha", "Tema Principal"]], body: planBody, styles: { fontSize: 9 }, headStyles: { fillColor: [31, 161, 148] } });
+            doc.autoTable({ 
+                startY: startY + 5, 
+                head: [pHead], 
+                body: planBody, 
+                styles: { fontSize: 8, cellWidth: 'wrap' }, 
+                headStyles: { fillColor: [31, 161, 148] },
+                columnStyles: { 0: { cellWidth: 15 }, 1: { cellWidth: 12 } } // Fija el ancho de fecha y modalidad
+            });
         }
         
         doc.save(`Nomade_${m.nombre}.pdf`);
     }
     closeModal('modal-export');
+    lucide.createIcons();
 }
         function togglePass(idInput, idIcon) {
             const input = document.getElementById(idInput);
@@ -1319,6 +1406,7 @@ function executeExport() {
     </script>
 </body>
 </html>
+
 
 
 
