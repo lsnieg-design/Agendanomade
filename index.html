@@ -412,8 +412,73 @@
     <div id="modal-examen" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4" id="title-examen">Nuevo Examen/TP</h3><input type="hidden" id="edit-exam-id"><input id="input-exam-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border font-bold" placeholder="Nombre"><input type="date" id="input-exam-date" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold"><div class="flex gap-2"><button onclick="closeModal('modal-examen')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarExamen()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-obs" class="fixed inset-0 bg-black/50 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-2">Observación</h3><p id="obs-alum-name" class="text-sm font-bold text-gray-500 mb-3"></p><textarea id="input-obs-txt" class="w-full p-3 bg-gray-50 rounded-lg border h-32 mb-4" placeholder="Escribe una observación..."></textarea><div class="flex gap-2"><button onclick="closeModal('modal-obs')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarObs()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-import" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative"><button onclick="closeModal('modal-import')" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button><h3 class="text-lg font-black text-nomade-blue mb-2">Importar Planificación</h3><p class="text-xs text-gray-500 mb-4">Copia 4 columnas de tu Excel (Fecha, Contenido, Biblio, Actividad) y pega aquí.</p><textarea id="input-import-text" class="w-full p-3 bg-gray-50 rounded-lg border h-40 text-xs font-mono mb-4" placeholder="17/03/2025  Tema 1  Libro A  TP1..."></textarea><button onclick="processImport()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2"><i data-lucide="check" class="w-5 h-5"></i> PROCESAR</button></div></div>
-    <div id="modal-clase-detail" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative max-h-[90vh] overflow-y-auto"><h3 class="text-lg font-black text-nomade-blue mb-1" id="detail-date">--/--</h3><input type="hidden" id="detail-iso"><div class="space-y-3 mt-4"><div><label class="text-xs font-bold text-gray-500">CONTENIDO / TEMA</label><textarea id="detail-tema" class="w-full p-2 bg-gray-50 rounded border text-sm font-medium h-20"></textarea></div><div><label class="text-xs font-bold text-gray-500">BIBLIOGRAFÍA</label><textarea id="detail-biblio" class="w-full p-2 bg-gray-50 rounded border text-sm text-gray-600 h-16"></textarea></div><div><label class="text-xs font-bold text-gray-500">ACTIVIDAD CLASE</label><input id="detail-act-clase" class="w-full p-2 bg-gray-50 rounded border text-sm"></div><div><label class="text-xs font-bold text-gray-500">TAREA</label><input id="detail-act-tarea" class="w-full p-2 bg-gray-50 rounded border text-sm"></div></div><div class="flex gap-2 mt-4"><button onclick="closeModal('modal-clase-detail')" class="flex-1 py-3 text-gray-500 font-bold">Cerrar</button><button onclick="saveClaseDetail()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
-    
+    <div id="modal-clase-detail" class="fixed inset-0 bg-black/60 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-gray-50 rounded-3xl w-full max-w-lg shadow-2xl relative max-h-[90vh] flex flex-col overflow-hidden">
+        
+        <div class="bg-nomade-blue p-5 flex justify-between items-center text-white shadow-md z-10">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/20 p-2.5 rounded-xl">
+                    <i data-lucide="calendar-check" class="w-6 h-6 text-nomade-green"></i>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-nomade-green uppercase tracking-widest mb-0.5">Planificación</p>
+                    <h3 class="text-2xl font-black tracking-wide" id="detail-date">--/--/----</h3>
+                </div>
+            </div>
+            <button onclick="closeModal('modal-clase-detail')" class="bg-white/10 p-2 rounded-full hover:bg-red-500 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        
+        <input type="hidden" id="detail-iso">
+        
+        <div class="p-5 overflow-y-auto space-y-4 flex-1">
+            
+            <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-gray-300"></div>
+                <label class="text-[10px] font-black text-gray-400 flex items-center gap-1.5 mb-2 uppercase tracking-wider"><i data-lucide="target" class="w-3.5 h-3.5"></i> Contenido / Tema</label>
+                <textarea id="detail-tema" class="w-full bg-transparent border-0 text-sm font-bold text-nomade-blue focus:ring-0 outline-none resize-none h-16 p-0 leading-tight"></textarea>
+            </div>
+            
+            <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-gray-300"></div>
+                <label class="text-[10px] font-black text-gray-400 flex items-center gap-1.5 mb-2 uppercase tracking-wider"><i data-lucide="book-open" class="w-3.5 h-3.5"></i> Bibliografía</label>
+                <textarea id="detail-biblio" class="w-full bg-transparent border-0 text-xs text-gray-500 focus:ring-0 outline-none resize-none h-12 p-0 leading-tight"></textarea>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-blue-100 shadow-md relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-nomade-blue"></div>
+                <label class="text-[11px] font-black text-nomade-blue flex items-center gap-1.5 mb-2 uppercase tracking-wider"><i data-lucide="users" class="w-4 h-4"></i> Actividad en Clase</label>
+                <textarea id="detail-act-clase" class="w-full bg-blue-50/30 rounded-xl p-3 border-0 text-sm text-gray-700 leading-relaxed focus:ring-2 focus:ring-blue-100 outline-none resize-none h-48"></textarea>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-green-100 shadow-md relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-nomade-green"></div>
+                <label class="text-[11px] font-black text-nomade-green flex items-center gap-1.5 mb-2 uppercase tracking-wider"><i data-lucide="home" class="w-4 h-4"></i> Tarea Asignada</label>
+                <textarea id="detail-act-tarea" class="w-full bg-nomade-cream rounded-xl p-3 border-0 text-sm text-gray-700 leading-relaxed focus:ring-2 focus:ring-nomade-green outline-none resize-none h-24"></textarea>
+            </div>
+
+        </div>
+
+        <div class="p-4 bg-white border-t border-gray-100 flex gap-3 z-10">
+            <button onclick="closeModal('modal-clase-detail')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider hover:bg-gray-200 transition">CERRAR</button>
+            <button onclick="saveClaseDetail()" class="flex-[2] py-3.5 bg-nomade-blue text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-blue-900 transition active:scale-95"><i data-lucide="save" class="w-4 h-4"></i> GUARDAR CAMBIOS</button>
+        </div>
+    </div>
+</div>
+    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <h3 class="text-lg font-black text-nomade-blue mb-1" id="detail-date">--/--</h3>
+        <input type="hidden" id="detail-iso">
+        <div class="space-y-3 mt-4">
+            <div><label class="text-xs font-bold text-gray-500">CONTENIDO / TEMA</label><textarea id="detail-tema" class="w-full p-2 bg-gray-50 rounded border text-sm font-medium h-16"></textarea></div>
+            <div><label class="text-xs font-bold text-gray-500">BIBLIOGRAFÍA</label><textarea id="detail-biblio" class="w-full p-2 bg-gray-50 rounded border text-sm text-gray-600 h-16"></textarea></div>
+            <div><label class="text-xs font-bold text-gray-500">ACTIVIDAD CLASE</label><textarea id="detail-act-clase" class="w-full p-2 bg-gray-50 rounded border text-sm h-32"></textarea></div>
+            <div><label class="text-xs font-bold text-gray-500">TAREA</label><textarea id="detail-act-tarea" class="w-full p-2 bg-gray-50 rounded border text-sm h-16"></textarea></div>
+        </div>
+        <div class="flex gap-2 mt-4">
+            <button onclick="closeModal('modal-clase-detail')" class="flex-1 py-3 text-gray-500 font-bold">Cerrar</button>
+            <button onclick="saveClaseDetail()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button>
+        </div>
+    </div>
+</div>
     <div id="modal-export" class="fixed inset-0 bg-black/50 z-[80] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <h3 class="text-lg font-black text-nomade-blue mb-4">Exportar Materia</h3>
@@ -818,9 +883,45 @@
         function renderCrono(){ const m = userData.materias.find(x => x.id === activeId); if (!m) return; const l = document.getElementById('lista-cronograma'); l.innerHTML = ''; const map = { 'Domingo': 0, 'Lunes': 1, 'Martes': 2, 'Miércoles': 3, 'Jueves': 4, 'Viernes': 5, 'Sábado': 6 }; const targetDay = map[m.dia]; if(!m.fechaInicio) return l.innerHTML='<div class="text-center text-xs text-red-400">Configurá fecha de inicio</div>'; let d = new Date(m.fechaInicio + 'T12:00:00'); const fin = new Date(m.fechaFin + 'T12:00:00'); while (d.getDay() !== targetDay) { d.setDate(d.getDate() + 1); } while (d <= fin) { const iso = d.toISOString().split('T')[0]; const displayDate = `${d.getDate()}/${d.getMonth() + 1}`; let st = m.cronograma?.[iso] || m.modalidadBase; const plan = m.planificacion?.[iso]?.tema || ''; l.innerHTML += `<div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-3"><div class="flex justify-between items-center mb-2"><span class="font-black text-nomade-blue text-sm w-10">${displayDate}</span><div class="flex gap-1"><button onclick="cycle('${iso}')" class="px-2 py-1 rounded text-[9px] font-bold uppercase bg-gray-100 text-gray-500">${st}</button></div></div><input class="w-full text-sm bg-gray-50 p-2 rounded" placeholder="Tema..." value="${plan}" onchange="saveTema('${iso}',this.value)"><div class="flex justify-end mt-2"><button onclick="openClaseDetail('${iso}')" class="text-nomade-green text-xs font-bold flex items-center gap-1"><i data-lucide="plus-circle" class="w-3"></i> DETALLES</button></div></div>`; d.setDate(d.getDate() + 7); } lucide.createIcons(); }
         function cycle(iso) { const m = userData.materias.find(x => x.id === activeId); if (!m.cronograma) m.cronograma = {}; const states = ['Presencial', 'Virtual', 'Receso']; m.cronograma[iso] = states[(states.indexOf(m.cronograma[iso] || m.modalidadBase) + 1) % states.length]; saveData(); renderCrono(); }
         function saveTema(iso,val){ const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={}; if(!m.planificacion[iso]) m.planificacion[iso]={}; m.planificacion[iso].tema=val; saveData(); }
-        function openClaseDetail(iso){activeDateISO=iso; const p=userData.materias.find(x=>x.id===activeId).planificacion?.[iso]||{}; document.getElementById('detail-tema').value=p.tema||''; document.getElementById('detail-biblio').value=p.biblio||''; document.getElementById('detail-act-clase').value=p.actClase||''; document.getElementById('detail-act-tarea').value=p.actTarea||''; openModal('modal-clase-detail');}
-        function saveClaseDetail(){const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion)m.planificacion={}; m.planificacion[activeDateISO]={tema:document.getElementById('detail-tema').value, biblio:document.getElementById('detail-biblio').value, actClase:document.getElementById('detail-act-clase').value, actTarea:document.getElementById('detail-act-tarea').value}; saveData(); closeModal('modal-clase-detail'); renderCrono();}
-        
+       // --- REEMPLAZAR ESTAS DOS FUNCIONES ---
+function openClaseDetail(iso){
+    activeDateISO = iso; 
+    const p = userData.materias.find(x => x.id === activeId).planificacion?.[iso] || {}; 
+    
+    // 1. Mostrar la fecha gigante arriba (formato DD/MM/AAAA)
+    const partes = iso.split('-'); 
+    document.getElementById('detail-date').innerText = `${partes[2]}/${partes[1]}/${partes[0]}`;
+    document.getElementById('detail-iso').value = iso;
+    
+    // 2. Limpiar las comillas extrañas que mete Excel al importar
+    const clean = (txt) => (txt || '').replace(/^"|"$/g, '').replace(/""/g, '"').trim();
+    
+    document.getElementById('detail-tema').value = clean(p.tema); 
+    document.getElementById('detail-biblio').value = clean(p.biblio); 
+    document.getElementById('detail-act-clase').value = clean(p.actClase); 
+    document.getElementById('detail-act-tarea').value = clean(p.actTarea); 
+    
+    openModal('modal-clase-detail');
+    lucide.createIcons(); // Recarga los iconos nuevos
+}
+
+function saveClaseDetail(){
+    const m = userData.materias.find(x => x.id === activeId); 
+    if(!m.planificacion) m.planificacion = {}; 
+    
+    // Guardamos lo que haya en las cajas de texto
+    m.planificacion[activeDateISO] = {
+        tema: document.getElementById('detail-tema').value.trim(), 
+        biblio: document.getElementById('detail-biblio').value.trim(), 
+        actClase: document.getElementById('detail-act-clase').value.trim(), 
+        actTarea: document.getElementById('detail-act-tarea').value.trim()
+    }; 
+    
+    saveData(); 
+    closeModal('modal-clase-detail'); 
+    renderCrono(); // Actualiza la listita de afuera
+}
+      
         function renderAlum(){const m=userData.materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML=''; m.alumnos.forEach((al,i)=>{l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center mb-2 shadow-sm"><div class="flex items-center gap-3"><div class="avatar-small overflow-hidden"><img src="${al.foto||'https://via.placeholder.com/40'}" class="w-full h-full object-cover"></div><span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span></div><button onclick="delAlum(${i})" class="text-red-400"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
         function guardarAlumno(){const m=userData.materias.find(x=>x.id===activeId); const fotoInput=document.getElementById('input-alum-foto'); let fotoUrl=''; const saver=(url)=>{m.alumnos.push({id:Date.now(), ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, foto:url, notas:{}}); saveData(); closeModal('modal-alumno'); renderAlum();}; if(fotoInput.files[0]){const r=new FileReader(); r.onload=e=>saver(e.target.result); r.readAsDataURL(fotoInput.files[0]);} else saver('');}
         function delAlum(i){userData.materias.find(x=>x.id===activeId).alumnos.splice(i,1); saveData(); renderAlum();}
@@ -1084,4 +1185,5 @@
     </script>
 </body>
 </html>
+
 
