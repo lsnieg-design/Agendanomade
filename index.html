@@ -536,7 +536,9 @@
             <input type="hidden" id="export-type">
             <div class="flex gap-2">
                 <button onclick="closeModal('modal-export')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider">CANCELAR</button>
-                <button onclick="executeExport()" class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95"><i data-lucide="download" class="w-4 h-4"></i> EXPORTAR AHORA</button>
+                <button onclick="executeExport()" class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95">
+    <i data-lucide="download" class="w-4 h-4"></i> EXPORTAR AHORA
+</button>
             </div>
         </div>
     </div>
@@ -1118,7 +1120,10 @@ function saveClaseDetail(){
         function delTarea(i){userData.tareas.splice(i,1); saveData(); renderTareas();}
 
         function openModal(id){document.getElementById(id).classList.remove('hidden');}
-        function closeModal(id){document.getElementById(id).classList.add('hidden');}
+        function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.classList.add('hidden');
+}
         function setTab(t){['crono','alumnos','notas'].forEach(x=>{document.getElementById('tab-'+x).classList.add('hidden'); document.getElementById('btn-'+x).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400';}); document.getElementById('tab-'+t).classList.remove('hidden'); document.getElementById('btn-'+t).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-nomade-blue text-white'; if(t==='crono')renderCrono(); if(t==='alumnos')renderAlum(); if(t==='notas')renderNotas();}
         
         function openImportModal(){document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('input-import-text').value='';}
@@ -1179,231 +1184,146 @@ function saveClaseDetail(){
             openModal('modal-export');
         }
 
-    function executeExport() {
-            try {
-                const m = userData.materias.find(x => x.id === activeId);
-                const t = document.getElementById('export-type').value;
-                const dashNameEl = document.getElementById('dash-name');
-                const docName = dashNameEl ? (dashNameEl.innerText || 'Docente') : 'Docente';
-                
-                const incListaAsist = document.getElementById('exp-lista').checked;
-                const incNotas = document.getElementById('exp-notas').checked;
-                
-                const pTema = document.getElementById('exp-plan-tema').checked;
-                const pBiblio = document.getElementById('exp-plan-biblio').checked;
-                const pAct = document.getElementById('exp-plan-act').checked;
-                const pTarea = document.getElementById('exp-plan-tarea').checked;
-                const pLinks = document.getElementById('exp-plan-links').checked;
-                
-                const incPlan = pTema || pBiblio || pAct || pTarea || pLinks;
+   function executeExport() {
+    try {
+        const m = userData.materias.find(x => x.id === activeId);
+        const t = document.getElementById('export-type').value;
+        const dashNameEl = document.getElementById('dash-name');
+        const docName = dashNameEl ? (dashNameEl.innerText || 'Docente') : 'Docente';
+        
+        const incListaAsist = document.getElementById('exp-lista').checked;
+        const incNotas = document.getElementById('exp-notas').checked;
+        
+        const pTema = document.getElementById('exp-plan-tema').checked;
+        const pBiblio = document.getElementById('exp-plan-biblio').checked;
+        const pAct = document.getElementById('exp-plan-act').checked;
+        const pTarea = document.getElementById('exp-plan-tarea').checked;
+        const pLinks = document.getElementById('exp-plan-links').checked;
+        const incPlan = pTema || pBiblio || pAct || pTarea || pLinks;
 
-                const cl = (s) => (s ? String(s).replace(/"/g, '""').replace(/\n/g, ' ') : '');
+        const cl = (s) => (s ? String(s).replace(/"/g, '""').replace(/\n/g, ' ').trim() : '');
 
-                if (t === 'xls') {
-                    // --- MODO EXCEL ---
-                    let csv = `MATERIA:,${cl(m.nombre)}\nDOCENTE:,${cl(docName)}\nDÍAS:,${cl(m.dia)} (${cl(m.horario) || 'Sin horario'})\nMODALIDAD:,${cl(m.modalidadBase)}\n\n`;
-                    
-                    if (incListaAsist || incNotas) {
-                        csv += "APELLIDO,NOMBRE";
-                        let fechasAsist = [];
-                        if (m.asistencias && typeof m.asistencias === 'object') {
-                            fechasAsist = Object.keys(m.asistencias).sort();
-                        }
-                        
-                        if (incListaAsist) fechasAsist.forEach(f => csv += `,Asist. ${f}`);
-                        if (incNotas && Array.isArray(m.examenes)) m.examenes.forEach(e => csv += `,Nota: ${cl(e.nombre)}`);
-                        csv += "\n";
+        if (t === 'xls') {
+            // --- MODO EXCEL (CSV) ---
+            let csv = `MATERIA:,${cl(m.nombre)}\nDOCENTE:,${cl(docName)}\nDÍAS:,${cl(m.dia)} (${cl(m.horario) || 'Sin horario'})\nMODALIDAD:,${cl(m.modalidadBase)}\n\n`;
+            
+            if (incListaAsist || incNotas) {
+                csv += "APELLIDO,NOMBRE";
+                let fechasAsist = (m.asistencias && typeof m.asistencias === 'object') ? Object.keys(m.asistencias).sort() : [];
+                if (incListaAsist) fechasAsist.forEach(f => csv += `,Asist. ${f}`);
+                if (incNotas && Array.isArray(m.examenes)) m.examenes.forEach(e => csv += `,Nota: ${cl(e.nombre)}`);
+                csv += "\n";
 
-                        if (Array.isArray(m.alumnos)) {
-                            m.alumnos.forEach(al => {
-                                let row = `"${cl(al.ape)}","${cl(al.nom)}"`;
-                                if (incListaAsist) fechasAsist.forEach(f => row += `,${(m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-'}`);
-                                if (incNotas && Array.isArray(m.examenes)) m.examenes.forEach(e => row += `,${(al.notas && al.notas[e.id]) ? al.notas[e.id] : '-'}`);
-                                csv += row + "\n";
-                            });
-                        }
-                        csv += "\n\n";
-                    }
-
-                    if (incPlan && m.planificacion && typeof m.planificacion === 'object') {
-                        csv += "PLANIFICACIÓN\nFECHA,MODALIDAD";
-                        if(pTema) csv += ",TEMA / CONTENIDO";
-                        if(pBiblio) csv += ",BIBLIOGRAFÍA";
-                        if(pAct) csv += ",ACTIVIDAD EN CLASE";
-                        if(pTarea) csv += ",TAREA";
-                        if(pLinks) csv += ",LINKS Y RECURSOS";
-                        csv += "\n";
-
-                        Object.keys(m.planificacion).sort().forEach(f => {
-                            const p = m.planificacion[f] || {};
-                            const mod = (m.cronograma && m.cronograma[f]) ? m.cronograma[f] : (m.modalidadBase || 'Presencial');
-                            
-                            let row = `"${f}","${cl(mod)}"`; 
-                            if(pTema) row += `,"${cl(p.tema)}"`;
-                            if(pBiblio) row += `,"${cl(p.biblio)}"`;
-                            if(pAct) row += `,"${cl(p.actClase)}"`;
-                            if(pTarea) row += `,"${cl(p.actTarea)}"`;
-                            
-                            if(pLinks) {
-                                let lks = [];
-                                if(p.linkVideo) lks.push("Vid: " + p.linkVideo);
-                                if(p.linkPlacas) lks.push("Pla: " + p.linkPlacas);
-                                if(p.linkBiblio) lks.push("Bib: " + p.linkBiblio);
-                                if(p.linkRecursos) lks.push("Rec: " + p.linkRecursos);
-                                if(p.linkOtros) lks.push("Otr: " + p.linkOtros);
-                                row += `,"${cl(lks.join(' | '))}"`;
-                            }
-                            csv += row + "\n";
-                        });
-                    }
-
-                    // Forzar descarga sin timeouts
-                    const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-                    const url = URL.createObjectURL(blob);
-                    const l = document.createElement("a");
-                    l.href = url;
-                    l.download = `Nomade_${cl(m.nombre).replace(/ /g, '_')}.csv`;
-                    l.style.display = "none";
-                    document.body.appendChild(l);
-                    l.click();
-                    document.body.removeChild(l);
-                    URL.revokeObjectURL(url);
-                    
-                } else {
-                    // --- MODO PDF ---
-                    if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
-                        alert("El creador de PDF aún no cargó. Refrescá la página e intentá de nuevo.");
-                        return;
-                    }
-                    
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF({ orientation: 'landscape', format: 'a4' }); 
-                    
-                    doc.setFontSize(16);
-                    doc.setTextColor(20, 78, 126);
-                    doc.text(`Materia: ${cl(m.nombre)}`, 10, 15);
-                    
-                    doc.setFontSize(10);
-                    doc.setTextColor(100, 100, 100);
-                    doc.text(`Docente: ${cl(docName)}`, 10, 22);
-                    doc.text(`Días: ${cl(m.dia)} (${cl(m.horario) || 'Sin horario'})   |   Modalidad: ${cl(m.modalidadBase)}`, 10, 28);
-                    
-                    let startY = 35;
-
-                    if (incListaAsist || incNotas) {
-                        let head = ["Apellido", "Nombre"];
-                        let fechasAsist = [];
-                        
-                        if (m.asistencias && typeof m.asistencias === 'object') {
-                            fechasAsist = Object.keys(m.asistencias).sort();
-                        }
-                        
-                        if (incListaAsist) fechasAsist.forEach(f => { 
-                            const p = f.split('-'); 
-                            if(p.length === 3) head.push(`${p[2]}/${p[1]}`); 
-                            else head.push(f);
-                        });
-                        
-                        if (incNotas && Array.isArray(m.examenes)) {
-                            m.examenes.forEach(e => head.push(cl(e.nombre).substring(0,6)));
-                        }
-
-                        let body = [];
-                        if (Array.isArray(m.alumnos) && m.alumnos.length > 0) {
-                            body = m.alumnos.map(al => {
-                                let row = [cl(al.ape), cl(al.nom)];
-                                if (incListaAsist) fechasAsist.forEach(f => row.push((m.asistencias[f] && m.asistencias[f][al.id]) ? String(m.asistencias[f][al.id]) : '-'));
-                                if (incNotas && Array.isArray(m.examenes)) m.examenes.forEach(e => row.push((al.notas && al.notas[e.id]) ? String(al.notas[e.id]) : '-'));
-                                return row;
-                            });
-                        } else {
-                            body = [["Sin alumnos registrados", ""]];
-                        }
-
-                        if (typeof doc.autoTable === 'function') {
-                            doc.autoTable({ 
-                                startY: startY, 
-                                head: [head], 
-                                body: body, 
-                                styles: { fontSize: 8, overflow: 'linebreak' }, 
-                                headStyles: { fillColor: [20, 78, 126] },
-                                margin: { left: 10, right: 10 } 
-                            });
-                            startY = (doc.lastAutoTable ? doc.lastAutoTable.finalY : startY) + 12;
-                        }
-                    }
-
-                    if (incPlan && m.planificacion && typeof m.planificacion === 'object') {
-                        doc.setFontSize(14);
-                        doc.setTextColor(20, 78, 126);
-                        doc.text("Planificación", 10, startY);
-                        
-                        let pHead = ["Fecha", "Mod."]; 
-                        if(pTema) pHead.push("Tema / Contenido");
-                        if(pBiblio) pHead.push("Bibliografía");
-                        if(pAct) pHead.push("Actividad en Clase");
-                        if(pTarea) pHead.push("Tarea");
-                        if(pLinks) pHead.push("Recursos");
-
-                        let planBody = [];
-                        Object.keys(m.planificacion).sort().forEach(f => {
-                            const p = m.planificacion[f] || {};
-                            const fp = f.split('-');
-                            const fechaVisual = fp.length === 3 ? `${fp[2]}/${fp[1]}` : f;
-                            const mod = (m.cronograma && m.cronograma[f]) ? m.cronograma[f] : (m.modalidadBase || 'Pres');
-                            
-                            let row = [fechaVisual, mod.substring(0,4)]; 
-                            
-                            if(pTema) row.push(cl(p.tema) || '-');
-                            if(pBiblio) row.push(cl(p.biblio) || '-');
-                            if(pAct) row.push(cl(p.actClase) || '-');
-                            if(pTarea) row.push(cl(p.actTarea) || '-');
-                            
-                            if(pLinks) {
-                                let lks = [];
-                                if(p.linkVideo) lks.push("Vid: " + p.linkVideo);
-                                if(p.linkPlacas) lks.push("Pla: " + p.linkPlacas);
-                                if(p.linkBiblio) lks.push("Bib: " + p.linkBiblio);
-                                if(p.linkRecursos) lks.push("Rec: " + p.linkRecursos);
-                                if(p.linkOtros) lks.push("Otr: " + p.linkOtros);
-                                row.push(lks.length > 0 ? cl(lks.join('\n')) : '-');
-                            }
-                            planBody.push(row);
-                        });
-                        
-                        if (planBody.length === 0) planBody = [["No hay clases planificadas aún", ""]];
-
-                        if (typeof doc.autoTable === 'function') {
-                            doc.autoTable({ 
-                                startY: startY + 5, 
-                                head: [pHead], 
-                                body: planBody, 
-                                styles: { 
-                                    fontSize: 7, 
-                                    overflow: 'linebreak', 
-                                    cellPadding: 2,
-                                    valign: 'middle'
-                                }, 
-                                headStyles: { fillColor: [31, 161, 148] },
-                                columnStyles: { 
-                                    0: { cellWidth: 12 }, 
-                                    1: { cellWidth: 10 }  
-                                },
-                                margin: { left: 10, right: 10 } 
-                            });
-                        }
-                    }
-                    
-                    doc.save(`Nomade_${cl(m.nombre).replace(/ /g, '_')}.pdf`);
+                if (Array.isArray(m.alumnos)) {
+                    m.alumnos.forEach(al => {
+                        let row = `"${cl(al.ape)}","${cl(al.nom)}"`;
+                        if (incListaAsist) fechasAsist.forEach(f => row += `,${(m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-'}`);
+                        if (incNotas && Array.isArray(m.examenes)) m.examenes.forEach(e => row += `,${(al.notas && al.notas[e.id]) ? al.notas[e.id] : '-'}`);
+                        csv += row + "\n";
+                    });
                 }
-                
-                closeModal('modal-export');
-                
-            } catch (error) {
-                console.error("Error completo en exportación:", error);
-                alert("Error al exportar: " + error.message);
+                csv += "\n\n";
             }
+
+            if (incPlan && m.planificacion) {
+                csv += "PLANIFICACIÓN\nFECHA,MODALIDAD";
+                if(pTema) csv += ",TEMA / CONTENIDO";
+                if(pBiblio) csv += ",BIBLIOGRAFÍA";
+                if(pAct) csv += ",ACTIVIDAD EN CLASE";
+                if(pTarea) csv += ",TAREA";
+                if(pLinks) csv += ",LINKS Y RECURSOS";
+                csv += "\n";
+
+                Object.keys(m.planificacion).sort().forEach(f => {
+                    const p = m.planificacion[f] || {};
+                    // FILTRO ANTI-LINEAS VACÍAS: Si no hay tema ni actividad, no la ponemos
+                    if (!p.tema && !p.actClase && !p.actTarea) return;
+
+                    const mod = (m.cronograma && m.cronograma[f]) ? m.cronograma[f] : (m.modalidadBase || 'Presencial');
+                    let row = `"${f}","${cl(mod)}"`; 
+                    if(pTema) row += `,"${cl(p.tema)}"`;
+                    if(pBiblio) row += `,"${cl(p.biblio)}"`;
+                    if(pAct) row += `,"${cl(p.actClase)}"`;
+                    if(pTarea) row += `,"${cl(p.actTarea)}"`;
+                    
+                    if(pLinks) {
+                        let lks = [];
+                        if(p.linkVideo) lks.push("Vid: " + p.linkVideo);
+                        if(p.linkPlacas) lks.push("Pla: " + p.linkPlacas);
+                        if(p.linkBiblio) lks.push("Bib: " + p.linkBiblio);
+                        if(p.linkRecursos) lks.push("Rec: " + p.linkRecursos);
+                        if(p.linkOtros) lks.push("Otr: " + p.linkOtros);
+                        row += `,"${cl(lks.join(' | '))}"`;
+                    }
+                    csv += row + "\n";
+                });
+            }
+
+            // Descarga instantánea
+            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const l = document.createElement("a");
+            l.href = url;
+            l.download = `Nomade_${cl(m.nombre).replace(/ /g, '_')}.csv`;
+            l.style.display = "none";
+            document.body.appendChild(l);
+            l.click();
+            document.body.removeChild(l);
+            URL.revokeObjectURL(url);
+            
+        } else {
+            // --- MODO PDF ---
+            if (typeof window.jspdf === 'undefined') {
+                alert("El motor PDF no cargó. Refrescá la página.");
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'landscape', format: 'a4' }); 
+            doc.setFontSize(16);
+            doc.setTextColor(20, 78, 126);
+            doc.text(`Materia: ${cl(m.nombre)}`, 10, 15);
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Docente: ${cl(docName)}   |   Días: ${cl(m.dia)}   |   Modalidad: ${cl(m.modalidadBase)}`, 10, 22);
+            
+            let startY = 30;
+            if (incListaAsist || incNotas) {
+                let head = ["Apellido", "Nombre"];
+                let fechasAsist = (m.asistencias) ? Object.keys(m.asistencias).sort() : [];
+                if (incListaAsist) fechasAsist.forEach(f => head.push(f.split('-').reverse().slice(0,2).join('/')));
+                if (incNotas && m.examenes) m.examenes.forEach(e => head.push(cl(e.nombre).substring(0,6)));
+
+                let body = (m.alumnos || []).map(al => {
+                    let row = [cl(al.ape), cl(al.nom)];
+                    if (incListaAsist) fechasAsist.forEach(f => row.push((m.asistencias[f] && m.asistencias[f][al.id]) ? String(m.asistencias[f][al.id]) : '-'));
+                    if (incNotas && m.examenes) m.examenes.forEach(e => row.push((al.notas && al.notas[e.id]) ? String(al.notas[e.id]) : '-'));
+                    return row;
+                });
+
+                doc.autoTable({ startY, head: [head], body, styles: { fontSize: 7 }, headStyles: { fillColor: [20, 78, 126] } });
+                startY = doc.lastAutoTable.finalY + 10;
+            }
+
+            if (incPlan && m.planificacion) {
+                let pHead = ["Fecha", "Mod.", "Contenido", "Actividad", "Tarea"];
+                let pBody = Object.keys(m.planificacion).sort()
+                    .filter(f => m.planificacion[f].tema || m.planificacion[f].actClase) // FILTRO PDF
+                    .map(f => {
+                        const p = m.planificacion[f];
+                        const mod = (m.cronograma && m.cronograma[f]) ? m.cronograma[f] : (m.modalidadBase || 'P');
+                        return [f.split('-').reverse().slice(0,2).join('/'), mod.substring(0,4), cl(p.tema), cl(p.actClase), cl(p.actTarea)];
+                    });
+
+                doc.autoTable({ startY, head: [pHead], body: pBody, styles: { fontSize: 7 }, headStyles: { fillColor: [31, 161, 148] } });
+            }
+            doc.save(`Nomade_${cl(m.nombre).replace(/ /g, '_')}.pdf`);
         }
+        closeModal('modal-export');
+    } catch (error) {
+        console.error(error);
+        alert("Error: " + error.message);
+    }
+}
         function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
 
         function showTutorial(){ document.getElementById('modal-tutorial').classList.remove('hidden'); tutStep = 1; updateTut(); }
@@ -1536,6 +1456,7 @@ function abrirLinkDesdeClase(inputId) {
     </script>
 </body>
 </html>
+
 
 
 
