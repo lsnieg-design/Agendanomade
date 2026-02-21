@@ -167,8 +167,14 @@
                         <button onclick="openExportModal('pdf')" class="bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"><i data-lucide="file-text" class="w-3 h-3"></i> PDF</button>
                     </div>
                 </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><span id="aula-modalidad" class="text-[10px] bg-nomade-cream text-nomade-text px-2 py-1 rounded font-bold uppercase border border-nomade-text/10">--</span><h2 id="aula-nombre" class="text-2xl font-black text-nomade-blue mt-2 leading-tight">Materia</h2></div>
-                
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 relative">
+                    <span id="aula-modalidad" class="text-[10px] bg-nomade-cream text-nomade-text px-2 py-1 rounded font-bold uppercase border border-nomade-text/10">--</span>
+                    <h2 id="aula-nombre" class="text-2xl font-black text-nomade-blue mt-2 leading-tight w-3/4">Materia</h2>
+                    <button id="btn-aula-drive" onclick="abrirDriveMateria()" class="absolute top-5 right-5 bg-blue-50 text-blue-600 px-3 py-2 rounded-xl text-[10px] font-black tracking-wider flex flex-col items-center gap-1 shadow-sm border border-blue-100 hover:bg-blue-100 transition hidden active:scale-95">
+                        <i data-lucide="folder-open" class="w-5 h-5"></i>
+                        DRIVE
+                    </button>
+                </div>
                 <div class="flex bg-white p-1 rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
                     <button onclick="setTab('crono')" id="btn-crono" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-nomade-blue text-white">CRONOGRAMA</button>
                     <button onclick="setTab('alumnos')" id="btn-alumnos" class="flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400">ALUMNOS</button>
@@ -327,30 +333,39 @@
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <h3 class="text-lg font-black text-nomade-blue mb-4" id="title-materia">Nueva Materia</h3>
             <input type="hidden" id="edit-mat-id">
+            
             <label class="text-xs font-bold text-gray-500 ml-1">NOMBRE</label>
             <input id="input-mat-nombre" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border font-bold" placeholder="Ej: Matemática">
+            
             <div class="grid grid-cols-2 gap-2">
                 <div><label class="text-xs font-bold text-gray-500 ml-1">INICIO</label><input type="date" id="input-mat-inicio" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border"></div>
                 <div><label class="text-xs font-bold text-gray-500 ml-1">FIN</label><input type="date" id="input-mat-fin" class="w-full p-2 bg-gray-50 rounded-lg mb-2 border"></div>
             </div>
-            <label class="text-xs font-bold text-gray-500 ml-1">HORARIO</label>
-            <input id="input-mat-horario" class="w-full p-2 bg-gray-50 rounded-lg mb-4 border" placeholder="Ej: 18:00 a 22:00">
-            <div class="grid grid-cols-2 gap-2 mb-4">
-                <div>
-                    <label class="text-xs font-bold text-gray-500 ml-1">DÍA</label>
-                    <select id="input-mat-dia" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-gray-700">
+            
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <div><label class="text-xs font-bold text-gray-500 ml-1">HORARIO</label><input id="input-mat-horario" class="w-full p-2 bg-gray-50 rounded-lg border text-sm" placeholder="Ej: 18 a 22"></div>
+                <div><label class="text-xs font-bold text-gray-500 ml-1">DÍA</label>
+                    <select id="input-mat-dia" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-gray-700 text-sm">
                         <option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option><option value="Sábado">Sábado</option>
                     </select>
                 </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <div>
+                    <label class="text-[10px] font-black text-blue-500 ml-1 uppercase"><i data-lucide="link" class="inline w-3 h-3"></i> Carpeta Drive</label>
+                    <input id="input-mat-drive" class="w-full p-2 bg-blue-50/50 rounded-lg border border-blue-100 text-xs" placeholder="URL del Drive...">
+                </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 ml-1">MODALIDAD</label>
-                    <select id="input-mat-mod" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-gray-700">
+                    <select id="input-mat-mod" class="w-full p-2 bg-gray-50 rounded-lg border font-bold text-gray-700 text-sm">
                         <option value="Hibrida">Mixta</option><option value="Presencial">Presencial</option><option value="Virtual">Virtual</option>
                     </select>
                 </div>
             </div>
+
             <button id="btn-delete-materia" onclick="borrarMateria()" type="button" class="hidden w-full mb-4 text-red-500 text-xs font-bold border border-red-200 bg-red-50 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-red-100 transition">
-                <i data-lucide="trash-2" class="w-4 h-4"></i> ELIMINAR ESTA MATERIA
+                <i data-lucide="trash-2" class="w-4 h-4"></i> ELIMINAR MATERIA
             </button>
             <div class="flex gap-2">
                 <button onclick="closeModal('modal-materia')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button>
@@ -805,12 +820,39 @@
         // 5. MATERIAS Y AULA
         // ==========================================
         function renderMaterias(){ const l=document.getElementById('lista-materias'); l.innerHTML=''; if(!userData.materias || userData.materias.length===0) { document.getElementById('no-materias').classList.remove('hidden'); return; } document.getElementById('no-materias').classList.add('hidden'); userData.materias.forEach(m => { l.innerHTML+=`<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center mb-2" onclick="abrirAula(${m.id})"><div><h3 class="font-bold text-nomade-blue">${m.nombre}</h3><div class="text-xs text-gray-400 uppercase">${m.dia} • ${m.modalidadBase}</div></div><i data-lucide="chevron-right" class="text-gray-300"></i></div>`; }); lucide.createIcons(); }
-        function abrirAula(id){ activeId=id; const m=userData.materias.find(x=>x.id===id); document.getElementById('aula-nombre').innerText=m.nombre; document.getElementById('aula-modalidad').innerText=m.modalidadBase; nav('aula'); setTab('crono'); }
+       function abrirAula(id){ 
+            activeId=id; 
+            const m=userData.materias.find(x=>x.id===id); 
+            document.getElementById('aula-nombre').innerText=m.nombre; 
+            document.getElementById('aula-modalidad').innerText=m.modalidadBase; 
+            
+            // Mostrar u ocultar el botón Drive dependiendo si pusiste link
+            const btnDrive = document.getElementById('btn-aula-drive');
+            if(m.linkDrive && m.linkDrive.trim() !== '') {
+                btnDrive.classList.remove('hidden');
+            } else {
+                btnDrive.classList.add('hidden');
+            }
+            
+            nav('aula'); 
+            setTab('crono'); 
+        }
+        
+        function abrirDriveMateria() {
+            const m = userData.materias.find(x => x.id === activeId);
+            if(m && m.linkDrive) {
+                // Abre el link en una pestaña nueva
+                let url = m.linkDrive;
+                if(!url.startsWith('http')) url = 'https://' + url;
+                window.open(url, '_blank');
+            }
+        }
         
         function openMateriaModal(){ 
             document.getElementById('title-materia').innerText = "Nueva Materia";
             document.getElementById('edit-mat-id').value = ''; 
             document.getElementById('input-mat-nombre').value = ''; 
+            document.getElementById('input-mat-drive').value = ''; 
             document.getElementById('btn-delete-materia').classList.add('hidden'); 
             openModal('modal-materia'); 
         }
@@ -821,7 +863,6 @@
             if (!nom) return alert("Falta nombre");
 
             if (idExistente) {
-                // EDICIÓN
                 const index = userData.materias.findIndex(x => x.id === parseInt(idExistente));
                 if (index !== -1) {
                     userData.materias[index].nombre = nom;
@@ -830,14 +871,11 @@
                     userData.materias[index].horario = document.getElementById('input-mat-horario').value;
                     userData.materias[index].fechaInicio = document.getElementById('input-mat-inicio').value;
                     userData.materias[index].fechaFin = document.getElementById('input-mat-fin').value;
+                    userData.materias[index].linkDrive = document.getElementById('input-mat-drive').value.trim();
                     
-                    if (activeId === parseInt(idExistente)) {
-                        document.getElementById('aula-nombre').innerText = nom;
-                        document.getElementById('aula-modalidad').innerText = document.getElementById('input-mat-mod').value;
-                    }
+                    if (activeId === parseInt(idExistente)) abrirAula(activeId); // Recarga para mostrar el botón
                 }
             } else {
-                // CREACIÓN
                 const mat = { 
                     id: Date.now(), nombre: nom, 
                     dia: document.getElementById('input-mat-dia').value, 
@@ -845,6 +883,7 @@
                     horario: document.getElementById('input-mat-horario').value, 
                     fechaInicio: document.getElementById('input-mat-inicio').value, 
                     fechaFin: document.getElementById('input-mat-fin').value, 
+                    linkDrive: document.getElementById('input-mat-drive').value.trim(),
                     planificacion: {}, cronograma: {}, alumnos: [], examenes: [], asistencias: {} 
                 };
                 userData.materias.push(mat);
@@ -865,6 +904,7 @@
             document.getElementById('input-mat-horario').value = m.horario;
             document.getElementById('input-mat-inicio').value = m.fechaInicio;
             document.getElementById('input-mat-fin').value = m.fechaFin;
+            document.getElementById('input-mat-drive').value = m.linkDrive || '';
             document.getElementById('btn-delete-materia').classList.remove('hidden');
             openModal('modal-materia');
         }
@@ -1121,8 +1161,187 @@ function saveClaseDetail(){
         function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
         function copiarIA() { const t = document.getElementById("ia-output"); t.select(); document.execCommand("copy"); alert("Copiado!"); }
 
-        function openExportModal(t){document.getElementById('export-type').value=t; openModal('modal-export');}
-        function executeExport(){const m=userData.materias.find(x=>x.id===activeId), t=document.getElementById('export-type').value; if(t==='xls'){let csv="ALUMNO,ASISTENCIA,NOTAS\n"; m.alumnos.forEach(a=>{csv+=`${a.ape},,\n`;}); const l=document.createElement("a"); l.href="data:text/csv;charset=utf-8,"+encodeURI(csv); l.download="Reporte.csv"; document.body.appendChild(l); l.click(); l.remove();} else {const doc=new window.jspdf.jsPDF(); doc.text(m.nombre,10,10); doc.save("Reporte.pdf");} closeModal('modal-export');}
+        function openExportModal(t){
+            document.getElementById('export-type').value=t; 
+            openModal('modal-export');
+        }
+
+        function executeExport() {
+            try {
+                const m = userData.materias.find(x => x.id === activeId);
+                const t = document.getElementById('export-type').value;
+                const dashNameEl = document.getElementById('dash-name');
+                const docName = dashNameEl ? dashNameEl.innerText : 'Docente';
+                
+                // Leemos qué seleccionaste en la ventanita
+                const incListaAsist = document.getElementById('exp-lista').checked;
+                const incNotas = document.getElementById('exp-notas').checked;
+                
+                const pTema = document.getElementById('exp-plan-tema').checked;
+                const pBiblio = document.getElementById('exp-plan-biblio').checked;
+                const pAct = document.getElementById('exp-plan-act').checked;
+                const pTarea = document.getElementById('exp-plan-tarea').checked;
+                const pLinks = document.getElementById('exp-plan-links').checked;
+                
+                const incPlan = pTema || pBiblio || pAct || pTarea || pLinks;
+
+                if (t === 'xls') {
+                    // --- MODO EXCEL ---
+                    let csv = `MATERIA:,${m.nombre}\nDOCENTE:,${docName}\nDÍAS:,${m.dia} (${m.horario || 'Sin horario'})\nMODALIDAD:,${m.modalidadBase}\n\n`;
+                    
+                    if (incListaAsist || incNotas) {
+                        csv += "APELLIDO,NOMBRE";
+                        let fechasAsist = [];
+                        if(m.asistencias) fechasAsist = Object.keys(m.asistencias).sort();
+                        if (incListaAsist) fechasAsist.forEach(f => csv += `,Asist. ${f}`);
+                        if (incNotas && m.examenes) m.examenes.forEach(e => csv += `,Nota: ${e.nombre}`);
+                        csv += "\n";
+
+                        (m.alumnos || []).forEach(al => {
+                            let row = `"${al.ape}","${al.nom}"`;
+                            if (incListaAsist) fechasAsist.forEach(f => row += `,${m.asistencias[f][al.id] || '-'}`);
+                            if (incNotas && m.examenes) m.examenes.forEach(e => row += `,${al.notas[e.id] || '-'}`);
+                            csv += row + "\n";
+                        });
+                        csv += "\n\n";
+                    }
+
+                    if (incPlan && m.planificacion) {
+                        csv += "PLANIFICACIÓN\nFECHA,MODALIDAD";
+                        if(pTema) csv += ",TEMA / CONTENIDO";
+                        if(pBiblio) csv += ",BIBLIOGRAFÍA";
+                        if(pAct) csv += ",ACTIVIDAD EN CLASE";
+                        if(pTarea) csv += ",TAREA";
+                        if(pLinks) csv += ",LINKS Y RECURSOS";
+                        csv += "\n";
+
+                        Object.keys(m.planificacion).sort().forEach(f => {
+                            const p = m.planificacion[f] || {};
+                            const mod = (m.cronograma && m.cronograma[f]) ? m.cronograma[f] : m.modalidadBase;
+                            const cl = (s) => (s||'').replace(/"/g, '""').replace(/\n/g, ' '); 
+                            
+                            let row = `"${f}","${mod}"`; 
+                            if(pTema) row += `,"${cl(p.tema)}"`;
+                            if(pBiblio) row += `,"${cl(p.biblio)}"`;
+                            if(pAct) row += `,"${cl(p.actClase)}"`;
+                            if(pTarea) row += `,"${cl(p.actTarea)}"`;
+                            
+                            if(pLinks) {
+                                let lks = [];
+                                if(p.linkVideo) lks.push("Video: " + p.linkVideo);
+                                if(p.linkPlacas) lks.push("Placas: " + p.linkPlacas);
+                                if(p.linkBiblio) lks.push("Biblio: " + p.linkBiblio);
+                                if(p.linkRecursos) lks.push("Recurso: " + p.linkRecursos);
+                                if(p.linkOtros) lks.push("Otros: " + p.linkOtros);
+                                row += `,"${cl(lks.join(' | '))}"`;
+                            }
+                            csv += row + "\n";
+                        });
+                    }
+
+                    const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const l = document.createElement("a");
+                    l.href = url;
+                    l.download = `Nomade_${m.nombre}.csv`;
+                    l.click();
+                    URL.revokeObjectURL(url);
+                    
+                } else {
+                    // --- MODO PDF ---
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF('landscape'); 
+                    doc.setFontSize(16);
+                    doc.setTextColor(20, 78, 126);
+                    doc.text(`Materia: ${m.nombre}`, 14, 20);
+                    
+                    doc.setFontSize(10);
+                    doc.setTextColor(100, 100, 100);
+                    doc.text(`Docente: ${docName}`, 14, 27);
+                    doc.text(`Días: ${m.dia} (${m.horario || 'Sin horario'})   |   Modalidad: ${m.modalidadBase}`, 14, 33);
+                    
+                    let startY = 42;
+
+                    if (incListaAsist || incNotas) {
+                        let head = ["Apellido", "Nombre"];
+                        let fechasAsist = [];
+                        if (m.asistencias) m.asistencias = m.asistencias || {};
+                        fechasAsist = Object.keys(m.asistencias).sort();
+                        
+                        if (incListaAsist) fechasAsist.forEach(f => { const p = f.split('-'); head.push(`${p[2]}/${p[1]}`); });
+                        if (incNotas && m.examenes) m.examenes.forEach(e => head.push(e.nombre.substring(0,6)));
+
+                        let body = (m.alumnos || []).map(al => {
+                            let row = [al.ape, al.nom];
+                            if (incListaAsist) fechasAsist.forEach(f => row.push(m.asistencias[f][al.id] || '-'));
+                            if (incNotas && m.examenes) m.examenes.forEach(e => row.push(al.notas[e.id] || '-'));
+                            return row;
+                        });
+
+                        if (body.length === 0) body = [["Sin alumnos registrados", ""]];
+
+                        doc.autoTable({ startY: startY, head: [head], body: body, styles: { fontSize: 8 }, headStyles: { fillColor: [20, 78, 126] } });
+                        startY = (doc.lastAutoTable ? doc.lastAutoTable.finalY : startY) + 15;
+                    }
+
+                    if (incPlan && m.planificacion) {
+                        doc.setFontSize(14);
+                        doc.setTextColor(20, 78, 126);
+                        doc.text("Planificación", 14, startY);
+                        
+                        let pHead = ["Fecha", "Mod."]; 
+                        if(pTema) pHead.push("Tema / Contenido");
+                        if(pBiblio) pHead.push("Bibliografía");
+                        if(pAct) pHead.push("Actividad en Clase");
+                        if(pTarea) pHead.push("Tarea");
+                        if(pLinks) pHead.push("Recursos");
+
+                        let planBody = [];
+                        Object.keys(m.planificacion || {}).sort().forEach(f => {
+                            const p = m.planificacion[f];
+                            const fp = f.split('-');
+                            const mod = (m.cronograma && m.cronograma[f]) ? m.cronograma[f] : m.modalidadBase;
+                            let row = [`${fp[2]}/${fp[1]}`, mod.substring(0,4)]; 
+                            
+                            if(pTema) row.push(p.tema || '-');
+                            if(pBiblio) row.push(p.biblio || '-');
+                            if(pAct) row.push(p.actClase || '-');
+                            if(pTarea) row.push(p.actTarea || '-');
+                            
+                            if(pLinks) {
+                                let lks = [];
+                                if(p.linkVideo) lks.push("Vid: " + p.linkVideo);
+                                if(p.linkPlacas) lks.push("Pla: " + p.linkPlacas);
+                                if(p.linkBiblio) lks.push("Bib: " + p.linkBiblio);
+                                if(p.linkRecursos) lks.push("Rec: " + p.linkRecursos);
+                                if(p.linkOtros) lks.push("Otr: " + p.linkOtros);
+                                row.push(lks.join('\n') || '-');
+                            }
+                            planBody.push(row);
+                        });
+                        
+                        if (planBody.length === 0) planBody = [["No hay clases planificadas aún", ""]];
+
+                        doc.autoTable({ 
+                            startY: startY + 5, 
+                            head: [pHead], 
+                            body: planBody, 
+                            styles: { fontSize: 8, cellWidth: 'wrap' }, 
+                            headStyles: { fillColor: [31, 161, 148] },
+                            columnStyles: { 0: { cellWidth: 15 }, 1: { cellWidth: 12 } } 
+                        });
+                    }
+                    
+                    doc.save(`Nomade_${m.nombre}.pdf`);
+                }
+                closeModal('modal-export');
+                lucide.createIcons();
+            } catch (error) {
+                console.error(error);
+                alert("Hubo un error al generar el archivo: " + error.message);
+            }
+        }
+
         function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
 
         function showTutorial(){ document.getElementById('modal-tutorial').classList.remove('hidden'); tutStep = 1; updateTut(); }
@@ -1139,171 +1358,6 @@ function saveClaseDetail(){
             document.getElementById('btn-tut-next').innerText = tutStep === 4 ? '¡COMENZAR!' : 'SIGUIENTE ➝';
             lucide.createIcons();
         }
-function executeExport() {
-    const m = userData.materias.find(x => x.id === activeId);
-    const t = document.getElementById('export-type').value;
-    const docName = document.getElementById('dash-name').innerText; // Toma tu nombre del inicio
-    
-    // Leemos qué seleccionaste
-    const incListaAsist = document.getElementById('exp-lista').checked;
-    const incNotas = document.getElementById('exp-notas').checked;
-    
-    const pTema = document.getElementById('exp-plan-tema').checked;
-    const pBiblio = document.getElementById('exp-plan-biblio').checked;
-    const pAct = document.getElementById('exp-plan-act').checked;
-    const pTarea = document.getElementById('exp-plan-tarea').checked;
-    const pLinks = document.getElementById('exp-plan-links').checked;
-    
-    const incPlan = pTema || pBiblio || pAct || pTarea || pLinks;
-
-    if (t === 'xls') {
-        // ENCABEZADO FORMAL EXCEL
-        let csv = `MATERIA:,${m.nombre}\nDOCENTE:,${docName}\nDÍAS:,${m.dia} (${m.horario || 'Sin horario'})\nMODALIDAD:,${m.modalidadBase}\n\n`;
-        
-        // TABLA ALUMNOS
-        if (incListaAsist || incNotas) {
-            csv += "APELLIDO,NOMBRE";
-            let fechasAsist = [];
-            if(m.asistencias) fechasAsist = Object.keys(m.asistencias).sort();
-            if (incListaAsist) fechasAsist.forEach(f => csv += `,Asist. ${f}`);
-            if (incNotas && m.examenes) m.examenes.forEach(e => csv += `,Nota: ${e.nombre}`);
-            csv += "\n";
-
-            m.alumnos.forEach(al => {
-                let row = `"${al.ape}","${al.nom}"`;
-                if (incListaAsist) fechasAsist.forEach(f => row += `,${m.asistencias[f][al.id] || '-'}`);
-                if (incNotas && m.examenes) m.examenes.forEach(e => row += `,${al.notas[e.id] || '-'}`);
-                csv += row + "\n";
-            });
-            csv += "\n\n";
-        }
-
-        // TABLA PLANIFICACIÓN A MEDIDA
-        if (incPlan && m.planificacion) {
-            csv += "PLANIFICACIÓN\nFECHA,MODALIDAD";
-            if(pTema) csv += ",TEMA / CONTENIDO";
-            if(pBiblio) csv += ",BIBLIOGRAFÍA";
-            if(pAct) csv += ",ACTIVIDAD EN CLASE";
-            if(pTarea) csv += ",TAREA";
-            if(pLinks) csv += ",LINKS Y RECURSOS";
-            csv += "\n";
-
-            Object.keys(m.planificacion).sort().forEach(f => {
-                const p = m.planificacion[f] || {};
-                const mod = m.cronograma?.[f] || m.modalidadBase;
-                const cl = (s) => (s||'').replace(/"/g, '""').replace(/\n/g, ' '); 
-                
-                let row = `"${f}","${mod}"`; // La fecha y la modalidad salen siempre
-                if(pTema) row += `,"${cl(p.tema)}"`;
-                if(pBiblio) row += `,"${cl(p.biblio)}"`;
-                if(pAct) row += `,"${cl(p.actClase)}"`;
-                if(pTarea) row += `,"${cl(p.actTarea)}"`;
-                
-                if(pLinks) {
-                    let lks = [];
-                    if(p.linkVideo) lks.push("Video: " + p.linkVideo);
-                    if(p.linkPlacas) lks.push("Placas: " + p.linkPlacas);
-                    if(p.linkBiblio) lks.push("Biblio: " + p.linkBiblio);
-                    if(p.linkRecursos) lks.push("Recurso: " + p.linkRecursos);
-                    if(p.linkOtros) lks.push("Otros: " + p.linkOtros);
-                    row += `,"${cl(lks.join(' | '))}"`;
-                }
-                csv += row + "\n";
-            });
-        }
-
-        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const l = document.createElement("a");
-        l.href = url;
-        l.download = `Nomade_${m.nombre}.csv`;
-        l.click();
-        URL.revokeObjectURL(url);
-        
-    } else {
-        // ENCABEZADO FORMAL PDF (Formato Horizontal)
-        const doc = new window.jspdf.jsPDF('landscape'); // 'landscape' acuesta la hoja
-        doc.setFontSize(16);
-        doc.setTextColor(20, 78, 126);
-        doc.text(`Materia: ${m.nombre}`, 14, 20);
-        
-        doc.setFontSize(10);
-        doc.setTextColor(100, 100, 100);
-        doc.text(`Docente: ${docName}`, 14, 27);
-        doc.text(`Días: ${m.dia} (${m.horario || 'Sin horario'})   |   Modalidad: ${m.modalidadBase}`, 14, 33);
-        
-        let startY = 42;
-
-        if (incListaAsist || incNotas) {
-            let head = ["Apellido", "Nombre"];
-            let fechasAsist = [];
-            if (m.asistencias) fechasAsist = Object.keys(m.asistencias).sort();
-            
-            if (incListaAsist) fechasAsist.forEach(f => { const p = f.split('-'); head.push(`${p[2]}/${p[1]}`); });
-            if (incNotas && m.examenes) m.examenes.forEach(e => head.push(e.nombre.substring(0,6)));
-
-            let body = m.alumnos.map(al => {
-                let row = [al.ape, al.nom];
-                if (incListaAsist) fechasAsist.forEach(f => row.push(m.asistencias[f][al.id] || '-'));
-                if (incNotas && m.examenes) m.examenes.forEach(e => row.push(al.notas[e.id] || '-'));
-                return row;
-            });
-
-            doc.autoTable({ startY: startY, head: [head], body: body, styles: { fontSize: 8 }, headStyles: { fillColor: [20, 78, 126] } });
-            startY = doc.lastAutoTable.finalY + 15;
-        }
-
-        if (incPlan && m.planificacion) {
-            doc.setFontSize(14);
-            doc.setTextColor(20, 78, 126);
-            doc.text("Planificación", 14, startY);
-            
-            let pHead = ["Fecha", "Mod."]; // Siempre mostramos Fecha y Modalidad
-            if(pTema) pHead.push("Tema / Contenido");
-            if(pBiblio) pHead.push("Bibliografía");
-            if(pAct) pHead.push("Actividad en Clase");
-            if(pTarea) pHead.push("Tarea");
-            if(pLinks) pHead.push("Recursos");
-
-            let planBody = [];
-            Object.keys(m.planificacion || {}).sort().forEach(f => {
-                const p = m.planificacion[f];
-                const fp = f.split('-');
-                const mod = m.cronograma?.[f] || m.modalidadBase;
-                let row = [`${fp[2]}/${fp[1]}`, mod.substring(0,4)]; // Acorta la modalidad para que ocupe menos (ej: Pres, Virt)
-                
-                if(pTema) row.push(p.tema || '-');
-                if(pBiblio) row.push(p.biblio || '-');
-                if(pAct) row.push(p.actClase || '-');
-                if(pTarea) row.push(p.actTarea || '-');
-                
-                if(pLinks) {
-                    let lks = [];
-                    if(p.linkVideo) lks.push("Vid: " + p.linkVideo);
-                    if(p.linkPlacas) lks.push("Pla: " + p.linkPlacas);
-                    if(p.linkBiblio) lks.push("Bib: " + p.linkBiblio);
-                    if(p.linkRecursos) lks.push("Rec: " + p.linkRecursos);
-                    if(p.linkOtros) lks.push("Otr: " + p.linkOtros);
-                    row.push(lks.join('\n') || '-');
-                }
-                planBody.push(row);
-            });
-            
-            doc.autoTable({ 
-                startY: startY + 5, 
-                head: [pHead], 
-                body: planBody, 
-                styles: { fontSize: 8, cellWidth: 'wrap' }, 
-                headStyles: { fillColor: [31, 161, 148] },
-                columnStyles: { 0: { cellWidth: 15 }, 1: { cellWidth: 12 } } // Fija el ancho de fecha y modalidad
-            });
-        }
-        
-        doc.save(`Nomade_${m.nombre}.pdf`);
-    }
-    closeModal('modal-export');
-    lucide.createIcons();
-}
         function togglePass(idInput, idIcon) {
             const input = document.getElementById(idInput);
             const icon = document.getElementById(idIcon);
@@ -1406,6 +1460,7 @@ function executeExport() {
     </script>
 </body>
 </html>
+
 
 
 
