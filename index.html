@@ -411,7 +411,15 @@
 
     <div id="modal-examen" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-4" id="title-examen">Nuevo Examen/TP</h3><input type="hidden" id="edit-exam-id"><input id="input-exam-nom" class="w-full p-3 bg-gray-50 rounded-lg mb-3 border font-bold" placeholder="Nombre"><input type="date" id="input-exam-date" class="w-full p-3 bg-gray-50 rounded-lg mb-4 border font-bold"><div class="flex gap-2"><button onclick="closeModal('modal-examen')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarExamen()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
     <div id="modal-obs" class="fixed inset-0 bg-black/50 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="text-lg font-black text-nomade-blue mb-2">Observación</h3><p id="obs-alum-name" class="text-sm font-bold text-gray-500 mb-3"></p><textarea id="input-obs-txt" class="w-full p-3 bg-gray-50 rounded-lg border h-32 mb-4" placeholder="Escribe una observación..."></textarea><div class="flex gap-2"><button onclick="closeModal('modal-obs')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button><button onclick="guardarObs()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button></div></div></div>
-    <div id="modal-import" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative"><button onclick="closeModal('modal-import')" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button><h3 class="text-lg font-black text-nomade-blue mb-2">Importar Planificación</h3><p class="text-xs text-gray-500 mb-4">Copia 4 columnas de tu Excel (Fecha, Contenido, Biblio, Actividad) y pega aquí.</p><textarea id="input-import-text" class="w-full p-3 bg-gray-50 rounded-lg border h-40 text-xs font-mono mb-4" placeholder="17/03/2025  Tema 1  Libro A  TP1..."></textarea><button onclick="processImport()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2"><i data-lucide="check" class="w-5 h-5"></i> PROCESAR</button></div></div>
+   <div id="modal-import" class="fixed inset-0 bg-black/60 z-[80] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl relative">
+        <button onclick="closeModal('modal-import')" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full hover:bg-gray-200 transition"><i data-lucide="x" class="w-4 h-4 text-gray-500"></i></button>
+        <h3 class="text-lg font-black text-nomade-blue mb-1">Importar Planificación</h3>
+        <p class="text-xs text-gray-500 mb-4">Copiá <strong class="text-nomade-green">5 columnas</strong> de tu Excel (Fecha, Tema, Bibliografía, Actividad, Tarea) y pegalas acá abajo:</p>
+        <textarea id="input-import-text" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 h-40 text-xs font-mono mb-4 focus:ring-2 focus:ring-nomade-green outline-none resize-none shadow-inner" placeholder="Ej: 20/03/2026   Presentación   Libro X   Debate   Leer cap 1"></textarea>
+        <button onclick="processImport()" class="w-full bg-nomade-green text-white py-3.5 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95"><i data-lucide="check" class="w-5 h-5"></i> IMPORTAR CLASES</button>
+    </div>
+</div>
     <div id="modal-clase-detail" class="fixed inset-0 bg-black/60 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-gray-50 rounded-3xl w-full max-w-lg shadow-2xl relative max-h-[90vh] flex flex-col overflow-hidden">
         
@@ -464,21 +472,7 @@
         </div>
     </div>
 </div>
-    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative max-h-[90vh] overflow-y-auto">
-        <h3 class="text-lg font-black text-nomade-blue mb-1" id="detail-date">--/--</h3>
-        <input type="hidden" id="detail-iso">
-        <div class="space-y-3 mt-4">
-            <div><label class="text-xs font-bold text-gray-500">CONTENIDO / TEMA</label><textarea id="detail-tema" class="w-full p-2 bg-gray-50 rounded border text-sm font-medium h-16"></textarea></div>
-            <div><label class="text-xs font-bold text-gray-500">BIBLIOGRAFÍA</label><textarea id="detail-biblio" class="w-full p-2 bg-gray-50 rounded border text-sm text-gray-600 h-16"></textarea></div>
-            <div><label class="text-xs font-bold text-gray-500">ACTIVIDAD CLASE</label><textarea id="detail-act-clase" class="w-full p-2 bg-gray-50 rounded border text-sm h-32"></textarea></div>
-            <div><label class="text-xs font-bold text-gray-500">TAREA</label><textarea id="detail-act-tarea" class="w-full p-2 bg-gray-50 rounded border text-sm h-16"></textarea></div>
-        </div>
-        <div class="flex gap-2 mt-4">
-            <button onclick="closeModal('modal-clase-detail')" class="flex-1 py-3 text-gray-500 font-bold">Cerrar</button>
-            <button onclick="saveClaseDetail()" class="flex-1 py-3 bg-nomade-blue text-white rounded-lg font-bold shadow">Guardar</button>
-        </div>
-    </div>
-</div>
+   
     <div id="modal-export" class="fixed inset-0 bg-black/50 z-[80] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <h3 class="text-lg font-black text-nomade-blue mb-4">Exportar Materia</h3>
@@ -1059,8 +1053,55 @@ function saveClaseDetail(){
         function setTab(t){['crono','alumnos','notas'].forEach(x=>{document.getElementById('tab-'+x).classList.add('hidden'); document.getElementById('btn-'+x).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400';}); document.getElementById('tab-'+t).classList.remove('hidden'); document.getElementById('btn-'+t).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-nomade-blue text-white'; if(t==='crono')renderCrono(); if(t==='alumnos')renderAlum(); if(t==='notas')renderNotas();}
         
         function openImportModal(){document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('input-import-text').value='';}
-        function processImport(){const raw=document.getElementById('input-import-text').value; if(!raw.trim()){alert("Pega el contenido.");return;} const lines=raw.split('\n'); const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={}; let count=0; lines.forEach(line=>{const parts=line.split('\t'); if(parts.length>=1){const dateRaw=parts[0].trim(); const match=dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/); if(match){const day=match[1].padStart(2,'0'); const month=match[2].padStart(2,'0'); const year=match[3].length===2?'20'+match[3]:match[3]; const isoDate=`${year}-${month}-${day}`; let idx=1; if(parts[idx]&&parts[idx].trim().length<3&&!isNaN(parseInt(parts[idx]))) idx++; const tema=parts[idx]?parts[idx].trim():""; const biblio=parts[idx+1]?parts[idx+1].trim():""; const actClase=parts[idx+2]?parts[idx+2].trim():""; const actTarea=parts[idx+3]?parts[idx+3].trim():""; if(tema){m.planificacion[isoDate]={tema,biblio,actClase,actTarea}; count++;}}}}); saveData(); alert(`✅ Se importaron ${count} clases.`); closeModal('modal-import'); renderCrono();}
+        function processImport(){
+    const raw = document.getElementById('input-import-text').value; 
+    if(!raw.trim()){ alert("No pegaste nada 😅"); return; } 
+    
+    const lines = raw.split('\n'); 
+    const m = userData.materias.find(x => x.id === activeId); 
+    if(!m.planificacion) m.planificacion = {}; 
+    let count = 0; 
+    
+    // Función para limpiar comillas raras de Excel
+    const clean = (txt) => (txt || '').replace(/^"|"$/g, '').replace(/""/g, '"').trim();
 
+    lines.forEach(line => {
+        const parts = line.split('\t'); 
+        // Si hay al menos 2 columnas (Fecha y Tema), procedemos
+        if(parts.length >= 2){
+            const dateRaw = parts[0].trim(); 
+            const match = dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/); 
+            
+            if(match){
+                const day = match[1].padStart(2,'0'); 
+                const month = match[2].padStart(2,'0'); 
+                const year = match[3].length === 2 ? '20'+match[3] : match[3]; 
+                const isoDate = `${year}-${month}-${day}`; 
+                
+                // Extraemos las 5 columnas!
+                const tema = clean(parts[1]); 
+                const biblio = clean(parts[2]); 
+                const actClase = clean(parts[3]); 
+                const actTarea = clean(parts[4]); // <-- Acá atrapa la tarea
+                
+                if(tema || actClase){ 
+                    m.planificacion[isoDate] = {
+                        tema: tema,
+                        biblio: biblio,
+                        actClase: actClase,
+                        actTarea: actTarea
+                    }; 
+                    count++;
+                }
+            }
+        }
+    }); 
+    
+    saveData(); 
+    alert(`✅ ¡Éxito! Se importaron ${count} clases.`); 
+    closeModal('modal-import'); 
+    renderCrono();
+}
         function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
         function copiarIA() { const t = document.getElementById("ia-output"); t.select(); document.execCommand("copy"); alert("Copiado!"); }
 
@@ -1185,5 +1226,6 @@ function saveClaseDetail(){
     </script>
 </body>
 </html>
+
 
 
