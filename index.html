@@ -463,7 +463,11 @@
                 <label class="text-[11px] font-black text-nomade-green flex items-center gap-1.5 mb-2 uppercase tracking-wider"><i data-lucide="home" class="w-4 h-4"></i> Tarea Asignada</label>
                 <textarea id="detail-act-tarea" class="w-full bg-nomade-cream rounded-xl p-3 border-0 text-sm text-gray-700 leading-relaxed focus:ring-2 focus:ring-nomade-green outline-none resize-none h-24"></textarea>
             </div>
-
+<div class="bg-white p-4 rounded-2xl border border-yellow-100 shadow-md relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-yellow-400"></div>
+                <label class="text-[11px] font-black text-yellow-600 flex items-center gap-1.5 mb-2 uppercase tracking-wider"><i data-lucide="link" class="w-4 h-4"></i> Links y Recursos</label>
+                <textarea id="detail-links" class="w-full bg-yellow-50/30 rounded-xl p-3 border-0 text-sm text-gray-700 leading-relaxed focus:ring-2 focus:ring-yellow-200 outline-none resize-none h-16" placeholder="Pegá acá links de YouTube, Drive, Genially..."></textarea>
+            </div>
         </div>
 
         <div class="p-4 bg-white border-t border-gray-100 flex gap-3 z-10">
@@ -882,38 +886,37 @@ function openClaseDetail(iso){
     activeDateISO = iso; 
     const p = userData.materias.find(x => x.id === activeId).planificacion?.[iso] || {}; 
     
-    // 1. Mostrar la fecha gigante arriba (formato DD/MM/AAAA)
     const partes = iso.split('-'); 
     document.getElementById('detail-date').innerText = `${partes[2]}/${partes[1]}/${partes[0]}`;
     document.getElementById('detail-iso').value = iso;
     
-    // 2. Limpiar las comillas extrañas que mete Excel al importar
     const clean = (txt) => (txt || '').replace(/^"|"$/g, '').replace(/""/g, '"').trim();
     
     document.getElementById('detail-tema').value = clean(p.tema); 
     document.getElementById('detail-biblio').value = clean(p.biblio); 
     document.getElementById('detail-act-clase').value = clean(p.actClase); 
     document.getElementById('detail-act-tarea').value = clean(p.actTarea); 
+    document.getElementById('detail-links').value = clean(p.links); // <-- Carga el link
     
     openModal('modal-clase-detail');
-    lucide.createIcons(); // Recarga los iconos nuevos
+    lucide.createIcons();
 }
 
 function saveClaseDetail(){
     const m = userData.materias.find(x => x.id === activeId); 
     if(!m.planificacion) m.planificacion = {}; 
     
-    // Guardamos lo que haya en las cajas de texto
     m.planificacion[activeDateISO] = {
         tema: document.getElementById('detail-tema').value.trim(), 
         biblio: document.getElementById('detail-biblio').value.trim(), 
         actClase: document.getElementById('detail-act-clase').value.trim(), 
-        actTarea: document.getElementById('detail-act-tarea').value.trim()
+        actTarea: document.getElementById('detail-act-tarea').value.trim(),
+        links: document.getElementById('detail-links').value.trim() // <-- Guarda el link
     }; 
     
     saveData(); 
     closeModal('modal-clase-detail'); 
-    renderCrono(); // Actualiza la listita de afuera
+    renderCrono(); 
 }
       
         function renderAlum(){const m=userData.materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML=''; m.alumnos.forEach((al,i)=>{l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center mb-2 shadow-sm"><div class="flex items-center gap-3"><div class="avatar-small overflow-hidden"><img src="${al.foto||'https://via.placeholder.com/40'}" class="w-full h-full object-cover"></div><span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span></div><button onclick="delAlum(${i})" class="text-red-400"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
@@ -1123,7 +1126,97 @@ function saveClaseDetail(){
             document.getElementById('btn-tut-next').innerText = tutStep === 4 ? '¡COMENZAR!' : 'SIGUIENTE ➝';
             lucide.createIcons();
         }
+function executeExport() {
+    const m = userData.materias.find(x => x.id === activeId);
+    const t = document.getElementById('export-type').value;
+    
+    // Leemos qué quiere exportar
+    const incLista = document.getElementById('exp-lista').checked;
+    const incAsist = document.getElementById('exp-asist').checked;
+    const incNotas = document.getElementById('exp-notas').checked;
+    const incPlan = document.getElementById('exp-plan').checked;
 
+    if (t === 'xls') {
+        let csv = "APELLIDO,NOMBRE";
+        let fechasAsist = [];
+        if(m.asistencias) fechasAsist = Object.keys(m.asistencias).sort();
+        
+        // Cabeceras de Excel
+        if (incAsist) fechasAsist.forEach(f => csv += `,Asist. ${f}`);
+        if (incNotas && m.examenes) m.examenes.forEach(e => csv += `,Nota: ${e.nombre}`);
+        csv += "\n";
+
+        // Alumnos y Notas/Asistencias
+        if (incLista || incAsist || incNotas) {
+            m.alumnos.forEach(al => {
+                let row = `"${al.ape}","${al.nom}"`;
+                if (incAsist) fechasAsist.forEach(f => row += `,${m.asistencias[f][al.id] || '-'}`);
+                if (incNotas && m.examenes) m.examenes.forEach(e => row += `,${al.notas[e.id] || '-'}`);
+                csv += row + "\n";
+            });
+        }
+
+        // Planificación abajo de todo
+        if (incPlan && m.planificacion) {
+            csv += "\n\nPLANIFICACION\nFECHA,TEMA,BIBLIOGRAFIA,ACTIVIDAD,TAREA,LINKS\n";
+            Object.keys(m.planificacion).sort().forEach(f => {
+                const p = m.planificacion[f];
+                const cl = (s) => (s||'').replace(/"/g, '""').replace(/\n/g, ' '); // Limpia saltos de línea para Excel
+                csv += `"${f}","${cl(p.tema)}","${cl(p.biblio)}","${cl(p.actClase)}","${cl(p.actTarea)}","${cl(p.links)}"\n`;
+            });
+        }
+
+        // Forzar UTF-8 para que las ñ y tildes se vean bien
+        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const l = document.createElement("a");
+        l.href = url;
+        l.download = `Nomade_${m.nombre}.csv`;
+        l.click();
+        URL.revokeObjectURL(url);
+        
+    } else {
+        // MODO PDF ELEGANTE
+        const doc = new window.jspdf.jsPDF();
+        doc.setFontSize(18);
+        doc.text(`Reporte: ${m.nombre}`, 14, 20);
+        let startY = 30;
+
+        if (incLista || incAsist || incNotas) {
+            let head = ["Apellido", "Nombre"];
+            let fechasAsist = [];
+            if (m.asistencias) fechasAsist = Object.keys(m.asistencias).sort();
+            
+            if (incAsist) fechasAsist.forEach(f => { const p = f.split('-'); head.push(`${p[2]}/${p[1]}`); });
+            if (incNotas && m.examenes) m.examenes.forEach(e => head.push(e.nombre.substring(0,6)));
+
+            let body = m.alumnos.map(al => {
+                let row = [al.ape, al.nom];
+                if (incAsist) fechasAsist.forEach(f => row.push(m.asistencias[f][al.id] || '-'));
+                if (incNotas && m.examenes) m.examenes.forEach(e => row.push(al.notas[e.id] || '-'));
+                return row;
+            });
+
+            doc.autoTable({ startY: startY, head: [head], body: body, styles: { fontSize: 8 }, headStyles: { fillColor: [20, 78, 126] } });
+            startY = doc.lastAutoTable.finalY + 15;
+        }
+
+        if (incPlan && m.planificacion) {
+            doc.setFontSize(14);
+            doc.text("Planificación", 14, startY);
+            let planBody = [];
+            Object.keys(m.planificacion).sort().forEach(f => {
+                const p = f.split('-');
+                planBody.push([`${p[2]}/${p[1]}`, m.planificacion[f].tema || '-']);
+            });
+            
+            doc.autoTable({ startY: startY + 5, head: [["Fecha", "Tema Principal"]], body: planBody, styles: { fontSize: 9 }, headStyles: { fillColor: [31, 161, 148] } });
+        }
+        
+        doc.save(`Nomade_${m.nombre}.pdf`);
+    }
+    closeModal('modal-export');
+}
         function togglePass(idInput, idIcon) {
             const input = document.getElementById(idInput);
             const icon = document.getElementById(idIcon);
@@ -1226,6 +1319,7 @@ function saveClaseDetail(){
     </script>
 </body>
 </html>
+
 
 
 
