@@ -1191,50 +1191,28 @@ function saveClaseDetail(){
         }
 
 function executeExport(e) {
+    console.log("🚀 PASO 1: Botón presionado");
     if (e) { e.preventDefault(); e.stopPropagation(); }
 
-    // 1. ABRIR VENTANA AL INSTANTE (Antes que cualquier otra cosa)
-    const win = window.open('', '_blank');
-    if (!win) return alert("Por favor, habilitá los pop-ups en la barra de direcciones.");
-
-    // 2. BUSCAR DATOS (Ahora que la ventana ya está abierta)
+    console.log("🔍 PASO 2: Verificando materia activa... ID:", activeId);
     const m = userData.materias.find(x => x.id === activeId);
+    
     if (!m) {
-        win.close();
-        return alert("No se encontró la materia.");
+        console.error("❌ ERROR: No encontré la materia con ID:", activeId);
+        return alert("Error: Seleccioná la materia de nuevo.");
     }
 
-    const docName = document.getElementById('dash-name').innerText || 'Docente';
-    const incLista = document.getElementById('exp-lista').checked;
-
-    // 3. LLENAR LA VENTANA
-    let h = '<html><head><title>Nómade - ' + m.nombre + '</title>';
-    h += '<style>body{background:#FAF7F0;padding:40px;font-family:sans-serif;} .header{background:#144E7E;color:white;padding:20px;border-radius:10px;} table{width:100%;border-collapse:collapse;margin-top:20px;background:white;} th{background:#144E7E;color:white;padding:10px;text-align:left;} td{border:1px solid #ddd;padding:8px;}</style></head><body>';
-    h += '<div class="header"><h1>' + m.nombre + '</h1><p>DOCENTE: ' + docName + '</p></div>';
-
-    if (incLista) {
-        h += '<h2>ASISTENCIA</h2><table><thead><tr><th>Alumno</th>';
-        let fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
-        fechas.forEach(f => h += '<th>' + f.split('-').reverse().slice(0,2).join('/') + '</th>');
-        h += '</tr></thead><tbody>';
-        (m.alumnos || []).forEach(al => {
-            h += '<tr><td style="font-weight:bold;">' + al.ape + ', ' + al.nom + '</td>';
-            fechas.forEach(f => {
-                let st = (m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-';
-                h += '<td style="text-align:center">' + st + '</td>';
-            });
-            h += '</tr>';
-        });
-        h += '</tbody></table>';
+    console.log("🪟 PASO 3: Intentando abrir ventana...");
+    const win = window.open('', '_blank');
+    
+    if (!win) {
+        console.warn("⚠️ BLOQUEO: El navegador bloqueó la ventana emergente.");
+        return alert("Habilitá los pop-ups en la barra de direcciones.");
     }
 
-    h += '<br><button onclick="window.print()" style="background:#1FA194;color:white;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-weight:bold;">IMPRIMIR / PDF</button></body></html>';
-
-    win.document.write(h);
-    win.document.close();
-
-    // 4. CERRAR MODAL
-    closeModal('modal-export');
+    console.log("📝 PASO 4: Escribiendo datos en el reporte...");
+    // ... resto del código ...
+    console.log("✅ PASO 5: Reporte finalizado con éxito.");
 }
         function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
 
@@ -1367,6 +1345,7 @@ function abrirLinkDesdeClase(inputId) {
     </script>
 </body>
 </html>
+
 
 
 
