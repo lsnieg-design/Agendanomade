@@ -511,12 +511,15 @@
                 </div>
             </div>
    
-    <div id="modal-export" class="fixed inset-0 bg-black/60 z-[80] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-black text-nomade-blue">Exportar Materia</h3>
-                <button onclick="closeModal('modal-export')" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 transition"><i data-lucide="x" class="w-4 h-4 text-gray-500"></i></button>
-            </div>
+ <div id="modal-export" class="fixed inset-0 bg-black/60 z-[80] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
+        
+        <input type="hidden" id="export-type" value="pdf"> 
+
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-black text-nomade-blue">Exportar Materia</h3>
+            <button onclick="closeModal('modal-export')" class="bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
             
             <p class="text-[10px] font-black text-gray-400 mb-2 uppercase tracking-wider">DATOS DE ALUMNOS</p>
             <div class="space-y-2 mb-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
@@ -1185,10 +1188,24 @@ function saveClaseDetail(){
         function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
         function copiarIA() { const t = document.getElementById("ia-output"); t.select(); document.execCommand("copy"); alert("Copiado!"); }
 
-        function openExportModal(t){
-            document.getElementById('export-type').value=t; 
-            openModal('modal-export');
-        }
+       function openExportModal(t) {
+    console.log("Abriendo modal para:", t);
+    const input = document.getElementById('export-type');
+    
+    if (input) {
+        input.value = t;
+    } else {
+        console.warn("⚠️ No se encontró el elemento export-type, creándolo...");
+        // Esto crea el elemento por si te olvidaste de ponerlo en el HTML
+        let newInput = document.createElement('input');
+        newInput.type = 'hidden';
+        newInput.id = 'export-type';
+        newInput.value = t;
+        document.body.appendChild(newInput);
+    }
+    
+    openModal('modal-export');
+}
 
 function executeExport(e) {
     // 1. Evitar que el clic se propague a otras capas
@@ -1369,6 +1386,7 @@ function abrirLinkDesdeClase(inputId) {
     </script>
 </body>
 </html>
+
 
 
 
