@@ -533,18 +533,18 @@
                 <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-links" class="w-5 h-5 text-nomade-blue rounded focus:ring-0"><span class="font-medium text-sm text-gray-700">Links y Recursos</span></label>
             </div>
 
-            <input type="hidden" id="export-type">
-         <div class="flex gap-2">
-    <button onclick="closeModal('modal-export')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider">
+     <div class="flex gap-2">
+    <button type="button" onclick="closeModal('modal-export')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider">
         CANCELAR
     </button>
     
-    <a href="javascript:void(0)" 
-   onclick="setTimeout(() => executeExport(event), 10)" 
-   id="btn-export-final" 
-   class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 active:scale-95 cursor-pointer decoration-0">
-    <i data-lucide="printer" class="w-4 h-4"></i> GENERAR REPORTE AHORA
-</a>
+    <button type="button" 
+            onclick="executeExport(event)" 
+            id="btn-export-final" 
+            style="pointer-events: auto !important; position: relative; z-index: 9999;"
+            class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95">
+        <i data-lucide="printer" class="w-4 h-4"></i> GENERAR REPORTE AHORA
+    </button>
 </div>
         </div>
     </div>
@@ -1191,28 +1191,52 @@ function saveClaseDetail(){
         }
 
 function executeExport(e) {
-    console.log("🚀 PASO 1: Botón presionado");
-    if (e) { e.preventDefault(); e.stopPropagation(); }
+    // 1. Evitar que el clic se propague a otras capas
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
 
-    console.log("🔍 PASO 2: Verificando materia activa... ID:", activeId);
-    const m = userData.materias.find(x => x.id === activeId);
-    
+    // 2. Abrir la ventana antes de cualquier cálculo
+    var win = window.open('', '_blank');
+    if (!win) return alert("Por favor, habilita las ventanas emergentes (pop-ups) en tu navegador.");
+
+    // 3. Buscar datos
+    var m = userData.materias.find(function(x) { return x.id === activeId; });
     if (!m) {
-        console.error("❌ ERROR: No encontré la materia con ID:", activeId);
-        return alert("Error: Seleccioná la materia de nuevo.");
+        win.close();
+        return alert("Seleccioná la materia nuevamente.");
     }
 
-    console.log("🪟 PASO 3: Intentando abrir ventana...");
-    const win = window.open('', '_blank');
-    
-    if (!win) {
-        console.warn("⚠️ BLOQUEO: El navegador bloqueó la ventana emergente.");
-        return alert("Habilitá los pop-ups en la barra de direcciones.");
+    // 4. Escribir el reporte (Usa comillas simples para no romper el editor)
+    var docName = document.getElementById('dash-name').innerText || 'Docente';
+    var h = '<html><head><title>Nómade - ' + m.nombre + '</title>';
+    h += '<style>body{background:#FAF7F0;padding:40px;font-family:sans-serif;} .header{background:#144E7E;color:white;padding:20px;border-radius:10px;} table{width:100%;border-collapse:collapse;margin-top:20px;background:white;} th{background:#144E7E;color:white;padding:10px;text-align:left;} td{border:1px solid #ddd;padding:8px;}</style></head><body>';
+    h += '<div class="header"><h1>' + m.nombre + '</h1><p>DOCENTE: ' + docName + '</p></div>';
+
+    if (document.getElementById('exp-lista').checked) {
+        h += '<h2>ASISTENCIA</h2><table><thead><tr><th>Estudiante</th>';
+        var fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
+        fechas.forEach(function(f) { h += '<th>' + f + '</th>'; });
+        h += '</tr></thead><tbody>';
+        (m.alumnos || []).forEach(function(al) {
+            h += '<tr><td style="font-weight:bold;">' + al.ape + ', ' + al.nom + '</td>';
+            fechas.forEach(function(f) {
+                var st = (m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-';
+                h += '<td style="text-align:center;">' + st + '</td>';
+            });
+            h += '</tr>';
+        });
+        h += '</tbody></table>';
     }
 
-    console.log("📝 PASO 4: Escribiendo datos en el reporte...");
-    // ... resto del código ...
-    console.log("✅ PASO 5: Reporte finalizado con éxito.");
+    h += '<br><button onclick="window.print()" style="background:#1FA194;color:white;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-weight:bold;">IMPRIMIR / PDF</button></body></html>';
+
+    win.document.write(h);
+    win.document.close();
+
+    // 5. Cerrar el modal al finalizar
+    closeModal('modal-export');
 }
         function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
 
@@ -1345,6 +1369,7 @@ function abrirLinkDesdeClase(inputId) {
     </script>
 </body>
 </html>
+
 
 
 
