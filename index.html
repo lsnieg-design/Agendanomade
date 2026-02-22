@@ -1184,36 +1184,26 @@ function saveClaseDetail(){
             openModal('modal-export');
         }
 
-  function executeExport() {
+function executeExport() {
     var m = userData.materias.find(function(x) { return x.id === activeId; });
-    if (!m) return alert("No se encontró la materia");
-
-    var docName = document.getElementById('dash-name') ? document.getElementById('dash-name').innerText : 'Docente';
-    var incLista = document.getElementById('exp-lista').checked;
-    var pTema = document.getElementById('exp-plan-tema').checked;
-    var pAct = document.getElementById('exp-plan-act').checked;
+    if (!m) {
+        alert("Seleccioná una materia primero");
+        return;
+    }
 
     var win = window.open('', '_blank');
-    if (!win) return alert("Por favor, permite los pop-ups.");
+    if (!win) {
+        alert("Por favor, permití las ventanas emergentes (pop-ups)");
+        return;
+    }
 
-    var html = '<html><head><title>Nómade - ' + m.nombre + '</title>';
-    html += '<script src="https://cdn.tailwindcss.com"></script>';
-    html += '<style>@media print { .no-print { display: none; } body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } } ';
-    html += 'body { background-color: #FAF7F0; font-family: sans-serif; padding: 40px; } ';
-    html += 'table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: white; } ';
-    html += 'th { background-color: #144E7E !important; color: white !important; padding: 10px; font-size: 10px; text-transform: uppercase; border: 1px solid #144E7E; } ';
-    html += 'td { border: 1px solid #e2e8f0; padding: 8px; font-size: 11px; }</style></head><body>';
+    var html = '<html><head><title>Reporte Nómade</title>';
+    html += '<style>body{background:#FAF7F0;padding:40px;font-family:sans-serif;} table{width:100%;border-collapse:collapse;background:white;margin-top:20px;} th{background:#144E7E!important;color:white!important;padding:10px;font-size:10px;text-align:left;text-transform:uppercase;} td{border:1px solid #e2e8f0;padding:8px;font-size:12px;}</style></head><body>';
+    html += '<div style="background:#144E7E;color:white;padding:20px;border-radius:10px;">';
+    html += '<h1 style="margin:0;font-size:24px;">' + m.nombre + '</h1><p style="margin:0;opacity:0.7;font-size:12px;">REPORTE DOCENTE 2026</p></div>';
     
-    html += '<div class="no-print" style="margin-bottom:20px; text-align:right;"><button onclick="window.print()" style="background:#1FA194; color:white; padding:10px 20px; border-radius:10px; font-weight:bold; border:none; cursor:pointer;">IMPRIMIR / PDF</button></div>';
-    
-    html += '<div style="background:#144E7E; color:white; padding:30px; border-radius:15px 15px 0 0;">';
-    html += '<h1 style="margin:0; font-size:30px; text-transform:uppercase;">' + m.nombre + '</h1>';
-    html += '<p style="margin:5px 0 0 0; opacity:0.8; font-size:12px;">PROFE: ' + docName + ' | CICLO 2026</p></div>';
-    
-    html += '<div style="background:white; padding:30px; border-radius:0 0 15px 15px; border:1px solid #e2e8f0; border-top:none;">';
-
-    if (incLista) {
-        html += '<h2 style="color:#144E7E; text-transform:uppercase; font-size:18px;">Asistencia</h2><table><thead><tr><th>Alumno</th>';
+    if (document.getElementById('exp-lista').checked) {
+        html += '<h2>ASISTENCIA</h2><table><thead><tr><th>Alumno</th>';
         var fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
         fechas.forEach(function(f) { html += '<th>' + f.split('-').reverse().slice(0,2).join('/') + '</th>'; });
         html += '</tr></thead><tbody>';
@@ -1221,27 +1211,14 @@ function saveClaseDetail(){
             html += '<tr><td style="font-weight:bold;">' + al.ape + ', ' + al.nom + '</td>';
             fechas.forEach(function(f) {
                 var st = (m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-';
-                html += '<td style="text-align:center; font-weight:bold;">' + st + '</td>';
+                html += '<td style="text-align:center;">' + st + '</td>';
             });
             html += '</tr>';
         });
         html += '</tbody></table>';
     }
-
-    if (pTema || pAct) {
-        html += '<h2 style="color:#144E7E; text-transform:uppercase; font-size:18px;">Planificación</h2><table><thead><tr><th>Fecha</th><th>Detalle</th></tr></thead><tbody>';
-        Object.keys(m.planificacion || {}).sort().forEach(function(f) {
-            var p = m.planificacion[f];
-            if (!p.tema && !p.actClase) return;
-            html += '<tr><td style="font-weight:bold; width:80px;">' + f.split('-').reverse().slice(0,2).join('/') + '</td><td>';
-            if (pTema) html += '<b>TEMA:</b> ' + (p.tema || '-') + '<br>';
-            if (pAct) html += '<b>ACTIVIDAD:</b> ' + (p.actClase || '-') + (p.actTarea ? ' | <b>TAREA:</b> ' + p.actTarea : '');
-            html += '</td></tr>';
-        });
-        html += '</tbody></table>';
-    }
-
-    html += '</div><p style="text-align:center; font-size:9px; color:#999; margin-top:30px; letter-spacing:3px;">NÓMADE AGENDA DOCENTE</p></body></html>';
+    
+    html += '<br><button onclick="window.print()" style="background:#1FA194;color:white;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-weight:bold;">IMPRIMIR O GUARDAR PDF</button></body></html>';
 
     win.document.write(html);
     win.document.close();
@@ -1250,27 +1227,40 @@ function saveClaseDetail(){
 
 function showToast(msg) { 
     var x = document.getElementById("toast-notification"); 
-    if(x){ x.innerText = msg; x.className = "show"; setTimeout(function(){ x.className = x.className.replace("show",""); }, 3000); } 
+    if(x){ x.innerText = msg; x.className = "show"; setTimeout(function(){ x.className = ""; }, 3000); } 
 }
 
-function showTutorial() { document.getElementById('modal-tutorial').classList.remove('hidden'); tutStep = 1; updateTut(); }
+function showTutorial() { 
+    var mod = document.getElementById('modal-tutorial');
+    if(mod) mod.classList.remove('hidden'); 
+    tutStep = 1; 
+    updateTut(); 
+}
 
-function nextTutorial() { if(tutStep < 4) { tutStep++; updateTut(); } else { document.getElementById('modal-tutorial').classList.add('hidden'); } }
+function nextTutorial() { 
+    if(tutStep < 4) { tutStep++; updateTut(); } 
+    else { var mod = document.getElementById('modal-tutorial'); if(mod) mod.classList.add('hidden'); } 
+}
 
 function updateTut() {
     for(var i=1; i<=4; i++) {
-        document.getElementById('tut-step-' + i).classList.add('hidden');
-        document.getElementById('dot-' + i).className = "w-2 h-2 rounded-full bg-white/30";
+        var d = document.getElementById('dot-' + i);
+        if(d) d.className = "w-2 h-2 rounded-full bg-white/30";
+        var s = document.getElementById('tut-step-' + i);
+        if(s) s.classList.add('hidden');
     }
-    document.getElementById('tut-step-' + tutStep).classList.remove('hidden');
-    document.getElementById('dot-' + tutStep).className = "w-2 h-2 rounded-full bg-nomade-green";
-    document.getElementById('btn-tut-next').innerText = tutStep === 4 ? '¡COMENZAR!' : 'SIGUIENTE ➝';
-    lucide.createIcons();
+    var dAct = document.getElementById('dot-' + tutStep);
+    if(dAct) dAct.className = "w-2 h-2 rounded-full bg-nomade-green";
+    var sAct = document.getElementById('tut-step-' + tutStep);
+    if(sAct) sAct.classList.remove('hidden');
+    var btn = document.getElementById('btn-tut-next');
+    if(btn) btn.innerText = tutStep === 4 ? '¡COMENZAR!' : 'SIGUIENTE ➝';
+    if(typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function togglePass(idInput, idIcon) {
     var input = document.getElementById(idInput);
-    if (input.type === "password") { input.type = "text"; } else { input.type = "password"; }
+    if (input) { input.type = (input.type === "password") ? "text" : "password"; }
 }
 
 async function guardarNuevaPassPropia() {
@@ -1278,16 +1268,25 @@ async function guardarNuevaPassPropia() {
     if (newPass.length < 6) return alert("Mínimo 6 caracteres.");
     try {
         var user = firebase.auth().currentUser;
-        if(user) { await user.updatePassword(newPass); alert("✅ Contraseña cambiada."); closeModal('modal-pass-change'); }
+        if(user) { await user.updatePassword(newPass); alert("Contraseña cambiada."); closeModal('modal-pass-change'); }
     } catch (e) { alert("Error: " + e.message); }
+}
+
+function abrirLinkDesdeClase(inputId) {
+    var url = document.getElementById(inputId).value.trim();
+    if (!url) return alert("Pegá un link primero.");
+    if (!url.startsWith('http')) url = 'https://' + url;
+    window.open(url, '_blank');
 }
 
 window.onload = function() {
     console.log("Nómade Iniciado");
-    lucide.createIcons();
-}; </script>
+    if(typeof lucide !== 'undefined') lucide.createIcons();
+};
+   </script>
 </body>
 </html>
+
 
 
 
