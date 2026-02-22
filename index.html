@@ -1185,65 +1185,83 @@ function saveClaseDetail(){
         }
 
   function executeExport() {
-    try {
-        const m = userData.materias.find(x => x.id === activeId);
-        const t = document.getElementById('export-type').value;
-        const dashNameEl = document.getElementById('dash-name');
-        const docName = dashNameEl ? (dashNameEl.innerText || 'Docente') : 'Docente';
-        
-        const incListaAsist = document.getElementById('exp-lista').checked;
-        const incNotas = document.getElementById('exp-notas').checked;
-        const cl = (s) => (s ? String(s).replace(/"/g, '""').replace(/\n/g, ' ').trim() : '');
+    // 1. Buscamos la materia activa inmediatamente
+    const m = userData.materias.find(x => x.id === activeId);
+    if (!m) return alert("Seleccioná una materia primero");
 
+    const t = document.getElementById('export-type').value;
+    const docName = document.getElementById('dash-name').innerText || 'Docente';
+    const cl = (s) => (s ? String(s).replace(/"/g, '""').replace(/\n/g, ' ').trim() : '');
+
+    // Preferencias de usuario
+    const incLista = document.getElementById('exp-lista').checked;
+    const incNotas = document.getElementById('exp-notas').checked;
+    const pTema = document.getElementById('exp-plan-tema').checked;
+    const pBiblio = document.getElementById('exp-plan-biblio').checked;
+    const pAct = document.getElementById('exp-plan-act').checked;
+    const pTarea = document.getElementById('exp-plan-tarea').checked;
+
+    try {
         if (t === 'xls') {
-            // --- EXCEL MODO INFALIBLE ---
+            // --- MODO EXCEL (CSV) ---
             let csv = `MATERIA:,${cl(m.nombre)}\nDOCENTE:,${cl(docName)}\n\n`;
             
-            if (incListaAsist || incNotas) {
+            if (incLista || incNotas) {
                 csv += "APELLIDO,NOMBRE";
-                let fechasAsist = (m.asistencias) ? Object.keys(m.asistencias).sort() : [];
-                if (incListaAsist) fechasAsist.forEach(f => csv += `,Asist. ${f}`);
+                let fechasAsist = m.asistencias ? Object.keys(m.asistencias).sort() : [];
+                if (incLista) fechasAsist.forEach(f => csv += `,Asist. ${f}`);
+                if (incNotas && m.examenes) m.examenes.forEach(e => csv += `,Nota: ${cl(e.nombre)}`);
                 csv += "\n";
 
                 (m.alumnos || []).forEach(al => {
                     let row = `"${cl(al.ape)}","${cl(al.nom)}"`;
-                    if (incListaAsist) fechasAsist.forEach(f => row += `,${(m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-'}`);
+                    if (incLista) fechasAsist.forEach(f => row += `,${(m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-'}`);
+                    if (incNotas && m.examenes) m.examenes.forEach(e => row += `,${(al.notas && al.notas[e.id]) ? al.notas[e.id] : '-'}`);
                     csv += row + "\n";
+                });
+                csv += "\n\n";
+            }
+
+            if (pTema || pBiblio || pAct || pTarea) {
+                csv += "PLANIFICACIÓN\nFECHA,MODALIDAD,TEMA,BIBLIOGRAFÍA,ACTIVIDAD,TAREA\n";
+                Object.keys(m.planificacion || {}).sort().forEach(f => {
+                    const p = m.planificacion[f];
+                    if (!p.tema && !p.actClase) return;
+                    const mod = (m.cronograma && m.cronograma[f]) ? m.cronograma[f] : m.modalidadBase;
+                    csv += `"${f}","${mod}","${cl(p.tema)}","${cl(p.biblio)}","${cl(p.actClase)}","${cl(p.actTarea)}"\n`;
                 });
             }
 
-            // Método de descarga que salta cualquier bloqueo de seguridad
             const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const link = document.createElement('a');
-                link.href = e.target.result;
-                link.download = `Nomade_${cl(m.nombre).replace(/ /g, '_')}.csv`;
-                link.click();
-            };
-            reader.readAsDataURL(blob);
-
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `Reporte_${cl(m.nombre)}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            
         } else {
-            // --- PDF MODO SIMPLE (PARA TESTEAR BLOQUEO) ---
-            if (typeof window.jspdf === 'undefined') return alert("Cargando...");
+            // --- MODO PDF ---
+            if (typeof window.jspdf === 'undefined') return alert("Cargando motor PDF... Reintentá en un segundo.");
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            const doc = new jsPDF({ orientation: 'l' });
             
-            doc.setFontSize(20);
-            doc.text("REPORTE NOMADE", 10, 20);
-            doc.setFontSize(12);
-            doc.text(`Materia: ${cl(m.nombre)}`, 10, 35);
-            doc.text(`Docente: ${cl(docName)}`, 10, 45);
+            doc.text(`REPORTE: ${m.nombre}`, 10, 10);
+            doc.text(`DOCENTE: ${docName}`, 10, 20);
+
+            let body = (m.alumnos || []).map(al => [cl(al.ape), cl(al.nom)]);
+            doc.autoTable({ head: [['Apellido', 'Nombre']], body: body, startY: 30 });
             
-            // Si esto descarga DE UNA, el problema es la librería autoTable
-            doc.save(`Nomade_${cl(m.nombre).replace(/ /g, '_')}.pdf`);
+            doc.save(`Reporte_${cl(m.nombre)}.pdf`);
         }
 
-        // Cerramos el modal inmediatamente sin esperar a nadie
+        // Cierre inmediato del modal para que veas que la App reaccionó
         closeModal('modal-export');
 
-    } catch (error) {
-        alert("Error crítico: " + error.message);
+    } catch (e) {
+        alert("Error al exportar: " + e.message);
     }
 }
         function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
@@ -1378,6 +1396,7 @@ function abrirLinkDesdeClase(inputId) {
     </script>
 </body>
 </html>
+
 
 
 
