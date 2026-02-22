@@ -1252,13 +1252,24 @@ function saveClaseDetail(){
 }
 
 function openExportModal(t) {
+    console.log("🚀 PASO 1: Forzando apertura para:", t);
     const input = document.getElementById('export-type');
     if (input) input.value = t;
+
     const modal = document.getElementById('modal-export');
     if (modal) {
+        // 1. Limpiamos cualquier clase de Tailwind que lo oculte
         modal.classList.remove('hidden');
-        modal.style.display = 'flex';
-        console.log("✅ Modal de exportación abierto para:", t);
+        
+        // 2. FORZAMOS EL ESTILO MANUAL (Esto es lo que destraba el botón)
+        modal.style.setProperty('display', 'flex', 'important');
+        modal.style.setProperty('visibility', 'visible', 'important');
+        modal.style.setProperty('opacity', '1', 'important');
+        
+        // 3. Le pedimos al navegador que se "despierte"
+        modal.focus();
+        
+        console.log("✅ PASO 2: El modal debe aparecer SI O SI.");
     }
 }
 
@@ -1316,6 +1327,7 @@ window.onload = function() {
     </script>
 </body>
 </html>
+
 
 
 
