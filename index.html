@@ -1185,224 +1185,107 @@ function saveClaseDetail(){
         }
 
   function executeExport() {
-    const m = userData.materias.find(x => x.id === activeId);
+    var m = userData.materias.find(function(x) { return x.id === activeId; });
     if (!m) return alert("No se encontró la materia");
 
-    const dashNameEl = document.getElementById('dash-name');
-    const docName = dashNameEl ? dashNameEl.innerText : 'Docente';
-    
-    // Checkboxes
-    const incLista = document.getElementById('exp-lista').checked;
-    const incNotas = document.getElementById('exp-notas').checked;
-    const pTema = document.getElementById('exp-plan-tema').checked;
-    const pAct = document.getElementById('exp-plan-act').checked;
+    var docName = document.getElementById('dash-name') ? document.getElementById('dash-name').innerText : 'Docente';
+    var incLista = document.getElementById('exp-lista').checked;
+    var pTema = document.getElementById('exp-plan-tema').checked;
+    var pAct = document.getElementById('exp-plan-act').checked;
 
-    // Crear ventana nueva
-    const win = window.open('', '_blank');
-    
-    let html = `
-    <html>
-    <head>
-        <title>Reporte Nómade - ${m.nombre}</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <style>
-            @media print { .no-print { display: none; } }
-            body { background-color: white; font-family: sans-serif; padding: 20px; }
-        </style>
-    </head>
-    <body class="p-8">
-        <div class="no-print flex justify-between mb-8 bg-gray-100 p-4 rounded-xl">
-            <p class="text-sm font-bold text-gray-600">Vista de impresión Nómade</p>
-            <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">IMPRIMIR / GUARDAR PDF</button>
-        </div>
+    var win = window.open('', '_blank');
+    if (!win) return alert("Por favor, permite los pop-ups.");
 
-        <div class="border-b-2 border-blue-800 pb-4 mb-6">
-            <h1 class="text-3xl font-black text-blue-900 uppercase">${m.nombre}</h1>
-            <p class="text-gray-500 font-bold uppercase tracking-widest text-sm">Docente: ${docName} | Horario: ${m.dia} (${m.horario || '---'})</p>
-        </div>`;
+    var html = '<html><head><title>Nómade - ' + m.nombre + '</title>';
+    html += '<script src="https://cdn.tailwindcss.com"></script>';
+    html += '<style>@media print { .no-print { display: none; } body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } } ';
+    html += 'body { background-color: #FAF7F0; font-family: sans-serif; padding: 40px; } ';
+    html += 'table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: white; } ';
+    html += 'th { background-color: #144E7E !important; color: white !important; padding: 10px; font-size: 10px; text-transform: uppercase; border: 1px solid #144E7E; } ';
+    html += 'td { border: 1px solid #e2e8f0; padding: 8px; font-size: 11px; }</style></head><body>';
+    
+    html += '<div class="no-print" style="margin-bottom:20px; text-align:right;"><button onclick="window.print()" style="background:#1FA194; color:white; padding:10px 20px; border-radius:10px; font-weight:bold; border:none; cursor:pointer;">IMPRIMIR / PDF</button></div>';
+    
+    html += '<div style="background:#144E7E; color:white; padding:30px; border-radius:15px 15px 0 0;">';
+    html += '<h1 style="margin:0; font-size:30px; text-transform:uppercase;">' + m.nombre + '</h1>';
+    html += '<p style="margin:5px 0 0 0; opacity:0.8; font-size:12px;">PROFE: ' + docName + ' | CICLO 2026</p></div>';
+    
+    html += '<div style="background:white; padding:30px; border-radius:0 0 15px 15px; border:1px solid #e2e8f0; border-top:none;">';
 
     if (incLista) {
-        html += `<h2 class="text-xl font-bold mb-4 text-blue-800 border-l-4 border-blue-800 pl-2">Asistencia</h2>
-                 <table class="w-full text-sm border-collapse mb-8">
-                    <thead><tr class="bg-gray-200">
-                        <th class="border p-2 text-left">Alumno</th>`;
-        let fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
-        fechas.forEach(f => html += `<th class="border p-2 text-[10px]">${f.split('-').reverse().join('/')}</th>`);
-        html += `</tr></thead><tbody>`;
-        
-        (m.alumnos || []).forEach(al => {
-            html += `<tr><td class="border p-2 font-bold">${al.ape}, ${al.nom}</td>`;
-            fechas.forEach(f => {
-                let st = m.asistencias[f][al.id] || '-';
-                html += `<td class="border p-2 text-center">${st}</td>`;
+        html += '<h2 style="color:#144E7E; text-transform:uppercase; font-size:18px;">Asistencia</h2><table><thead><tr><th>Alumno</th>';
+        var fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
+        fechas.forEach(function(f) { html += '<th>' + f.split('-').reverse().slice(0,2).join('/') + '</th>'; });
+        html += '</tr></thead><tbody>';
+        (m.alumnos || []).forEach(function(al) {
+            html += '<tr><td style="font-weight:bold;">' + al.ape + ', ' + al.nom + '</td>';
+            fechas.forEach(function(f) {
+                var st = (m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-';
+                html += '<td style="text-align:center; font-weight:bold;">' + st + '</td>';
             });
-            html += `</tr>`;
+            html += '</tr>';
         });
-        html += `</tbody></table>`;
+        html += '</tbody></table>';
     }
 
     if (pTema || pAct) {
-        html += `<h2 class="text-xl font-bold mb-4 text-teal-700 border-l-4 border-teal-700 pl-2 uppercase">Planificación</h2>
-                 <table class="w-full text-sm border-collapse">
-                    <thead><tr class="bg-gray-100">
-                        <th class="border p-2 text-left w-20">Fecha</th>
-                        ${pTema ? '<th class="border p-2 text-left">Contenido / Tema</th>' : ''}
-                        ${pAct ? '<th class="border p-2 text-left">Actividad / Tarea</th>' : ''}
-                    </tr></thead><tbody>`;
-        
-        Object.keys(m.planificacion || {}).sort().forEach(f => {
-            const p = m.planificacion[f];
+        html += '<h2 style="color:#144E7E; text-transform:uppercase; font-size:18px;">Planificación</h2><table><thead><tr><th>Fecha</th><th>Detalle</th></tr></thead><tbody>';
+        Object.keys(m.planificacion || {}).sort().forEach(function(f) {
+            var p = m.planificacion[f];
             if (!p.tema && !p.actClase) return;
-            html += `<tr>
-                <td class="border p-2 font-bold">${f.split('-').reverse().join('/')}</td>
-                ${pTema ? `<td class="border p-2">${p.tema || '-'}</td>` : ''}
-                ${pAct ? `<td class="border p-2">${p.actClase || '-'}</td>` : ''}
-            </tr>`;
+            html += '<tr><td style="font-weight:bold; width:80px;">' + f.split('-').reverse().slice(0,2).join('/') + '</td><td>';
+            if (pTema) html += '<b>TEMA:</b> ' + (p.tema || '-') + '<br>';
+            if (pAct) html += '<b>ACTIVIDAD:</b> ' + (p.actClase || '-') + (p.actTarea ? ' | <b>TAREA:</b> ' + p.actTarea : '');
+            html += '</td></tr>';
         });
-        html += `</tbody></table>`;
+        html += '</tbody></table>';
     }
 
-    html += `
-        <footer class="mt-12 pt-4 border-t text-[10px] text-gray-400 text-center uppercase tracking-widest">
-            Generado por Nómade Agenda Docente - 2026
-        </footer>
-    </body>
-    </html>`;
+    html += '</div><p style="text-align:center; font-size:9px; color:#999; margin-top:30px; letter-spacing:3px;">NÓMADE AGENDA DOCENTE</p></body></html>';
 
     win.document.write(html);
     win.document.close();
     closeModal('modal-export');
 }
-        function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
 
-        function showTutorial(){ document.getElementById('modal-tutorial').classList.remove('hidden'); tutStep = 1; updateTut(); }
-        function nextTutorial(){ if(tutStep < 4) { tutStep++; updateTut(); } else { document.getElementById('modal-tutorial').classList.add('hidden'); } }
-        function updateTut(){
-            for(let i=1; i<=4; i++) {
-                document.getElementById(`tut-step-${i}`).classList.add('hidden');
-                document.getElementById(`dot-${i}`).classList.remove('bg-nomade-green');
-                document.getElementById(`dot-${i}`).classList.add('bg-white/30');
-            }
-            document.getElementById(`tut-step-${tutStep}`).classList.remove('hidden');
-            document.getElementById(`dot-${tutStep}`).classList.remove('bg-white/30');
-            document.getElementById(`dot-${tutStep}`).classList.add('bg-nomade-green');
-            document.getElementById('btn-tut-next').innerText = tutStep === 4 ? '¡COMENZAR!' : 'SIGUIENTE ➝';
-            lucide.createIcons();
-        }
-        function togglePass(idInput, idIcon) {
-            const input = document.getElementById(idInput);
-            const icon = document.getElementById(idIcon);
-            if (input.type === "password") {
-                input.type = "text";
-                if(icon) icon.innerHTML = '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/>';
-            } else {
-                input.type = "password";
-                if(icon) icon.innerHTML = '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>';
-            }
-        }
+function showToast(msg) { 
+    var x = document.getElementById("toast-notification"); 
+    if(x){ x.innerText = msg; x.className = "show"; setTimeout(function(){ x.className = x.className.replace("show",""); }, 3000); } 
+}
 
-        async function guardarNuevaPassPropia() {
-            const newPass = document.getElementById('input-new-own-pass').value;
-            if (newPass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
-            const btn = document.querySelector('#modal-pass-change button.bg-nomade-green');
-            const txt = btn.innerText;
-            btn.innerText = "GUARDANDO...";
-            btn.disabled = true;
-            try {
-                const user = firebase.auth().currentUser;
-                if(user) {
-                    await user.updatePassword(newPass);
-                    alert("✅ ¡Éxito! Tu contraseña se cambió.\nUsala la próxima vez que ingreses.");
-                    closeModal('modal-pass-change');
-                    document.getElementById('input-new-own-pass').value = ''; 
-                }
-            } catch (e) {
-                console.error(e);
-                if (e.code === 'auth/requires-recent-login') {
-                    alert("🔒 SEGURIDAD:\nPara cambiar tu clave, necesitamos confirmar que sos vos.\n\nPor favor, cerrá sesión y volvé a entrar.");
-                    logout();
-                } else {
-                    alert("Error: " + e.message);
-                }
-            } finally {
-                btn.innerText = txt;
-                btn.disabled = false;
-            }
-        }
+function showTutorial() { document.getElementById('modal-tutorial').classList.remove('hidden'); tutStep = 1; updateTut(); }
 
-        // ==========================================
-        // 12. INSTALACIÓN APP (PWA)
-        // ==========================================
-        let deferredPrompt; 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const banner = document.getElementById('install-banner');
-            if (banner) {
-                banner.classList.remove('hidden');
-                banner.classList.add('flex'); 
-            }
-        });
+function nextTutorial() { if(tutStep < 4) { tutStep++; updateTut(); } else { document.getElementById('modal-tutorial').classList.add('hidden'); } }
 
-        async function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt(); 
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log(`Resultado instalación: ${outcome}`);
-                deferredPrompt = null; 
-                document.getElementById('install-banner').classList.add('hidden');
-            }
-        }
+function updateTut() {
+    for(var i=1; i<=4; i++) {
+        document.getElementById('tut-step-' + i).classList.add('hidden');
+        document.getElementById('dot-' + i).className = "w-2 h-2 rounded-full bg-white/30";
+    }
+    document.getElementById('tut-step-' + tutStep).classList.remove('hidden');
+    document.getElementById('dot-' + tutStep).className = "w-2 h-2 rounded-full bg-nomade-green";
+    document.getElementById('btn-tut-next').innerText = tutStep === 4 ? '¡COMENZAR!' : 'SIGUIENTE ➝';
+    lucide.createIcons();
+}
 
-        function cerrarBanner() { document.getElementById('install-banner').classList.add('hidden'); }
+function togglePass(idInput, idIcon) {
+    var input = document.getElementById(idInput);
+    if (input.type === "password") { input.type = "text"; } else { input.type = "password"; }
+}
 
-        const isIos = () => { const userAgent = window.navigator.userAgent.toLowerCase(); return /iphone|ipad|ipod/.test(userAgent); }
-        const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+async function guardarNuevaPassPropia() {
+    var newPass = document.getElementById('input-new-own-pass').value;
+    if (newPass.length < 6) return alert("Mínimo 6 caracteres.");
+    try {
+        var user = firebase.auth().currentUser;
+        if(user) { await user.updatePassword(newPass); alert("✅ Contraseña cambiada."); closeModal('modal-pass-change'); }
+    } catch (e) { alert("Error: " + e.message); }
+}
 
-        if (isIos() && !isInStandaloneMode()) {
-            setTimeout(() => { showToast("📱 Para instalar en iPhone: Tocá 'Compartir' y elegí 'Agregar a Inicio'"); }, 3000);
-        }
-
-        window.addEventListener('offline', () => {
-            const t = document.getElementById('connection-toast');
-            if(t) {
-                t.classList.remove('hidden');
-                t.classList.remove('-translate-y-full'); 
-                t.innerText = "📡 SIN INTERNET - Los cambios se guardarán al volver.";
-                t.className = "fixed top-0 left-0 right-0 bg-gray-800 text-white text-xs font-bold text-center py-2 z-[100] transition-transform";
-            }
-        });
-
-        window.addEventListener('online', () => {
-            const t = document.getElementById('connection-toast');
-            if(t) {
-                t.innerText = "✅ CONEXIÓN RESTABLECIDA";
-                t.className = "fixed top-0 left-0 right-0 bg-green-500 text-white text-xs font-bold text-center py-2 z-[100] transition-transform";
-                setTimeout(() => { t.classList.add('-translate-y-full'); }, 3000);
-            }
-        });
-function abrirLinkDesdeClase(inputId) {
-            let url = document.getElementById(inputId).value.trim();
-            if (!url) {
-                alert("Primero tenés que pegar un link en este casillero.");
-                return;
-            }
-            
-            // Si el profe pegó www.google.com sin el http, se lo agregamos para que ande
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                url = 'https://' + url;
-            }
-            
-            // Abre en una pestaña nueva
-            window.open(url, '_blank');
-        }
-        window.onload = function() {
-            console.log("Sistema Reiniciado");
-            auth.signOut();
-            lucide.createIcons();
-        };
-        
-    </script>
+window.onload = function() {
+    console.log("Nómade Iniciado");
+    lucide.createIcons();
+}; </script>
 </body>
 </html>
 
