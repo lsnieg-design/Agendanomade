@@ -1185,90 +1185,65 @@ function saveClaseDetail(){
         }
 
   function executeExport() {
-    // 1. Obtener datos básicos inmediatamente
-    const m = userData.materias.find(x => x.id === activeId);
-    if (!m) return;
-    
-    const t = document.getElementById('export-type').value;
-    const dashNameEl = document.getElementById('dash-name');
-    const docName = dashNameEl ? (dashNameEl.innerText || 'Docente') : 'Docente';
-    
-    const incListaAsist = document.getElementById('exp-lista').checked;
-    const incNotas = document.getElementById('exp-notas').checked;
-    const pTema = document.getElementById('exp-plan-tema').checked;
-    const pBiblio = document.getElementById('exp-plan-biblio').checked;
-    const pAct = document.getElementById('exp-plan-act').checked;
-    const pTarea = document.getElementById('exp-plan-tarea').checked;
-    const pLinks = document.getElementById('exp-plan-links').checked;
-    const incPlan = pTema || pBiblio || pAct || pTarea || pLinks;
-
-    const cl = (s) => (s ? String(s).replace(/"/g, '""').replace(/\n/g, ' ').trim() : '');
-
     try {
+        const m = userData.materias.find(x => x.id === activeId);
+        const t = document.getElementById('export-type').value;
+        const dashNameEl = document.getElementById('dash-name');
+        const docName = dashNameEl ? (dashNameEl.innerText || 'Docente') : 'Docente';
+        
+        const incListaAsist = document.getElementById('exp-lista').checked;
+        const incNotas = document.getElementById('exp-notas').checked;
+        const cl = (s) => (s ? String(s).replace(/"/g, '""').replace(/\n/g, ' ').trim() : '');
+
         if (t === 'xls') {
-            // --- GENERACIÓN EXCEL ---
-            let csv = `MATERIA:,${cl(m.nombre)}\nDOCENTE:,${cl(docName)}\nDÍAS:,${cl(m.dia)}\n\n`;
+            // --- EXCEL MODO INFALIBLE ---
+            let csv = `MATERIA:,${cl(m.nombre)}\nDOCENTE:,${cl(docName)}\n\n`;
             
             if (incListaAsist || incNotas) {
                 csv += "APELLIDO,NOMBRE";
                 let fechasAsist = (m.asistencias) ? Object.keys(m.asistencias).sort() : [];
                 if (incListaAsist) fechasAsist.forEach(f => csv += `,Asist. ${f}`);
-                if (incNotas && m.examenes) m.examenes.forEach(e => csv += `,Nota: ${cl(e.nombre)}`);
                 csv += "\n";
 
                 (m.alumnos || []).forEach(al => {
                     let row = `"${cl(al.ape)}","${cl(al.nom)}"`;
                     if (incListaAsist) fechasAsist.forEach(f => row += `,${(m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-'}`);
-                    if (incNotas && m.examenes) m.examenes.forEach(e => row += `,${(al.notas && al.notas[e.id]) ? al.notas[e.id] : '-'}`);
                     csv += row + "\n";
                 });
-                csv += "\n\n";
             }
 
-            if (incPlan && m.planificacion) {
-                csv += "PLANIFICACIÓN\nFECHA,MODALIDAD,TEMA,ACTIVIDAD,TAREA\n";
-                Object.keys(m.planificacion).sort().forEach(f => {
-                    const p = m.planificacion[f];
-                    if (!p.tema && !p.actClase) return; // Saltar vacíos
-                    const mod = (m.cronograma && m.cronograma[f]) ? m.cronograma[f] : 'P';
-                    csv += `"${f}","${mod}","${cl(p.tema)}","${cl(p.actClase)}","${cl(p.actTarea)}"\n`;
-                });
-            }
-
-            // DESCARGA DIRECTA (El navegador lo ve como acción de usuario pura)
+            // Método de descarga que salta cualquier bloqueo de seguridad
             const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = `Nomade_${cl(m.nombre).replace(/ /g, '_')}.csv`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const link = document.createElement('a');
+                link.href = e.target.result;
+                link.download = `Nomade_${cl(m.nombre).replace(/ /g, '_')}.csv`;
+                link.click();
+            };
+            reader.readAsDataURL(blob);
 
         } else {
-            // --- GENERACIÓN PDF ---
-            if (typeof window.jspdf === 'undefined') return alert("Motor PDF no listo.");
+            // --- PDF MODO SIMPLE (PARA TESTEAR BLOQUEO) ---
+            if (typeof window.jspdf === 'undefined') return alert("Cargando...");
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: 'landscape', format: 'a4' });
+            const doc = new jsPDF();
             
-            doc.text(`Materia: ${cl(m.nombre)}`, 10, 15);
+            doc.setFontSize(20);
+            doc.text("REPORTE NOMADE", 10, 20);
+            doc.setFontSize(12);
+            doc.text(`Materia: ${cl(m.nombre)}`, 10, 35);
+            doc.text(`Docente: ${cl(docName)}`, 10, 45);
             
-            // Re-renderizado de tabla simplificado para evitar cuelgues
-            let head = ["Apellido", "Nombre"];
-            let body = (m.alumnos || []).map(al => [cl(al.ape), cl(al.nom)]);
-            
-            doc.autoTable({ head: [head], body: body, startY: 25 });
+            // Si esto descarga DE UNA, el problema es la librería autoTable
             doc.save(`Nomade_${cl(m.nombre).replace(/ /g, '_')}.pdf`);
         }
 
-        // ÚLTIMO PASO: Cerrar el modal con un pequeño delay
-        setTimeout(() => {
-            closeModal('modal-export');
-        }, 300);
+        // Cerramos el modal inmediatamente sin esperar a nadie
+        closeModal('modal-export');
 
-    } catch (err) {
-        console.error(err);
-        alert("Error: " + err.message);
+    } catch (error) {
+        alert("Error crítico: " + error.message);
     }
 }
         function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
@@ -1403,6 +1378,7 @@ function abrirLinkDesdeClase(inputId) {
     </script>
 </body>
 </html>
+
 
 
 
