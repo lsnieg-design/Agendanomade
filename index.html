@@ -1188,161 +1188,135 @@ function saveClaseDetail(){
         function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
         function copiarIA() { const t = document.getElementById("ia-output"); t.select(); document.execCommand("copy"); alert("Copiado!"); }
 
-      function openExportModal(t) {
-    console.log("🚀 PASO 1: Forzando visibilidad para:", t);
+     function executeExport(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    console.log("🚀 Iniciando exportación...");
+
+    const m = userData.materias.find(function(x) { return x.id === activeId; });
+    if (!m) return alert("Seleccioná una materia primero");
+
+    // 1. Abrir ventana de inmediato para evitar bloqueos
+    const win = window.open('', '_blank');
+    if (!win) return alert("Por favor, habilitá las ventanas emergentes (pop-ups)");
+
+    const docName = document.getElementById('dash-name').innerText || 'Docente';
+    const incLista = document.getElementById('exp-lista').checked;
+    const pTema = document.getElementById('exp-plan-tema').checked;
+    const pBiblio = document.getElementById('exp-plan-biblio').checked;
+    const pAct = document.getElementById('exp-plan-act').checked;
+    const pTarea = document.getElementById('exp-plan-tarea').checked;
+
+    // 2. Construir el reporte con el diseño de Nómade
+    var h = '<html><head><title>Reporte Nómade - ' + m.nombre + '</title>';
+    h += '<style>body{background:#FAF7F0;padding:40px;font-family:sans-serif;color:#2C3E50;} .header{background:#144E7E;color:white;padding:30px;border-radius:15px;margin-bottom:20px;} table{width:100%;border-collapse:collapse;background:white;margin-bottom:20px;} th{background:#144E7E;color:white;padding:12px;text-align:left;font-size:10px;text-transform:uppercase;} td{border:1px solid #e2e8f0;padding:10px;font-size:12px;vertical-align:top;} .badge-tarea{background:#F0FDFA;padding:5px;border-radius:5px;border:1px solid #1FA194;font-size:10px;margin-top:5px;}</style></head><body>';
     
+    h += '<div class="header"><h1>' + m.nombre + '</h1><p>DOCENTE: ' + docName.toUpperCase() + '</p></div>';
+
+    if (incLista) {
+        h += '<h2>ASISTENCIA Y ALUMNOS</h2><table><thead><tr><th>Alumno</th>';
+        var fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
+        fechas.forEach(function(f) { h += '<th>' + f.split('-').reverse().slice(0,2).join('/') + '</th>'; });
+        h += '</tr></thead><tbody>';
+        (m.alumnos || []).forEach(function(al) {
+            h += '<tr><td style="font-weight:bold;">' + al.ape + ', ' + al.nom + '</td>';
+            fechas.forEach(function(f) {
+                var st = (m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-';
+                h += '<td style="text-align:center; font-weight:bold;">' + st + '</td>';
+            });
+            h += '</tr>';
+        });
+        h += '</tbody></table>';
+    }
+
+    if (pTema || pAct) {
+        h += '<h2>PLANIFICACIÓN DIDÁCTICA</h2><table><thead><tr><th style="width:80px;">Fecha</th><th>Contenidos y Actividades</th></tr></thead><tbody>';
+        Object.keys(m.planificacion || {}).sort().forEach(function(f) {
+            var p = m.planificacion[f];
+            if (!p.tema && !p.actClase) return;
+            h += '<tr><td style="font-weight:bold;">' + f.split('-').reverse().slice(0,2).join('/') + '</td><td>';
+            if (pTema && p.tema) h += '<div style="margin-bottom:5px;"><b>TEMA:</b> ' + p.tema + '</div>';
+            if (pBiblio && p.biblio) h += '<div style="font-size:10px; color:#666;"><b>BIBLIO:</b> ' + p.biblio + '</div>';
+            if (pAct && p.actClase) h += '<div style="margin-top:5px;"><b>ACTIVIDAD:</b> ' + p.actClase + '</div>';
+            if (pTarea && p.actTarea) h += '<div class="badge-tarea"><b>TAREA:</b> ' + p.actTarea + '</div>';
+            h += '</td></tr>';
+        });
+        h += '</tbody></table>';
+    }
+
+    h += '<br><div style="text-align:center;"><button onclick="window.print()" style="background:#1FA194;color:white;padding:15px 30px;border-radius:10px;border:none;cursor:pointer;font-weight:bold;">DESCARGAR PDF / IMPRIMIR</button></div>';
+    h += '</body></html>';
+
+    win.document.write(h);
+    win.document.close();
+    closeModal('modal-export');
+}
+
+function openExportModal(t) {
     const input = document.getElementById('export-type');
     if (input) input.value = t;
-
     const modal = document.getElementById('modal-export');
     if (modal) {
-        // 1. Quitamos la clase que lo oculta
         modal.classList.remove('hidden');
-        
-        // 2. Forzamos el estilo visual por encima de cualquier CSS
-        modal.style.setProperty('display', 'flex', 'important');
-        modal.style.setProperty('z-index', '1000', 'important');
-        modal.style.setProperty('opacity', '1', 'important');
-        
-        // 3. El truco final: "Despertar" al navegador
-        window.dispatchEvent(new Event('resize')); 
-        
-        console.log("✅ PASO 2: Modal forzado al frente.");
-    } else {
-        console.error("❌ ERROR: No encontré el div 'modal-export'");
+        modal.style.display = 'flex';
+        console.log("✅ Modal de exportación abierto para:", t);
     }
 }
-        function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
 
-        function showTutorial(){ document.getElementById('modal-tutorial').classList.remove('hidden'); tutStep = 1; updateTut(); }
-        function nextTutorial(){ if(tutStep < 4) { tutStep++; updateTut(); } else { document.getElementById('modal-tutorial').classList.add('hidden'); } }
-        function updateTut(){
-            for(let i=1; i<=4; i++) {
-                document.getElementById(`tut-step-${i}`).classList.add('hidden');
-                document.getElementById(`dot-${i}`).classList.remove('bg-nomade-green');
-                document.getElementById(`dot-${i}`).classList.add('bg-white/30');
-            }
-            document.getElementById(`tut-step-${tutStep}`).classList.remove('hidden');
-            document.getElementById(`dot-${tutStep}`).classList.remove('bg-white/30');
-            document.getElementById(`dot-${tutStep}`).classList.add('bg-nomade-green');
-            document.getElementById('btn-tut-next').innerText = tutStep === 4 ? '¡COMENZAR!' : 'SIGUIENTE ➝';
-            lucide.createIcons();
-        }
-        function togglePass(idInput, idIcon) {
-            const input = document.getElementById(idInput);
-            const icon = document.getElementById(idIcon);
-            if (input.type === "password") {
-                input.type = "text";
-                if(icon) icon.innerHTML = '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/>';
-            } else {
-                input.type = "password";
-                if(icon) icon.innerHTML = '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>';
-            }
-        }
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
+}
 
-        async function guardarNuevaPassPropia() {
-            const newPass = document.getElementById('input-new-own-pass').value;
-            if (newPass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
-            const btn = document.querySelector('#modal-pass-change button.bg-nomade-green');
-            const txt = btn.innerText;
-            btn.innerText = "GUARDANDO...";
-            btn.disabled = true;
-            try {
-                const user = firebase.auth().currentUser;
-                if(user) {
-                    await user.updatePassword(newPass);
-                    alert("✅ ¡Éxito! Tu contraseña se cambió.\nUsala la próxima vez que ingreses.");
-                    closeModal('modal-pass-change');
-                    document.getElementById('input-new-own-pass').value = ''; 
-                }
-            } catch (e) {
-                console.error(e);
-                if (e.code === 'auth/requires-recent-login') {
-                    alert("🔒 SEGURIDAD:\nPara cambiar tu clave, necesitamos confirmar que sos vos.\n\nPor favor, cerrá sesión y volvé a entrar.");
-                    logout();
-                } else {
-                    alert("Error: " + e.message);
-                }
-            } finally {
-                btn.innerText = txt;
-                btn.disabled = false;
-            }
-        }
+function showToast(msg) { 
+    const x = document.getElementById("toast-notification"); 
+    if(x){ x.innerText = msg; x.className = "show"; setTimeout(() => x.className = "", 3000); } 
+}
 
-        // ==========================================
-        // 12. INSTALACIÓN APP (PWA)
-        // ==========================================
-        let deferredPrompt; 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const banner = document.getElementById('install-banner');
-            if (banner) {
-                banner.classList.remove('hidden');
-                banner.classList.add('flex'); 
-            }
-        });
+function showTutorial() { document.getElementById('modal-tutorial').classList.remove('hidden'); tutStep = 1; updateTut(); }
+function nextTutorial() { if(tutStep < 4) { tutStep++; updateTut(); } else { closeModal('modal-tutorial'); } }
 
-        async function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt(); 
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log(`Resultado instalación: ${outcome}`);
-                deferredPrompt = null; 
-                document.getElementById('install-banner').classList.add('hidden');
-            }
-        }
+function updateTut() {
+    for(let i=1; i<=4; i++) {
+        document.getElementById(`tut-step-${i}`).classList.add('hidden');
+        document.getElementById(`dot-${i}`).className = "w-2 h-2 rounded-full bg-white/30";
+    }
+    document.getElementById(`tut-step-${tutStep}`).classList.remove('hidden');
+    document.getElementById(`dot-${tutStep}`).className = "w-2 h-2 rounded-full bg-nomade-green";
+    document.getElementById('btn-tut-next').innerText = tutStep === 4 ? '¡COMENZAR!' : 'SIGUIENTE ➝';
+}
 
-        function cerrarBanner() { document.getElementById('install-banner').classList.add('hidden'); }
+function togglePass(idInput, idIcon) {
+    const input = document.getElementById(idInput);
+    input.type = (input.type === "password") ? "text" : "password";
+}
 
-        const isIos = () => { const userAgent = window.navigator.userAgent.toLowerCase(); return /iphone|ipad|ipod/.test(userAgent); }
-        const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+async function guardarNuevaPassPropia() {
+    const newPass = document.getElementById('input-new-own-pass').value;
+    if (newPass.length < 6) return alert("Mínimo 6 caracteres.");
+    try {
+        const user = firebase.auth().currentUser;
+        if(user) { await user.updatePassword(newPass); alert("Contraseña cambiada con éxito."); closeModal('modal-pass-change'); }
+    } catch (e) { alert("Error: " + e.message); }
+}
 
-        if (isIos() && !isInStandaloneMode()) {
-            setTimeout(() => { showToast("📱 Para instalar en iPhone: Tocá 'Compartir' y elegí 'Agregar a Inicio'"); }, 3000);
-        }
-
-        window.addEventListener('offline', () => {
-            const t = document.getElementById('connection-toast');
-            if(t) {
-                t.classList.remove('hidden');
-                t.classList.remove('-translate-y-full'); 
-                t.innerText = "📡 SIN INTERNET - Los cambios se guardarán al volver.";
-                t.className = "fixed top-0 left-0 right-0 bg-gray-800 text-white text-xs font-bold text-center py-2 z-[100] transition-transform";
-            }
-        });
-
-        window.addEventListener('online', () => {
-            const t = document.getElementById('connection-toast');
-            if(t) {
-                t.innerText = "✅ CONEXIÓN RESTABLECIDA";
-                t.className = "fixed top-0 left-0 right-0 bg-green-500 text-white text-xs font-bold text-center py-2 z-[100] transition-transform";
-                setTimeout(() => { t.classList.add('-translate-y-full'); }, 3000);
-            }
-        });
 function abrirLinkDesdeClase(inputId) {
-            let url = document.getElementById(inputId).value.trim();
-            if (!url) {
-                alert("Primero tenés que pegar un link en este casillero.");
-                return;
-            }
-            
-            // Si el profe pegó www.google.com sin el http, se lo agregamos para que ande
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                url = 'https://' + url;
-            }
-            
-            // Abre en una pestaña nueva
-            window.open(url, '_blank');
-        }
-        window.onload = function() {
-            console.log("Sistema Reiniciado");
-            lucide.createIcons();
-        };
-        
+    let url = document.getElementById(inputId).value.trim();
+    if (!url) return alert("No hay link para abrir.");
+    if (!url.startsWith('http')) url = 'https://' + url;
+    window.open(url, '_blank');
+}
+
+window.onload = function() {
+    console.log("Sistema Nómade Reiniciado");
+    lucide.createIcons();
+};
     </script>
 </body>
 </html>
+
 
 
 
