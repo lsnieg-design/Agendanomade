@@ -536,8 +536,8 @@
             <input type="hidden" id="export-type">
             <div class="flex gap-2">
                 <button onclick="closeModal('modal-export')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider">CANCELAR</button>
-              <button onclick="executeExport()" class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2">
-    <i data-lucide="printer" class="w-4 h-4"></i> GENERAR REPORTE
+                <button onclick="executeExport()" class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95">
+    <i data-lucide="download" class="w-4 h-4"></i> EXPORTAR AHORA
 </button>
             </div>
         </div>
@@ -1184,7 +1184,7 @@ function saveClaseDetail(){
             openModal('modal-export');
         }
 
- function executeExport() {
+  function executeExport() {
     const m = userData.materias.find(x => x.id === activeId);
     if (!m) return alert("No se encontró la materia");
 
@@ -1405,8 +1405,6 @@ function abrirLinkDesdeClase(inputId) {
     </script>
 </body>
 </html>
-
-
 
 
 
