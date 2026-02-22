@@ -80,7 +80,7 @@
     </style>
 </head>
 <body class="h-screen flex flex-col text-nomade-text bg-nomade-cream">
-
+ <<div id="modal-export" class="fixed inset-0 hidden flex items-center justify-center p-4 backdrop-blur-sm" style="z-index: 9999 !important; pointer-events: auto !important;">
     <div id="cloud-status"><i data-lucide="cloud" class="w-3 h-3"></i> <span id="cloud-text">Sincronizado</span></div>
 
     <div id="auth-screen" class="fixed inset-0 login-bg z-50 flex flex-col items-center justify-center p-6 text-center text-white fade-in">
@@ -511,7 +511,7 @@
                 </div>
             </div>
    
- <<div id="modal-export" class="fixed inset-0 hidden flex items-center justify-center p-4 backdrop-blur-sm" style="z-index: 9999 !important; pointer-events: auto !important;">
+
     <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
         
         <input type="hidden" id="export-type" value="pdf"> 
@@ -1252,27 +1252,25 @@ function saveClaseDetail(){
 }
 
 function openExportModal(t) {
-    console.log("🚀 PASO 1: Forzando apertura para:", t);
+    console.log("🚀 Iniciando apertura asíncrona para:", t);
+    
     const input = document.getElementById('export-type');
     if (input) input.value = t;
 
     const modal = document.getElementById('modal-export');
     if (modal) {
-        // 1. Limpiamos cualquier clase de Tailwind que lo oculte
-        modal.classList.remove('hidden');
-        
-        // 2. FORZAMOS EL ESTILO MANUAL (Esto es lo que destraba el botón)
-        modal.style.setProperty('display', 'flex', 'important');
-        modal.style.setProperty('visibility', 'visible', 'important');
-        modal.style.setProperty('opacity', '1', 'important');
-        
-        // 3. Le pedimos al navegador que se "despierte"
-        modal.focus();
-        
-        console.log("✅ PASO 2: El modal debe aparecer SI O SI.");
+        // Usamos setTimeout de 0 para "engañar" al navegador y que suelte el bloqueo
+        setTimeout(() => {
+            modal.classList.remove('hidden');
+            modal.style.setProperty('display', 'flex', 'important');
+            modal.style.zIndex = "99999";
+            
+            // Forzamos un redibujo del navegador
+            window.dispatchEvent(new Event('resize'));
+            console.log("✅ Renderizado forzado con éxito");
+        }, 0);
     }
 }
-
 function closeModal(id) {
     const modal = document.getElementById(id);
     if (modal) {
@@ -1327,6 +1325,7 @@ window.onload = function() {
     </script>
 </body>
 </html>
+
 
 
 
