@@ -511,7 +511,7 @@
                 </div>
             </div>
    
- <div id="modal-export" class="fixed inset-0 bg-black/60 z-[80] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+ <div id="modal-export" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
         
         <input type="hidden" id="export-type" value="pdf"> 
@@ -1207,53 +1207,29 @@ function saveClaseDetail(){
     openModal('modal-export');
 }
 
-function executeExport(e) {
-    // 1. Evitar que el clic se propague a otras capas
-    if (e) {
-        e.preventDefault();
-        e.stopPropagation();
+function openExportModal(t) {
+    console.log("🚀 PASO 1: Intentando mostrar modal para:", t);
+    
+    // 1. Guardamos el tipo (pdf o xls)
+    const input = document.getElementById('export-type');
+    if (input) input.value = t;
+
+    // 2. Buscamos el modal
+    const modal = document.getElementById('modal-export');
+    
+    if (modal) {
+        // Quitamos 'hidden' y forzamos el estilo 'flex'
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex'; 
+        
+        // TRUCO CLAVE: Forzamos al navegador a refrescar la vista
+        // Esto soluciona que el botón parezca "dormido"
+        modal.offsetHeight; 
+        
+        console.log("✅ PASO 2: Modal debería estar visible ahora.");
+    } else {
+        console.error("❌ ERROR: No se encontró el div 'modal-export'");
     }
-
-    // 2. Abrir la ventana antes de cualquier cálculo
-    var win = window.open('', '_blank');
-    if (!win) return alert("Por favor, habilita las ventanas emergentes (pop-ups) en tu navegador.");
-
-    // 3. Buscar datos
-    var m = userData.materias.find(function(x) { return x.id === activeId; });
-    if (!m) {
-        win.close();
-        return alert("Seleccioná la materia nuevamente.");
-    }
-
-    // 4. Escribir el reporte (Usa comillas simples para no romper el editor)
-    var docName = document.getElementById('dash-name').innerText || 'Docente';
-    var h = '<html><head><title>Nómade - ' + m.nombre + '</title>';
-    h += '<style>body{background:#FAF7F0;padding:40px;font-family:sans-serif;} .header{background:#144E7E;color:white;padding:20px;border-radius:10px;} table{width:100%;border-collapse:collapse;margin-top:20px;background:white;} th{background:#144E7E;color:white;padding:10px;text-align:left;} td{border:1px solid #ddd;padding:8px;}</style></head><body>';
-    h += '<div class="header"><h1>' + m.nombre + '</h1><p>DOCENTE: ' + docName + '</p></div>';
-
-    if (document.getElementById('exp-lista').checked) {
-        h += '<h2>ASISTENCIA</h2><table><thead><tr><th>Estudiante</th>';
-        var fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
-        fechas.forEach(function(f) { h += '<th>' + f + '</th>'; });
-        h += '</tr></thead><tbody>';
-        (m.alumnos || []).forEach(function(al) {
-            h += '<tr><td style="font-weight:bold;">' + al.ape + ', ' + al.nom + '</td>';
-            fechas.forEach(function(f) {
-                var st = (m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-';
-                h += '<td style="text-align:center;">' + st + '</td>';
-            });
-            h += '</tr>';
-        });
-        h += '</tbody></table>';
-    }
-
-    h += '<br><button onclick="window.print()" style="background:#1FA194;color:white;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-weight:bold;">IMPRIMIR / PDF</button></body></html>';
-
-    win.document.write(h);
-    win.document.close();
-
-    // 5. Cerrar el modal al finalizar
-    closeModal('modal-export');
 }
         function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
 
@@ -1386,6 +1362,7 @@ function abrirLinkDesdeClase(inputId) {
     </script>
 </body>
 </html>
+
 
 
 
