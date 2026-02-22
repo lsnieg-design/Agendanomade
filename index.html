@@ -534,12 +534,18 @@
             </div>
 
             <input type="hidden" id="export-type">
-            <div class="flex gap-2">
-                <button onclick="closeModal('modal-export')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider">CANCELAR</button>
-                <button onclick="executeExport()" class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95">
-    <i data-lucide="download" class="w-4 h-4"></i> EXPORTAR AHORA
-</button>
-            </div>
+         <div class="flex gap-2">
+    <button onclick="closeModal('modal-export')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider">
+        CANCELAR
+    </button>
+    
+    <a href="javascript:void(0)" 
+       onclick="executeExport(event)" 
+       id="btn-export-final" 
+       class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 active:scale-95 cursor-pointer decoration-0">
+        <i data-lucide="printer" class="w-4 h-4"></i> GENERAR REPORTE AHORA
+    </a>
+</div>
         </div>
     </div>
     
@@ -1184,21 +1190,26 @@ function saveClaseDetail(){
             openModal('modal-export');
         }
 
-  function executeExport() {
-    var m = userData.materias.find(function(x) { return x.id === activeId; });
-    if (!m) return alert("Seleccioná una materia");
+ function executeExport(e) {
+    // 1. Detener cualquier otro proceso del navegador
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
 
-    var win = window.open('', '_blank');
-    if (!win) return alert("Permití los pop-ups");
+    const m = userData.materias.find(function(x) { return x.id === activeId; });
+    if (!m) return alert("Seleccioná una materia primero");
 
-    var docName = document.getElementById('dash-name').innerText;
-    var incLista = document.getElementById('exp-lista').checked;
-    var pTema = document.getElementById('exp-plan-tema').checked;
-    var pAct = document.getElementById('exp-plan-act').checked;
+    // 2. Abrir la ventana inmediatamente (antes de procesar datos)
+    const win = window.open('', '_blank');
+    if (!win) return alert("Por favor, permití los pop-ups en la barra de direcciones");
 
-    var h = '<html><head><title>Reporte Nomade</title>';
-    h += '<style>body{background:#FAF7F0;padding:40px;font-family:sans-serif;} .header{background:#144E7E;color:white;padding:20px;border-radius:10px;} table{width:100%;border-collapse:collapse;margin-top:20px;background:white;} th{background:#144E7E;color:white;padding:10px;text-align:left;font-size:10px;} td{border:1px solid #ddd;padding:8px;font-size:12px;}</style></head><body>';
-    
+    const docName = document.getElementById('dash-name').innerText || 'Docente';
+    const incLista = document.getElementById('exp-lista').checked;
+
+    // 3. Construir el reporte simple y rápido
+    var h = '<html><head><title>Reporte Nómade</title>';
+    h += '<style>body{background:#FAF7F0;padding:40px;font-family:sans-serif;} .header{background:#144E7E;color:white;padding:20px;border-radius:10px;} table{width:100%;border-collapse:collapse;margin-top:20px;background:white;} th{background:#144E7E;color:white;padding:10px;text-align:left;} td{border:1px solid #ddd;padding:8px;}</style></head><body>';
     h += '<div class="header"><h1>' + m.nombre + '</h1><p>DOCENTE: ' + docName + '</p></div>';
 
     if (incLista) {
@@ -1207,7 +1218,7 @@ function saveClaseDetail(){
         fechas.forEach(function(f) { h += '<th>' + f.split('-').reverse().slice(0,2).join('/') + '</th>'; });
         h += '</tr></thead><tbody>';
         (m.alumnos || []).forEach(function(al) {
-            h += '<tr><td>' + al.ape + ', ' + al.nom + '</td>';
+            h += '<tr><td style="font-weight:bold;">' + al.ape + ', ' + al.nom + '</td>';
             fechas.forEach(function(f) {
                 var st = (m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-';
                 h += '<td style="text-align:center">' + st + '</td>';
@@ -1217,23 +1228,12 @@ function saveClaseDetail(){
         h += '</tbody></table>';
     }
 
-    if (pTema || pAct) {
-        h += '<h2>PLANIFICACIÓN</h2><table><thead><tr><th>Fecha</th><th>Detalle</th></tr></thead><tbody>';
-        Object.keys(m.planificacion || {}).sort().forEach(function(f) {
-            var p = m.planificacion[f];
-            if (!p.tema && !p.actClase) return;
-            h += '<tr><td>' + f.split('-').reverse().slice(0,2).join('/') + '</td><td>';
-            if (pTema) h += '<b>TEMA:</b> ' + (p.tema || '-') + '<br>';
-            if (pAct) h += '<b>ACT:</b> ' + (p.actClase || '-') + (p.actTarea ? ' | <b>TAREA:</b> ' + p.actTarea : '');
-            h += '</td></tr>';
-        });
-        h += '</tbody></table>';
-    }
-
-    h += '<br><button onclick="window.print()">IMPRIMIR / PDF</button></body></html>';
+    h += '<br><button onclick="window.print()" style="background:#1FA194;color:white;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-weight:bold;">IMPRIMIR / PDF</button></body></html>';
 
     win.document.write(h);
     win.document.close();
+
+    // 4. Cerrar el modal al instante
     closeModal('modal-export');
 }
         function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
@@ -1367,6 +1367,7 @@ function abrirLinkDesdeClase(inputId) {
     </script>
 </body>
 </html>
+
 
 
 
