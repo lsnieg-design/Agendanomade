@@ -1185,84 +1185,56 @@ function saveClaseDetail(){
         }
 
   function executeExport() {
-    // 1. Buscamos la materia activa inmediatamente
-    const m = userData.materias.find(x => x.id === activeId);
-    if (!m) return alert("Seleccioná una materia primero");
+    var m = userData.materias.find(function(x) { return x.id === activeId; });
+    if (!m) return alert("Seleccioná una materia");
 
-    const t = document.getElementById('export-type').value;
-    const docName = document.getElementById('dash-name').innerText || 'Docente';
-    const cl = (s) => (s ? String(s).replace(/"/g, '""').replace(/\n/g, ' ').trim() : '');
+    var win = window.open('', '_blank');
+    if (!win) return alert("Permití los pop-ups");
 
-    // Preferencias de usuario
-    const incLista = document.getElementById('exp-lista').checked;
-    const incNotas = document.getElementById('exp-notas').checked;
-    const pTema = document.getElementById('exp-plan-tema').checked;
-    const pBiblio = document.getElementById('exp-plan-biblio').checked;
-    const pAct = document.getElementById('exp-plan-act').checked;
-    const pTarea = document.getElementById('exp-plan-tarea').checked;
+    var docName = document.getElementById('dash-name').innerText;
+    var incLista = document.getElementById('exp-lista').checked;
+    var pTema = document.getElementById('exp-plan-tema').checked;
+    var pAct = document.getElementById('exp-plan-act').checked;
 
-    try {
-        if (t === 'xls') {
-            // --- MODO EXCEL (CSV) ---
-            let csv = `MATERIA:,${cl(m.nombre)}\nDOCENTE:,${cl(docName)}\n\n`;
-            
-            if (incLista || incNotas) {
-                csv += "APELLIDO,NOMBRE";
-                let fechasAsist = m.asistencias ? Object.keys(m.asistencias).sort() : [];
-                if (incLista) fechasAsist.forEach(f => csv += `,Asist. ${f}`);
-                if (incNotas && m.examenes) m.examenes.forEach(e => csv += `,Nota: ${cl(e.nombre)}`);
-                csv += "\n";
+    var h = '<html><head><title>Reporte Nomade</title>';
+    h += '<style>body{background:#FAF7F0;padding:40px;font-family:sans-serif;} .header{background:#144E7E;color:white;padding:20px;border-radius:10px;} table{width:100%;border-collapse:collapse;margin-top:20px;background:white;} th{background:#144E7E;color:white;padding:10px;text-align:left;font-size:10px;} td{border:1px solid #ddd;padding:8px;font-size:12px;}</style></head><body>';
+    
+    h += '<div class="header"><h1>' + m.nombre + '</h1><p>DOCENTE: ' + docName + '</p></div>';
 
-                (m.alumnos || []).forEach(al => {
-                    let row = `"${cl(al.ape)}","${cl(al.nom)}"`;
-                    if (incLista) fechasAsist.forEach(f => row += `,${(m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-'}`);
-                    if (incNotas && m.examenes) m.examenes.forEach(e => row += `,${(al.notas && al.notas[e.id]) ? al.notas[e.id] : '-'}`);
-                    csv += row + "\n";
-                });
-                csv += "\n\n";
-            }
-
-            if (pTema || pBiblio || pAct || pTarea) {
-                csv += "PLANIFICACIÓN\nFECHA,MODALIDAD,TEMA,BIBLIOGRAFÍA,ACTIVIDAD,TAREA\n";
-                Object.keys(m.planificacion || {}).sort().forEach(f => {
-                    const p = m.planificacion[f];
-                    if (!p.tema && !p.actClase) return;
-                    const mod = (m.cronograma && m.cronograma[f]) ? m.cronograma[f] : m.modalidadBase;
-                    csv += `"${f}","${mod}","${cl(p.tema)}","${cl(p.biblio)}","${cl(p.actClase)}","${cl(p.actTarea)}"\n`;
-                });
-            }
-
-            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = `Reporte_${cl(m.nombre)}.csv`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-            
-        } else {
-            // --- MODO PDF ---
-            if (typeof window.jspdf === 'undefined') return alert("Cargando motor PDF... Reintentá en un segundo.");
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: 'l' });
-            
-            doc.text(`REPORTE: ${m.nombre}`, 10, 10);
-            doc.text(`DOCENTE: ${docName}`, 10, 20);
-
-            let body = (m.alumnos || []).map(al => [cl(al.ape), cl(al.nom)]);
-            doc.autoTable({ head: [['Apellido', 'Nombre']], body: body, startY: 30 });
-            
-            doc.save(`Reporte_${cl(m.nombre)}.pdf`);
-        }
-
-        // Cierre inmediato del modal para que veas que la App reaccionó
-        closeModal('modal-export');
-
-    } catch (e) {
-        alert("Error al exportar: " + e.message);
+    if (incLista) {
+        h += '<h2>ASISTENCIA</h2><table><thead><tr><th>Estudiante</th>';
+        var fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
+        fechas.forEach(function(f) { h += '<th>' + f.split('-').reverse().slice(0,2).join('/') + '</th>'; });
+        h += '</tr></thead><tbody>';
+        (m.alumnos || []).forEach(function(al) {
+            h += '<tr><td>' + al.ape + ', ' + al.nom + '</td>';
+            fechas.forEach(function(f) {
+                var st = (m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-';
+                h += '<td style="text-align:center">' + st + '</td>';
+            });
+            h += '</tr>';
+        });
+        h += '</tbody></table>';
     }
+
+    if (pTema || pAct) {
+        h += '<h2>PLANIFICACIÓN</h2><table><thead><tr><th>Fecha</th><th>Detalle</th></tr></thead><tbody>';
+        Object.keys(m.planificacion || {}).sort().forEach(function(f) {
+            var p = m.planificacion[f];
+            if (!p.tema && !p.actClase) return;
+            h += '<tr><td>' + f.split('-').reverse().slice(0,2).join('/') + '</td><td>';
+            if (pTema) h += '<b>TEMA:</b> ' + (p.tema || '-') + '<br>';
+            if (pAct) h += '<b>ACT:</b> ' + (p.actClase || '-') + (p.actTarea ? ' | <b>TAREA:</b> ' + p.actTarea : '');
+            h += '</td></tr>';
+        });
+        h += '</tbody></table>';
+    }
+
+    h += '<br><button onclick="window.print()">IMPRIMIR / PDF</button></body></html>';
+
+    win.document.write(h);
+    win.document.close();
+    closeModal('modal-export');
 }
         function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
 
@@ -1395,6 +1367,7 @@ function abrirLinkDesdeClase(inputId) {
     </script>
 </body>
 </html>
+
 
 
 
