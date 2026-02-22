@@ -511,7 +511,7 @@
                 </div>
             </div>
    
- <div id="modal-export" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+ <div id="modal-export" class="fixed inset-0 bg-black/60 z-[1000] hidden flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
         
         <input type="hidden" id="export-type" value="pdf"> 
@@ -1188,47 +1188,28 @@ function saveClaseDetail(){
         function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
         function copiarIA() { const t = document.getElementById("ia-output"); t.select(); document.execCommand("copy"); alert("Copiado!"); }
 
-       function openExportModal(t) {
-    console.log("Abriendo modal para:", t);
-    const input = document.getElementById('export-type');
+      function openExportModal(t) {
+    console.log("🚀 PASO 1: Forzando visibilidad para:", t);
     
-    if (input) {
-        input.value = t;
-    } else {
-        console.warn("⚠️ No se encontró el elemento export-type, creándolo...");
-        // Esto crea el elemento por si te olvidaste de ponerlo en el HTML
-        let newInput = document.createElement('input');
-        newInput.type = 'hidden';
-        newInput.id = 'export-type';
-        newInput.value = t;
-        document.body.appendChild(newInput);
-    }
-    
-    openModal('modal-export');
-}
-
-function openExportModal(t) {
-    console.log("🚀 PASO 1: Intentando mostrar modal para:", t);
-    
-    // 1. Guardamos el tipo (pdf o xls)
     const input = document.getElementById('export-type');
     if (input) input.value = t;
 
-    // 2. Buscamos el modal
     const modal = document.getElementById('modal-export');
-    
     if (modal) {
-        // Quitamos 'hidden' y forzamos el estilo 'flex'
+        // 1. Quitamos la clase que lo oculta
         modal.classList.remove('hidden');
-        modal.style.display = 'flex'; 
         
-        // TRUCO CLAVE: Forzamos al navegador a refrescar la vista
-        // Esto soluciona que el botón parezca "dormido"
-        modal.offsetHeight; 
+        // 2. Forzamos el estilo visual por encima de cualquier CSS
+        modal.style.setProperty('display', 'flex', 'important');
+        modal.style.setProperty('z-index', '1000', 'important');
+        modal.style.setProperty('opacity', '1', 'important');
         
-        console.log("✅ PASO 2: Modal debería estar visible ahora.");
+        // 3. El truco final: "Despertar" al navegador
+        window.dispatchEvent(new Event('resize')); 
+        
+        console.log("✅ PASO 2: Modal forzado al frente.");
     } else {
-        console.error("❌ ERROR: No se encontró el div 'modal-export'");
+        console.error("❌ ERROR: No encontré el div 'modal-export'");
     }
 }
         function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
@@ -1362,6 +1343,7 @@ function abrirLinkDesdeClase(inputId) {
     </script>
 </body>
 </html>
+
 
 
 
