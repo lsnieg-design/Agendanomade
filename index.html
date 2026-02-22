@@ -536,8 +536,8 @@
             <input type="hidden" id="export-type">
             <div class="flex gap-2">
                 <button onclick="closeModal('modal-export')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider">CANCELAR</button>
-                <button onclick="executeExport()" class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95">
-    <i data-lucide="download" class="w-4 h-4"></i> EXPORTAR AHORA
+                <button onclick="generarReporteNomade(event)" class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95">
+    <i data-lucide="printer" class="w-4 h-4"></i> GENERAR REPORTE COMPLETO
 </button>
             </div>
         </div>
@@ -1176,6 +1176,68 @@ function saveClaseDetail(){
     closeModal('modal-import'); 
     renderCrono();
 }
+       function generarReporteNomade(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+
+    const m = userData.materias.find(function(x) { return x.id === activeId; });
+    if (!m) return alert("Materia no encontrada");
+
+    const win = window.open('', '_blank');
+    if (!win) return alert("Por favor, permití los pop-ups");
+
+    // Recolectar preferencias
+    const incLista = document.getElementById('exp-lista').checked;
+    const pTema = document.getElementById('exp-plan-tema').checked;
+    const pBiblio = document.getElementById('exp-plan-biblio').checked;
+    const pAct = document.getElementById('exp-plan-act').checked;
+    const pTarea = document.getElementById('exp-plan-tarea').checked;
+
+    let html = '<html><head><title>Nómade - ' + m.nombre + '</title>';
+    html += '<style>body{background:#FAF7F0;padding:40px;font-family:sans-serif;color:#2C3E50;} table{width:100%;border-collapse:collapse;background:white;margin-bottom:30px;} th{background:#144E7E!important;color:white!important;padding:10px;font-size:10px;text-transform:uppercase;border:1px solid #144E7E;} td{border:1px solid #e2e8f0;padding:8px;font-size:11px; vertical-align:top;}</style></head><body>';
+    
+    html += '<div style="background:#144E7E;color:white;padding:30px;border-radius:15px 15px 0 0;">';
+    html += '<h1 style="margin:0;font-size:28px;text-transform:uppercase;">' + m.nombre + '</h1>';
+    html += '<p style="margin:5px 0 0 0;opacity:0.8;font-size:12px;">INFORME DOCENTE 2026 | ' + m.dia + '</p></div>';
+    
+    html += '<div style="background:white;padding:30px;border-radius:0 0 15px 15px;border:1px solid #e2e8f0;border-top:none;">';
+
+    if (incLista) {
+        html += '<h2 style="color:#144E7E;border-bottom:2px solid #1FA194;padding-bottom:5px;">ASISTENCIA</h2><table><thead><tr><th>Estudiante</th>';
+        const fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
+        fechas.forEach(function(f) { html += '<th style="text-align:center;">' + f.split('-').reverse().slice(0,2).join('/') + '</th>'; });
+        html += '</tr></thead><tbody>';
+        (m.alumnos || []).forEach(function(al) {
+            html += '<tr><td style="font-weight:bold;">' + al.ape + ', ' + al.nom + '</td>';
+            fechas.forEach(function(f) {
+                const st = (m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-';
+                html += '<td style="text-align:center;font-weight:bold;">' + st + '</td>';
+            });
+            html += '</tr>';
+        });
+        html += '</tbody></table>';
+    }
+
+    if (pTema || pBiblio || pAct || pTarea) {
+        html += '<h2 style="color:#144E7E;border-bottom:2px solid #1FA194;padding-bottom:5px;">PLANIFICACIÓN DETALLADA</h2><table><thead><tr><th style="width:70px;">Fecha</th><th>Detalle de la Clase</th></tr></thead><tbody>';
+        Object.keys(m.planificacion || {}).sort().forEach(function(f) {
+            const p = m.planificacion[f];
+            if (!p.tema && !p.actClase) return;
+            html += '<tr><td style="font-weight:bold;">' + f.split('-').reverse().slice(0,2).join('/') + '</td><td>';
+            if (pTema && p.tema) html += '<div style="margin-bottom:5px;"><b>CONTENIDO:</b> ' + p.tema + '</div>';
+            if (pBiblio && p.biblio) html += '<div style="margin-bottom:5px;color:#666;"><b>BIBLIOGRAFÍA:</b> ' + p.biblio + '</div>';
+            if (pAct && p.actClase) html += '<div style="margin-bottom:5px;"><b>ACTIVIDAD:</b> ' + p.actClase + '</div>';
+            if (pTarea && p.actTarea) html += '<div style="padding:5px;background:#f0fdfa;border-left:3px solid #1FA194;"><b>TAREA:</b> ' + p.actTarea + '</div>';
+            html += '</td></tr>';
+        });
+        html += '</tbody></table>';
+    }
+
+    html += '</div><p style="text-align:center;font-size:9px;color:#999;margin-top:30px;letter-spacing:3px;">GENERADO POR NÓMADE AGENDA DOCENTE</p></body></html>';
+
+    win.document.write(html);
+    win.document.close();
+    closeModal('modal-export');
+}
         function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
         function copiarIA() { const t = document.getElementById("ia-output"); t.select(); document.execCommand("copy"); alert("Copiado!"); }
 
@@ -1184,58 +1246,7 @@ function saveClaseDetail(){
             openModal('modal-export');
         }
 
-function executeExport() {
-    var m = userData.materias.find(function(x) { return x.id === activeId; });
-    if (!m) {
-        alert("Seleccioná una materia primero");
-        return;
-    }
 
-    var win = window.open('', '_blank');
-    if (!win) {
-        alert("Por favor, permití las ventanas emergentes (pop-ups)");
-        return;
-    }
-
-    var html = '<html><head><title>Reporte Nómade</title>';
-    html += '<style>body{background:#FAF7F0;padding:40px;font-family:sans-serif;} table{width:100%;border-collapse:collapse;background:white;margin-top:20px;} th{background:#144E7E!important;color:white!important;padding:10px;font-size:10px;text-align:left;text-transform:uppercase;} td{border:1px solid #e2e8f0;padding:8px;font-size:12px;}</style></head><body>';
-    html += '<div style="background:#144E7E;color:white;padding:20px;border-radius:10px;">';
-    html += '<h1 style="margin:0;font-size:24px;">' + m.nombre + '</h1><p style="margin:0;opacity:0.7;font-size:12px;">REPORTE DOCENTE 2026</p></div>';
-    
-    if (document.getElementById('exp-lista').checked) {
-        html += '<h2>ASISTENCIA</h2><table><thead><tr><th>Alumno</th>';
-        var fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
-        fechas.forEach(function(f) { html += '<th>' + f.split('-').reverse().slice(0,2).join('/') + '</th>'; });
-        html += '</tr></thead><tbody>';
-        (m.alumnos || []).forEach(function(al) {
-            html += '<tr><td style="font-weight:bold;">' + al.ape + ', ' + al.nom + '</td>';
-            fechas.forEach(function(f) {
-                var st = (m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-';
-                html += '<td style="text-align:center;">' + st + '</td>';
-            });
-            html += '</tr>';
-        });
-        html += '</tbody></table>';
-    }
-    
-    html += '<br><button onclick="window.print()" style="background:#1FA194;color:white;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-weight:bold;">IMPRIMIR O GUARDAR PDF</button></body></html>';
-
-    win.document.write(html);
-    win.document.close();
-    closeModal('modal-export');
-}
-
-function showToast(msg) { 
-    var x = document.getElementById("toast-notification"); 
-    if(x){ x.innerText = msg; x.className = "show"; setTimeout(function(){ x.className = ""; }, 3000); } 
-}
-
-function showTutorial() { 
-    var mod = document.getElementById('modal-tutorial');
-    if(mod) mod.classList.remove('hidden'); 
-    tutStep = 1; 
-    updateTut(); 
-}
 
 function nextTutorial() { 
     if(tutStep < 4) { tutStep++; updateTut(); } 
@@ -1286,6 +1297,7 @@ window.onload = function() {
    </script>
 </body>
 </html>
+
 
 
 
