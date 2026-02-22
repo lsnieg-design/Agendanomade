@@ -540,11 +540,11 @@
     </button>
     
     <a href="javascript:void(0)" 
-       onclick="executeExport(event)" 
-       id="btn-export-final" 
-       class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 active:scale-95 cursor-pointer decoration-0">
-        <i data-lucide="printer" class="w-4 h-4"></i> GENERAR REPORTE AHORA
-    </a>
+   onclick="setTimeout(() => executeExport(event), 10)" 
+   id="btn-export-final" 
+   class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 active:scale-95 cursor-pointer decoration-0">
+    <i data-lucide="printer" class="w-4 h-4"></i> GENERAR REPORTE AHORA
+</a>
 </div>
         </div>
     </div>
@@ -1190,37 +1190,37 @@ function saveClaseDetail(){
             openModal('modal-export');
         }
 
- function executeExport(e) {
-    // 1. Detener cualquier otro proceso del navegador
-    if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
+function executeExport(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
 
-    const m = userData.materias.find(function(x) { return x.id === activeId; });
-    if (!m) return alert("Seleccioná una materia primero");
-
-    // 2. Abrir la ventana inmediatamente (antes de procesar datos)
+    // 1. ABRIR VENTANA AL INSTANTE (Antes que cualquier otra cosa)
     const win = window.open('', '_blank');
-    if (!win) return alert("Por favor, permití los pop-ups en la barra de direcciones");
+    if (!win) return alert("Por favor, habilitá los pop-ups en la barra de direcciones.");
+
+    // 2. BUSCAR DATOS (Ahora que la ventana ya está abierta)
+    const m = userData.materias.find(x => x.id === activeId);
+    if (!m) {
+        win.close();
+        return alert("No se encontró la materia.");
+    }
 
     const docName = document.getElementById('dash-name').innerText || 'Docente';
     const incLista = document.getElementById('exp-lista').checked;
 
-    // 3. Construir el reporte simple y rápido
-    var h = '<html><head><title>Reporte Nómade</title>';
+    // 3. LLENAR LA VENTANA
+    let h = '<html><head><title>Nómade - ' + m.nombre + '</title>';
     h += '<style>body{background:#FAF7F0;padding:40px;font-family:sans-serif;} .header{background:#144E7E;color:white;padding:20px;border-radius:10px;} table{width:100%;border-collapse:collapse;margin-top:20px;background:white;} th{background:#144E7E;color:white;padding:10px;text-align:left;} td{border:1px solid #ddd;padding:8px;}</style></head><body>';
     h += '<div class="header"><h1>' + m.nombre + '</h1><p>DOCENTE: ' + docName + '</p></div>';
 
     if (incLista) {
-        h += '<h2>ASISTENCIA</h2><table><thead><tr><th>Estudiante</th>';
-        var fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
-        fechas.forEach(function(f) { h += '<th>' + f.split('-').reverse().slice(0,2).join('/') + '</th>'; });
+        h += '<h2>ASISTENCIA</h2><table><thead><tr><th>Alumno</th>';
+        let fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
+        fechas.forEach(f => h += '<th>' + f.split('-').reverse().slice(0,2).join('/') + '</th>');
         h += '</tr></thead><tbody>';
-        (m.alumnos || []).forEach(function(al) {
+        (m.alumnos || []).forEach(al => {
             h += '<tr><td style="font-weight:bold;">' + al.ape + ', ' + al.nom + '</td>';
-            fechas.forEach(function(f) {
-                var st = (m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-';
+            fechas.forEach(f => {
+                let st = (m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-';
                 h += '<td style="text-align:center">' + st + '</td>';
             });
             h += '</tr>';
@@ -1233,7 +1233,7 @@ function saveClaseDetail(){
     win.document.write(h);
     win.document.close();
 
-    // 4. Cerrar el modal al instante
+    // 4. CERRAR MODAL
     closeModal('modal-export');
 }
         function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
@@ -1367,6 +1367,7 @@ function abrirLinkDesdeClase(inputId) {
     </script>
 </body>
 </html>
+
 
 
 
