@@ -536,8 +536,8 @@
             <input type="hidden" id="export-type">
             <div class="flex gap-2">
                 <button onclick="closeModal('modal-export')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider">CANCELAR</button>
-                <button onclick="executeExport()" class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95">
-    <i data-lucide="download" class="w-4 h-4"></i> EXPORTAR AHORA
+              <button onclick="executeExport()" class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2">
+    <i data-lucide="printer" class="w-4 h-4"></i> GENERAR REPORTE
 </button>
             </div>
         </div>
@@ -1184,67 +1184,94 @@ function saveClaseDetail(){
             openModal('modal-export');
         }
 
-  function executeExport() {
-    try {
-        const m = userData.materias.find(x => x.id === activeId);
-        const t = document.getElementById('export-type').value;
-        const dashNameEl = document.getElementById('dash-name');
-        const docName = dashNameEl ? (dashNameEl.innerText || 'Docente') : 'Docente';
+ function executeExport() {
+    const m = userData.materias.find(x => x.id === activeId);
+    if (!m) return alert("No se encontró la materia");
+
+    const dashNameEl = document.getElementById('dash-name');
+    const docName = dashNameEl ? dashNameEl.innerText : 'Docente';
+    
+    // Checkboxes
+    const incLista = document.getElementById('exp-lista').checked;
+    const incNotas = document.getElementById('exp-notas').checked;
+    const pTema = document.getElementById('exp-plan-tema').checked;
+    const pAct = document.getElementById('exp-plan-act').checked;
+
+    // Crear ventana nueva
+    const win = window.open('', '_blank');
+    
+    let html = `
+    <html>
+    <head>
+        <title>Reporte Nómade - ${m.nombre}</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            @media print { .no-print { display: none; } }
+            body { background-color: white; font-family: sans-serif; padding: 20px; }
+        </style>
+    </head>
+    <body class="p-8">
+        <div class="no-print flex justify-between mb-8 bg-gray-100 p-4 rounded-xl">
+            <p class="text-sm font-bold text-gray-600">Vista de impresión Nómade</p>
+            <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">IMPRIMIR / GUARDAR PDF</button>
+        </div>
+
+        <div class="border-b-2 border-blue-800 pb-4 mb-6">
+            <h1 class="text-3xl font-black text-blue-900 uppercase">${m.nombre}</h1>
+            <p class="text-gray-500 font-bold uppercase tracking-widest text-sm">Docente: ${docName} | Horario: ${m.dia} (${m.horario || '---'})</p>
+        </div>`;
+
+    if (incLista) {
+        html += `<h2 class="text-xl font-bold mb-4 text-blue-800 border-l-4 border-blue-800 pl-2">Asistencia</h2>
+                 <table class="w-full text-sm border-collapse mb-8">
+                    <thead><tr class="bg-gray-200">
+                        <th class="border p-2 text-left">Alumno</th>`;
+        let fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
+        fechas.forEach(f => html += `<th class="border p-2 text-[10px]">${f.split('-').reverse().join('/')}</th>`);
+        html += `</tr></thead><tbody>`;
         
-        const incListaAsist = document.getElementById('exp-lista').checked;
-        const incNotas = document.getElementById('exp-notas').checked;
-        const cl = (s) => (s ? String(s).replace(/"/g, '""').replace(/\n/g, ' ').trim() : '');
-
-        if (t === 'xls') {
-            // --- EXCEL MODO INFALIBLE ---
-            let csv = `MATERIA:,${cl(m.nombre)}\nDOCENTE:,${cl(docName)}\n\n`;
-            
-            if (incListaAsist || incNotas) {
-                csv += "APELLIDO,NOMBRE";
-                let fechasAsist = (m.asistencias) ? Object.keys(m.asistencias).sort() : [];
-                if (incListaAsist) fechasAsist.forEach(f => csv += `,Asist. ${f}`);
-                csv += "\n";
-
-                (m.alumnos || []).forEach(al => {
-                    let row = `"${cl(al.ape)}","${cl(al.nom)}"`;
-                    if (incListaAsist) fechasAsist.forEach(f => row += `,${(m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-'}`);
-                    csv += row + "\n";
-                });
-            }
-
-            // Método de descarga que salta cualquier bloqueo de seguridad
-            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const link = document.createElement('a');
-                link.href = e.target.result;
-                link.download = `Nomade_${cl(m.nombre).replace(/ /g, '_')}.csv`;
-                link.click();
-            };
-            reader.readAsDataURL(blob);
-
-        } else {
-            // --- PDF MODO SIMPLE (PARA TESTEAR BLOQUEO) ---
-            if (typeof window.jspdf === 'undefined') return alert("Cargando...");
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            doc.setFontSize(20);
-            doc.text("REPORTE NOMADE", 10, 20);
-            doc.setFontSize(12);
-            doc.text(`Materia: ${cl(m.nombre)}`, 10, 35);
-            doc.text(`Docente: ${cl(docName)}`, 10, 45);
-            
-            // Si esto descarga DE UNA, el problema es la librería autoTable
-            doc.save(`Nomade_${cl(m.nombre).replace(/ /g, '_')}.pdf`);
-        }
-
-        // Cerramos el modal inmediatamente sin esperar a nadie
-        closeModal('modal-export');
-
-    } catch (error) {
-        alert("Error crítico: " + error.message);
+        (m.alumnos || []).forEach(al => {
+            html += `<tr><td class="border p-2 font-bold">${al.ape}, ${al.nom}</td>`;
+            fechas.forEach(f => {
+                let st = m.asistencias[f][al.id] || '-';
+                html += `<td class="border p-2 text-center">${st}</td>`;
+            });
+            html += `</tr>`;
+        });
+        html += `</tbody></table>`;
     }
+
+    if (pTema || pAct) {
+        html += `<h2 class="text-xl font-bold mb-4 text-teal-700 border-l-4 border-teal-700 pl-2 uppercase">Planificación</h2>
+                 <table class="w-full text-sm border-collapse">
+                    <thead><tr class="bg-gray-100">
+                        <th class="border p-2 text-left w-20">Fecha</th>
+                        ${pTema ? '<th class="border p-2 text-left">Contenido / Tema</th>' : ''}
+                        ${pAct ? '<th class="border p-2 text-left">Actividad / Tarea</th>' : ''}
+                    </tr></thead><tbody>`;
+        
+        Object.keys(m.planificacion || {}).sort().forEach(f => {
+            const p = m.planificacion[f];
+            if (!p.tema && !p.actClase) return;
+            html += `<tr>
+                <td class="border p-2 font-bold">${f.split('-').reverse().join('/')}</td>
+                ${pTema ? `<td class="border p-2">${p.tema || '-'}</td>` : ''}
+                ${pAct ? `<td class="border p-2">${p.actClase || '-'}</td>` : ''}
+            </tr>`;
+        });
+        html += `</tbody></table>`;
+    }
+
+    html += `
+        <footer class="mt-12 pt-4 border-t text-[10px] text-gray-400 text-center uppercase tracking-widest">
+            Generado por Nómade Agenda Docente - 2026
+        </footer>
+    </body>
+    </html>`;
+
+    win.document.write(html);
+    win.document.close();
+    closeModal('modal-export');
 }
         function showToast(msg) { const x=document.getElementById("toast-notification"); if(x){x.innerText=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""), 3000);} }
 
@@ -1378,6 +1405,7 @@ function abrirLinkDesdeClase(inputId) {
     </script>
 </body>
 </html>
+
 
 
 
