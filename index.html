@@ -1012,79 +1012,24 @@ function saveClaseDetail(){
         function cancelarLista(){nav('aula');}
 
         // ==========================================
-        // 8. CUADERNO MEJORADO (LÓGICA)
-        // ==========================================
-        let penColor='#000000', penSize=2, canvas, ctx, drawing=false, lastX=0, lastY=0, activeNoteId=null;
-        let stylusMode = false;
+// 8. CUADERNO AVANZADO (TABLET & ZOOM)
+// ==========================================
+let penColor = '#000000', penSize = 2, activeNoteId = null;
+let scale = 1, isStylusOnly = false;
 
-        function setDrawColor(c){ penColor=c; } function setDrawSize(s){ penSize=s; } function setTool(t){ penColor = t==='eraser' ? '#FFFFFF' : document.getElementById('draw-color').value; penSize = t==='eraser' ? 20 : 2; }
-        
-        function setBg(clase) {
-            document.getElementById('canvas-container').className = `flex-1 shadow-inner border border-gray-200 rounded-lg overflow-hidden relative touch-none ${clase}`;
-        }
-
-        function toggleStylusMode() {
-            stylusMode = !stylusMode;
-            const btn = document.getElementById('btn-stylus');
-            const txt = document.getElementById('stylus-text');
-            if (stylusMode) {
-                btn.classList.replace('bg-white', 'bg-nomade-blue');
-                btn.classList.replace('text-gray-400', 'text-white');
-                txt.innerText = "SOLO LÁPIZ ON";
-                txt.classList.remove('hidden');
-            } else {
-                btn.classList.replace('bg-nomade-blue', 'bg-white');
-                btn.classList.replace('text-white', 'text-gray-400');
-                txt.innerText = "SOLO LÁPIZ OFF";
-                txt.classList.add('hidden');
-            }
-        }
-
-        function createNote(type){ if(!userData.notas) userData.notas = []; userData.notas.unshift({id:Date.now(), title:document.getElementById('new-nota-title').value || 'Nota', type:type, content:''}); saveData(); closeModal('modal-new-nota'); document.getElementById('new-nota-title').value = ''; openNoteEditor(0); }
-        function renderNotesList(){ const l=document.getElementById('lista-notas'); l.innerHTML=''; if(!userData.notas || userData.notas.length===0) { document.getElementById('no-notas').classList.remove('hidden'); return; } document.getElementById('no-notas').classList.add('hidden'); userData.notas.forEach((n,i)=>l.innerHTML+=`<div onclick="openNoteEditor(${i})" class="bg-white p-4 shadow rounded-xl cursor-pointer border-l-4 ${n.type==='text'?'border-blue-500':'border-purple-500'} relative group"><span class="font-bold text-sm">${n.title}</span><button onclick="event.stopPropagation(); deleteNote(${i})" class="absolute top-2 right-2 text-red-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4"></i></button></div>`); lucide.createIcons(); }
-        function deleteNote(i){ if(confirm("¿Borrar?")) { userData.notas.splice(i,1); saveData(); renderNotesList(); } }
-        function openNoteEditor(i) {
-    const n = userData.notas[i];
-    activeNoteId = n.id;
-    // Permitir editar el título directamente
-    document.getElementById('editor-title').innerHTML = `<input type="text" value="${n.title}" onchange="updateNoteTitle(${i}, this.value)" class="bg-transparent border-b border-white/30 outline-none text-center w-full">`;
-    
-    const t = document.getElementById('editor-text');
-    const d = document.getElementById('editor-draw');
-    document.getElementById('editor-nota').classList.remove('hidden');
-    
-    if (n.type === 'draw') {
-        t.classList.add('hidden');
-        d.classList.remove('hidden');
-        setTimeout(() => initCanvas(n.content), 100);
-    } else {
-        t.classList.remove('hidden');
-        d.classList.add('hidden');
-        t.value = n.content || '';
-    }
-}
-
-function updateNoteTitle(i, newTitle) {
-    userData.notas[i].title = newTitle;
-    saveData();
-} function closeEditor(){ document.getElementById('editor-nota').classList.add('hidden'); renderNotesList(); }
-        function saveCurrentNote(){ const i=userData.notas.findIndex(n=>n.id===activeNoteId); if(i===-1)return; if(userData.notas[i].type==='text'){ userData.notas[i].content=document.getElementById('editor-text').value; } else { userData.notas[i].content=canvas.toDataURL(); } saveData(); 
-            const btn = document.querySelector('#editor-nota button.bg-nomade-blue'); 
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> ¡LISTO!';
-            btn.classList.replace('bg-nomade-blue', 'bg-green-500'); 
-            setTimeout(() => { btn.innerHTML = originalText; btn.classList.replace('bg-green-500', 'bg-nomade-blue'); lucide.createIcons(); }, 2000);
-        }
-
-       let scale = 1;
-let isStylusOnly = false;
+function setDrawColor(c) { penColor = c; }
+function setDrawSize(s) { penSize = s; }
+function setTool(t) { penColor = (t === 'eraser') ? '#FFFFFF' : document.getElementById('draw-color').value; penSize = (t === 'eraser') ? 20 : 2; }
+function setBg(clase) { document.getElementById('drawing-canvas').className = "shadow-lg mx-auto " + clase; }
 
 function toggleStylusMode() {
     isStylusOnly = !isStylusOnly;
     const btn = document.getElementById('btn-stylus-lock');
-    btn.classList.toggle('bg-nomade-blue', isStylusOnly);
-    btn.classList.toggle('text-white', isStylusOnly);
-    showToast(isStylusOnly ? "Modo Lápiz: Dedos solo para mover/zoom" : "Modo Libre: Escritura táctil activa");
+    if(btn) {
+        btn.classList.toggle('bg-nomade-blue', isStylusOnly);
+        btn.classList.toggle('text-white', isStylusOnly);
+    }
+    showToast(isStylusOnly ? "Modo Lápiz: Dedos solo para mover/zoom" : "Modo Libre activo");
 }
 
 function initCanvas(src) {
@@ -1093,60 +1038,49 @@ function initCanvas(src) {
     const wrapper = document.getElementById('canvas-zoom-wrapper');
     const container = document.getElementById('canvas-scroll-container');
 
-    // Definimos un lienzo largo (ej: 3000px de alto)
     canvas.width = container.clientWidth * 2; 
     canvas.height = 5000; 
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    if(src) {
+    if(src && src.startsWith('data:image')) {
         const img = new Image();
         img.onload = () => ctx.drawImage(img, 0, 0);
         img.src = src;
     }
 
     let drawing = false;
-    let lastX = 0; let lastY = 0;
+    let lastX = 0, lastY = 0;
 
-    // --- MANEJO DE EVENTOS DE PUNTERO (Stylus vs Dedo) ---
-    canvas.addEventListener('pointerdown', (e) => {
-        // Si está activo "Solo Lápiz" e intentas usar el dedo, no dibuja
+    canvas.onpointerdown = (e) => {
         if (isStylusOnly && e.pointerType === 'touch') return;
-        
         drawing = true;
         const rect = canvas.getBoundingClientRect();
         lastX = (e.clientX - rect.left) / scale;
         lastY = (e.clientY - rect.top) / scale;
-    });
+    };
 
-    canvas.addEventListener('pointermove', (e) => {
+    canvas.onpointermove = (e) => {
         if (!drawing) return;
         if (isStylusOnly && e.pointerType === 'touch') return;
-
         const rect = canvas.getBoundingClientRect();
         const currX = (e.clientX - rect.left) / scale;
         const currY = (e.clientY - rect.top) / scale;
-
         ctx.beginPath();
         ctx.moveTo(lastX, lastY);
         ctx.lineTo(currX, currY);
         ctx.strokeStyle = penColor;
         ctx.lineWidth = e.pointerType === 'pen' ? penSize * (e.pressure || 1) * 2 : penSize;
         ctx.stroke();
-
         lastX = currX; lastY = currY;
-    });
+    };
 
-    canvas.addEventListener('pointerup', () => drawing = false);
+    canvas.onpointerup = () => drawing = false;
 
-    // --- ZOOM CON PELLIZCO (Multi-touch) ---
     let initialDist = 0;
-    container.addEventListener('touchmove', (e) => {
+    container.ontouchmove = (e) => {
         if (e.touches.length === 2) {
-            const dist = Math.hypot(
-                e.touches[0].pageX - e.touches[1].pageX,
-                e.touches[0].pageY - e.touches[1].pageY
-            );
+            const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
             if (initialDist === 0) initialDist = dist;
             else {
                 scale = Math.min(Math.max(0.5, scale * (dist / initialDist)), 3);
@@ -1154,79 +1088,59 @@ function initCanvas(src) {
                 initialDist = dist;
             }
         }
-    }, { passive: false });
-
-    container.addEventListener('touchend', () => initialDist = 0);
+    };
+    container.ontouchend = () => initialDist = 0;
 }
-            function getPos(e) { 
-                const r = canvas.getBoundingClientRect(); 
-                return { x: e.clientX - r.left, y: e.clientY - r.top }; 
-            }
 
-            function start(e) {
-                if (stylusMode && e.pointerType !== 'pen') return;
-                drawing = true;
-                const pos = getPos(e);
-                lastX = pos.x; lastY = pos.y;
-                e.preventDefault();
-            }
+// ==========================================
+// 9. UTILIDADES (CALENDARIO, TAREAS, EXPORT)
+// ==========================================
+function changeMonth(s) { 
+    currentMonth += s; 
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; } 
+    else if (currentMonth < 0) { currentMonth = 11; currentYear--; } 
+    renderCalendar(currentMonth, currentYear); 
+}
 
-            function move(e) {
-                if (!drawing) return;
-                if (stylusMode && e.pointerType !== 'pen') return;
-                const pos = getPos(e);
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(pos.x, pos.y);
-                ctx.strokeStyle = penColor;
-                ctx.lineWidth = penSize;
-                ctx.lineCap = 'round';
-                ctx.stroke();
-                lastX = pos.x; lastY = pos.y;
-                e.preventDefault();
-            }
+function renderCalendar(m, y) {
+    const mos = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    document.getElementById('cal-month-year').innerText = `${mos[m]} ${y}`;
+    const f = new Date(y, m, 1).getDay();
+    const d = new Date(y, m + 1, 0).getDate();
+    const g = document.getElementById('calendar-grid');
+    g.innerHTML = '';
+    for (let i = 0; i < f; i++) g.innerHTML += '<div></div>';
+    for (let i = 1; i <= d; i++) {
+        const iso = new Date(y, m, i).toISOString().split('T')[0];
+        let dots = userData.eventos?.[iso] ? `<div class="w-1.5 h-1.5 bg-nomade-green rounded-full mx-auto mt-1"></div>` : '';
+        g.innerHTML += `<div onclick="openDayEvents('${iso}')" class="calendar-day border rounded p-1 hover:bg-gray-50 text-center cursor-pointer"><span class="text-xs">${i}</span>${dots}</div>`;
+    }
+}
 
-            function end() { drawing = false; }
+function openDayEvents(iso) { 
+    activeCalISO = iso; 
+    document.getElementById('event-date-title').innerText = iso.split('-').reverse().join('/');
+    const l = document.getElementById('day-events-list'); 
+    l.innerHTML = ''; 
+    userData.eventos?.[iso]?.forEach((e, i) => l.innerHTML += `<div class="flex justify-between border-b p-2 text-sm"><span>${e}</span><button onclick="delEvent('${iso}',${i})" class="text-red-500">✕</button></div>`); 
+    openModal('modal-cal-event'); 
+}
 
-            canvas.addEventListener('pointerdown', start, { passive: false });
-            canvas.addEventListener('pointermove', move, { passive: false });
-            canvas.addEventListener('pointerup', end);
-            canvas.addEventListener('pointercancel', end);
-        }
-
-        function clearCanvas(){ 
-            if(confirm("¿Limpiar?")) ctx.clearRect(0, 0, canvas.width, canvas.height); 
-        }
-
-        // ==========================================
-        // 9. UTILIDADES (CALENDARIO, TAREAS, EXPORT, IA, IMPORT)
-        // ==========================================
-        function changeMonth(s){currentMonth+=s; if(currentMonth>11){currentMonth=0;currentYear++}else if(currentMonth<0){currentMonth=11;currentYear--} renderCalendar(currentMonth,currentYear);}
-        function renderCalendar(m,y){const mos=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"]; document.getElementById('cal-month-year').innerText=`${mos[m]} ${y}`; const f=new Date(y,m,1).getDay(), d=new Date(y,m+1,0).getDate(), g=document.getElementById('calendar-grid'); g.innerHTML=''; for(let i=0;i<f;i++)g.innerHTML+='<div></div>'; for(let i=1;i<=d;i++){ const iso=new Date(y,m,i).toISOString().split('T')[0]; let dots=''; if(userData.eventos?.[iso]) dots=`<div class="w-1.5 h-1.5 bg-nomade-green rounded-full"></div>`; g.innerHTML+=`<div onclick="openDayEvents('${iso}')" class="calendar-day flex flex-col items-center border rounded hover:bg-gray-50"><span class="text-xs">${i}</span>${dots}</div>`;}}
-        function openDayEvents(iso){activeCalISO=iso; document.getElementById('event-date-title').innerText=iso; const l=document.getElementById('day-events-list'); l.innerHTML=''; userData.eventos?.[iso]?.forEach((e,i)=>l.innerHTML+=`<div class="flex justify-between border-b p-1"><span>${e}</span><button onclick="delEvent('${iso}',${i})">X</button></div>`); openModal('modal-cal-event');}
-        function addCalendarEvent() {
+function addCalendarEvent() {
     const t = document.getElementById('new-event-text').value;
     if (!t.trim()) return;
     if (!userData.eventos) userData.eventos = {};
     if (!userData.eventos[activeCalISO]) userData.eventos[activeCalISO] = [];
-    
     userData.eventos[activeCalISO].push(t);
     document.getElementById('new-event-text').value = '';
-    
-    saveData(); // Guardamos en la nube
+    saveData();
     closeModal('modal-cal-event');
-    renderCalendar(currentMonth, currentYear); // Refrescamos vista
-    showToast("Evento guardado");
+    renderCalendar(currentMonth, currentYear);
 }
-       function delEvent(iso,i){userData.eventos[iso].splice(i,1); saveData(); openDayEvents(iso);}
-        
-        let touchStartX = 0; let touchEndX = 0;
-        const calendarioZona = document.getElementById('view-calendario');
-        calendarioZona.addEventListener('touchstart', function(event) { touchStartX = event.changedTouches[0].screenX; }, false);
-        calendarioZona.addEventListener('touchend', function(event) { touchEndX = event.changedTouches[0].screenX; handleSwipe(); }, false);
-        function handleSwipe() { const threshold = 50; if (touchEndX < touchStartX - threshold) { changeMonth(1); } if (touchEndX > touchStartX + threshold) { changeMonth(-1); } }
 
-       function renderTareas() {
+function delEvent(iso, i) { userData.eventos[iso].splice(i, 1); saveData(); openDayEvents(iso); renderCalendar(currentMonth, currentYear); }
+
+function renderTareas() {
     const l = document.getElementById('lista-tareas');
     l.innerHTML = '';
     if (!userData.tareas) userData.tareas = [];
@@ -1234,180 +1148,44 @@ function initCanvas(src) {
         l.innerHTML += `
         <div class="flex items-center gap-2 p-2 border-b group">
             <input type="checkbox" ${t.done ? 'checked' : ''} onchange="togTarea(${i})" class="w-4 h-4 accent-nomade-green">
-            <input type="text" value="${t.text}" 
-                onchange="editTarea(${i}, this.value)"
-                class="flex-1 bg-transparent outline-none text-sm ${t.done ? 'line-through opacity-50' : ''}">
-            <button onclick="delTarea(${i})" class="text-red-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
-            </button>
+            <input type="text" value="${t.text}" onchange="editTarea(${i}, this.value)" class="flex-1 bg-transparent outline-none text-sm ${t.done ? 'line-through opacity-50' : ''}">
+            <button onclick="delTarea(${i})" class="text-red-300 hover:text-red-500 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
         </div>`;
     });
     lucide.createIcons();
 }
 
-function editTarea(i, val) {
-    userData.tareas[i].text = val;
-    saveData();
-}
-       function guardarTarea(){userData.tareas.push({text:document.getElementById('input-tarea-txt').value, done:false}); saveData(); closeModal('modal-tarea'); renderTareas();}
-        function togTarea(i){userData.tareas[i].done=!userData.tareas[i].done; saveData(); renderTareas();}
-        function delTarea(i){userData.tareas.splice(i,1); saveData(); renderTareas();}
+function editTarea(i, val) { userData.tareas[i].text = val; saveData(); }
+function togTarea(i) { userData.tareas[i].done = !userData.tareas[i].done; saveData(); renderTareas(); }
 
-        function openModal(id){document.getElementById(id).classList.remove('hidden');}
-        function closeModal(id) {
-    const modal = document.getElementById(id);
-    if (modal) modal.classList.add('hidden');
-}
-        function setTab(t){['crono','alumnos','notas'].forEach(x=>{document.getElementById('tab-'+x).classList.add('hidden'); document.getElementById('btn-'+x).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400';}); document.getElementById('tab-'+t).classList.remove('hidden'); document.getElementById('btn-'+t).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-nomade-blue text-white'; if(t==='crono')renderCrono(); if(t==='alumnos')renderAlum(); if(t==='notas')renderNotas();}
-        
-        function openImportModal(){document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('input-import-text').value='';}
-        function processImport(){
-    const raw = document.getElementById('input-import-text').value; 
-    if(!raw.trim()){ alert("No pegaste nada 😅"); return; } 
-    
-    const lines = raw.split('\n'); 
-    const m = userData.materias.find(x => x.id === activeId); 
-    if(!m.planificacion) m.planificacion = {}; 
-    let count = 0; 
-    
-    // Función para limpiar comillas raras de Excel
-    const clean = (txt) => (txt || '').replace(/^"|"$/g, '').replace(/""/g, '"').trim();
-
-    lines.forEach(line => {
-        const parts = line.split('\t'); 
-        // Si hay al menos 2 columnas (Fecha y Tema), procedemos
-        if(parts.length >= 2){
-            const dateRaw = parts[0].trim(); 
-            const match = dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/); 
-            
-            if(match){
-                const day = match[1].padStart(2,'0'); 
-                const month = match[2].padStart(2,'0'); 
-                const year = match[3].length === 2 ? '20'+match[3] : match[3]; 
-                const isoDate = `${year}-${month}-${day}`; 
-                
-                // Extraemos las 5 columnas!
-                const tema = clean(parts[1]); 
-                const biblio = clean(parts[2]); 
-                const actClase = clean(parts[3]); 
-                const actTarea = clean(parts[4]); // <-- Acá atrapa la tarea
-                
-                if(tema || actClase){ 
-                    m.planificacion[isoDate] = {
-                        tema: tema,
-                        biblio: biblio,
-                        actClase: actClase,
-                        actTarea: actTarea
-                    }; 
-                    count++;
-                }
-            }
-        }
-    }); 
-    
-    saveData(); 
-    alert(`✅ ¡Éxito! Se importaron ${count} clases.`); 
-    closeModal('modal-import'); 
-    renderCrono();
-}
-        function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
-        function copiarIA() { const t = document.getElementById("ia-output"); t.select(); document.execCommand("copy"); alert("Copiado!"); }
-
-     function executeExport(e) {
+function executeExport(e) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
-    console.log("🚀 Iniciando exportación...");
-
-    const m = userData.materias.find(function(x) { return x.id === activeId; });
+    const m = userData.materias.find(x => x.id === activeId);
     if (!m) return alert("Seleccioná una materia primero");
-
-    // 1. Abrir ventana de inmediato para evitar bloqueos
     const win = window.open('', '_blank');
-    if (!win) return alert("Por favor, habilitá las ventanas emergentes (pop-ups)");
-
-    const docName = document.getElementById('dash-name').innerText || 'Docente';
-    const incLista = document.getElementById('exp-lista').checked;
-    const pTema = document.getElementById('exp-plan-tema').checked;
-    const pBiblio = document.getElementById('exp-plan-biblio').checked;
-    const pAct = document.getElementById('exp-plan-act').checked;
-    const pTarea = document.getElementById('exp-plan-tarea').checked;
-
-    // 2. Construir el reporte con el diseño de Nómade
-    var h = '<html><head><title>Reporte Nómade - ' + m.nombre + '</title>';
-    h += '<style>body{background:#FAF7F0;padding:40px;font-family:sans-serif;color:#2C3E50;} .header{background:#144E7E;color:white;padding:30px;border-radius:15px;margin-bottom:20px;} table{width:100%;border-collapse:collapse;background:white;margin-bottom:20px;} th{background:#144E7E;color:white;padding:12px;text-align:left;font-size:10px;text-transform:uppercase;} td{border:1px solid #e2e8f0;padding:10px;font-size:12px;vertical-align:top;} .badge-tarea{background:#F0FDFA;padding:5px;border-radius:5px;border:1px solid #1FA194;font-size:10px;margin-top:5px;}</style></head><body>';
-    
-    h += '<div class="header"><h1>' + m.nombre + '</h1><p>DOCENTE: ' + docName.toUpperCase() + '</p></div>';
-
-    if (incLista) {
-        h += '<h2>ASISTENCIA Y ALUMNOS</h2><table><thead><tr><th>Alumno</th>';
-        var fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
-        fechas.forEach(function(f) { h += '<th>' + f.split('-').reverse().slice(0,2).join('/') + '</th>'; });
-        h += '</tr></thead><tbody>';
-        (m.alumnos || []).forEach(function(al) {
-            h += '<tr><td style="font-weight:bold;">' + al.ape + ', ' + al.nom + '</td>';
-            fechas.forEach(function(f) {
-                var st = (m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-';
-                h += '<td style="text-align:center; font-weight:bold;">' + st + '</td>';
-            });
-            h += '</tr>';
-        });
+    if (!win) return alert("Habilitá los pop-ups");
+    const docName = document.getElementById('dash-name').innerText;
+    let h = `<html><head><title>Reporte Nómade</title><style>body{font-family:sans-serif;padding:40px;background:#FAF7F0} .header{background:#144E7E;color:white;padding:20px;border-radius:10px} table{width:100%;border-collapse:collapse;margin-top:20px;background:white} th{background:#144E7E;color:white;padding:10px;text-align:left} td{border:1px solid #ddd;padding:8px}</style></head><body><div class="header"><h1>${m.nombre}</h1><p>DOCENTE: ${docName}</p></div>`;
+    if (document.getElementById('exp-lista').checked) {
+        h += '<h2>ALUMNOS</h2><table><thead><tr><th>Nombre</th></tr></thead><tbody>';
+        m.alumnos.forEach(al => h += `<tr><td>${al.ape}, ${al.nom}</td></tr>`);
         h += '</tbody></table>';
     }
-
-    if (pTema || pAct) {
-        h += '<h2>PLANIFICACIÓN DIDÁCTICA</h2><table><thead><tr><th style="width:80px;">Fecha</th><th>Contenidos y Actividades</th></tr></thead><tbody>';
-        Object.keys(m.planificacion || {}).sort().forEach(function(f) {
-            var p = m.planificacion[f];
-            if (!p.tema && !p.actClase) return;
-            h += '<tr><td style="font-weight:bold;">' + f.split('-').reverse().slice(0,2).join('/') + '</td><td>';
-            if (pTema && p.tema) h += '<div style="margin-bottom:5px;"><b>TEMA:</b> ' + p.tema + '</div>';
-            if (pBiblio && p.biblio) h += '<div style="font-size:10px; color:#666;"><b>BIBLIO:</b> ' + p.biblio + '</div>';
-            if (pAct && p.actClase) h += '<div style="margin-top:5px;"><b>ACTIVIDAD:</b> ' + p.actClase + '</div>';
-            if (pTarea && p.actTarea) h += '<div class="badge-tarea"><b>TAREA:</b> ' + p.actTarea + '</div>';
-            h += '</td></tr>';
-        });
-        h += '</tbody></table>';
-    }
-
-    h += '<br><div style="text-align:center;"><button onclick="window.print()" style="background:#1FA194;color:white;padding:15px 30px;border-radius:10px;border:none;cursor:pointer;font-weight:bold;">DESCARGAR PDF / IMPRIMIR</button></div>';
-    h += '</body></html>';
-
-    win.document.write(h);
-    win.document.close();
-         setTimeout(() => {
-        closeModal('modal-export');
-        console.log("✅ Interfaz liberada");
-    }, 100);
-    closeModal('modal-export');
+    h += '<br><button onclick="window.print()">IMPRIMIR</button></body></html>';
+    win.document.write(h); win.document.close();
+    setTimeout(() => { closeModal('modal-export'); }, 100);
 }
 
 function openExportModal(t) {
-    console.log("🚀 PASO 1: Forzando apertura para:", t);
     const input = document.getElementById('export-type');
     if (input) input.value = t;
-
     const modal = document.getElementById('modal-export');
-    if (modal) {
-        // 1. Limpiamos cualquier clase de Tailwind que lo oculte
-        modal.classList.remove('hidden');
-        
-        // 2. FORZAMOS EL ESTILO MANUAL (Esto es lo que destraba el botón)
-        modal.style.setProperty('display', 'flex', 'important');
-        modal.style.setProperty('visibility', 'visible', 'important');
-        modal.style.setProperty('opacity', '1', 'important');
-        
-        // 3. Le pedimos al navegador que se "despierte"
-        modal.focus();
-        
-        console.log("✅ PASO 2: El modal debe aparecer SI O SI.");
-    }
+    if (modal) { modal.classList.remove('hidden'); modal.style.display = 'flex'; modal.focus(); }
 }
 
-function closeModal(id) {
-    const modal = document.getElementById(id);
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.style.display = 'none';
-    }
+function closeModal(id) { 
+    const modal = document.getElementById(id); 
+    if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; } 
 }
 
 function showToast(msg) { 
@@ -1417,7 +1195,6 @@ function showToast(msg) {
 
 function showTutorial() { document.getElementById('modal-tutorial').classList.remove('hidden'); tutStep = 1; updateTut(); }
 function nextTutorial() { if(tutStep < 4) { tutStep++; updateTut(); } else { closeModal('modal-tutorial'); } }
-
 function updateTut() {
     for(let i=1; i<=4; i++) {
         document.getElementById(`tut-step-${i}`).classList.add('hidden');
@@ -1425,37 +1202,31 @@ function updateTut() {
     }
     document.getElementById(`tut-step-${tutStep}`).classList.remove('hidden');
     document.getElementById(`dot-${tutStep}`).className = "w-2 h-2 rounded-full bg-nomade-green";
-    document.getElementById('btn-tut-next').innerText = tutStep === 4 ? '¡COMENZAR!' : 'SIGUIENTE ➝';
 }
 
-function togglePass(idInput, idIcon) {
-    const input = document.getElementById(idInput);
-    input.type = (input.type === "password") ? "text" : "password";
-}
+function togglePass(idInput, idIcon) { document.getElementById(idInput).type = (document.getElementById(idInput).type === "password") ? "text" : "password"; }
 
 async function guardarNuevaPassPropia() {
     const newPass = document.getElementById('input-new-own-pass').value;
-    if (newPass.length < 6) return alert("Mínimo 6 caracteres.");
+    if (newPass.length < 6) return alert("Mínimo 6 caracteres");
     try {
         const user = firebase.auth().currentUser;
-        if(user) { await user.updatePassword(newPass); alert("Contraseña cambiada con éxito."); closeModal('modal-pass-change'); }
+        if(user) { await user.updatePassword(newPass); alert("Clave cambiada"); closeModal('modal-pass-change'); }
     } catch (e) { alert("Error: " + e.message); }
 }
 
 function abrirLinkDesdeClase(inputId) {
     let url = document.getElementById(inputId).value.trim();
-    if (!url) return alert("No hay link para abrir.");
+    if (!url) return;
     if (!url.startsWith('http')) url = 'https://' + url;
     window.open(url, '_blank');
 }
 
 window.onload = function() {
-    console.log("Sistema Nómade Reiniciado");
-    lucide.createIcons();
+    console.log("Nómade Iniciado");
+    if(typeof lucide !== 'undefined') lucide.createIcons();
 };
-    </script>
-</body>
-</html>
+
 
 
 
