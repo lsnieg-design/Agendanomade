@@ -248,36 +248,32 @@
                         <textarea id="editor-text" class="w-full h-full p-4 bg-nomade-cream text-nomade-text text-lg leading-relaxed outline-none resize-none hidden" placeholder="Escribe aquí..."></textarea>
                         
                         <div id="editor-draw" class="hidden h-full flex flex-col relative">
-                            <div class="flex flex-wrap items-center gap-2 mb-2 p-2 bg-gray-50 rounded-lg shadow-sm border border-gray-100 justify-between">
-                                <div class="flex items-center gap-2">
-                                    <input type="color" id="draw-color" value="#000000" onchange="setDrawColor(this.value)" class="w-8 h-8 rounded cursor-pointer border-0 p-0 shadow-sm">
-                                    <input type="range" id="draw-size" min="1" max="20" value="2" onchange="setDrawSize(this.value)" class="w-20 accent-nomade-blue">
-                                    <button onclick="setTool('pen')" class="p-2 bg-white border rounded text-nomade-blue shadow-sm active:scale-95 hover:bg-blue-50"><i data-lucide="pen-tool" class="w-4"></i></button>
-                                    <button onclick="setTool('eraser')" class="p-2 bg-white border rounded text-gray-500 shadow-sm active:scale-95 hover:bg-gray-100"><i data-lucide="eraser" class="w-4"></i></button>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                     <div class="flex bg-gray-200 rounded p-0.5">
-                                        <button onclick="setBg('bg-liso')" class="w-6 h-6 bg-white rounded flex items-center justify-center text-[8px] font-bold border border-gray-300 shadow-sm" title="Liso">⬜</button>
-                                        <button onclick="setBg('bg-rayado')" class="w-6 h-6 bg-white rounded flex items-center justify-center text-[8px] font-bold border border-gray-300 mx-1 shadow-sm" title="Rayado">≡</button>
-                                        <button onclick="setBg('bg-cuadriculado')" class="w-6 h-6 bg-white rounded flex items-center justify-center text-[8px] font-bold border border-gray-300 shadow-sm" title="Cuadriculado">▦</button>
-                                    </div>
-                                     <button onclick="clearCanvas()" class="text-red-500 bg-red-50 p-2 rounded hover:bg-red-100 border border-red-100"><i data-lucide="trash-2" class="w-4"></i></button>
-                                </div>
-                            </div>
-                            <div class="absolute bottom-4 right-4 z-10">
-                                <button id="btn-stylus" onclick="toggleStylusMode()" class="bg-white text-gray-400 p-3 rounded-full shadow-xl border border-gray-200 flex items-center gap-2 transition-all hover:scale-105 active:scale-95">
-                                    <i data-lucide="pen-tool" class="w-5 h-5"></i>
-                                    <span id="stylus-text" class="text-[10px] font-bold hidden">SOLO LÁPIZ ON</span>
-                                </button>
-                            </div>
-                            <div id="canvas-container" class="bg-liso flex-1 shadow-inner border border-gray-200 rounded-lg overflow-hidden relative touch-none">
-                                <canvas id="drawing-canvas"></canvas>
-                            </div>
-                        </div>
-                        
-                    </div>
-                </div>
+    <div class="flex flex-wrap items-center gap-2 mb-2 p-2 bg-gray-50 rounded-lg shadow-sm border border-gray-100 justify-between no-print">
+        <div class="flex items-center gap-2">
+            <input type="color" id="draw-color" value="#000000" onchange="setDrawColor(this.value)" class="w-8 h-8 rounded cursor-pointer border-0 p-0 shadow-sm">
+            <input type="range" id="draw-size" min="1" max="20" value="2" onchange="setDrawSize(this.value)" class="w-20 accent-nomade-blue">
+            <button onclick="setTool('pen')" class="p-2 bg-white border rounded text-nomade-blue shadow-sm active:scale-95"><i data-lucide="pen-tool" class="w-4"></i></button>
+            <button onclick="setTool('eraser')" class="p-2 bg-white border rounded text-gray-500 shadow-sm active:scale-95"><i data-lucide="eraser" class="w-4"></i></button>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="flex bg-gray-200 rounded p-0.5">
+                <button onclick="setBg('bg-liso')" class="w-6 h-6 bg-white rounded flex items-center justify-center text-[8px] font-bold border border-gray-300 shadow-sm">⬜</button>
+                <button onclick="setBg('bg-rayado')" class="w-6 h-6 bg-white rounded flex items-center justify-center text-[8px] font-bold border border-gray-300 mx-1 shadow-sm">≡</button>
+                <button onclick="setBg('bg-cuadriculado')" class="w-6 h-6 bg-white rounded flex items-center justify-center text-[8px] font-bold border border-gray-300 shadow-sm">▦</button>
             </div>
+            <button onclick="toggleStylusMode()" id="btn-stylus-lock" class="p-2 bg-white border rounded text-gray-400 shadow-sm transition-colors">
+                <i data-lucide="tablet-smartphone" class="w-4"></i>
+            </button>
+            <button onclick="clearCanvas()" class="text-red-500 bg-red-50 p-2 rounded border border-red-100"><i data-lucide="trash-2" class="w-4"></i></button>
+        </div>
+    </div>
+
+    <div id="canvas-scroll-container" class="flex-1 overflow-auto bg-gray-200 rounded-lg shadow-inner relative" style="touch-action: none;">
+        <div id="canvas-zoom-wrapper" style="transform-origin: 0 0; transition: transform 0.1s ease-out; width: fit-content; height: fit-content;">
+            <canvas id="drawing-canvas" class="bg-liso shadow-lg mx-auto" style="display: block;"></canvas>
+        </div>
+    </div>
+</div>
         </main>
 
         <nav id="navbar" class="fixed bottom-0 w-full bg-white border-t border-gray-200 h-16 flex justify-around items-center z-30 pb-safe-bottom shadow-[0_-5px_10px_rgba(0,0,0,0.05)]">
@@ -1047,8 +1043,31 @@ function saveClaseDetail(){
         function createNote(type){ if(!userData.notas) userData.notas = []; userData.notas.unshift({id:Date.now(), title:document.getElementById('new-nota-title').value || 'Nota', type:type, content:''}); saveData(); closeModal('modal-new-nota'); document.getElementById('new-nota-title').value = ''; openNoteEditor(0); }
         function renderNotesList(){ const l=document.getElementById('lista-notas'); l.innerHTML=''; if(!userData.notas || userData.notas.length===0) { document.getElementById('no-notas').classList.remove('hidden'); return; } document.getElementById('no-notas').classList.add('hidden'); userData.notas.forEach((n,i)=>l.innerHTML+=`<div onclick="openNoteEditor(${i})" class="bg-white p-4 shadow rounded-xl cursor-pointer border-l-4 ${n.type==='text'?'border-blue-500':'border-purple-500'} relative group"><span class="font-bold text-sm">${n.title}</span><button onclick="event.stopPropagation(); deleteNote(${i})" class="absolute top-2 right-2 text-red-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4"></i></button></div>`); lucide.createIcons(); }
         function deleteNote(i){ if(confirm("¿Borrar?")) { userData.notas.splice(i,1); saveData(); renderNotesList(); } }
-        function openNoteEditor(i){ const n=userData.notas[i]; activeNoteId=n.id; document.getElementById('editor-title').innerText=n.title; const t=document.getElementById('editor-text'), d=document.getElementById('editor-draw'); document.getElementById('editor-nota').classList.remove('hidden'); if(n.type==='draw'){ t.classList.add('hidden'); d.classList.remove('hidden'); setTimeout(()=>initCanvas(n.content),100); } else { t.classList.remove('hidden'); d.classList.add('hidden'); t.value=n.content||''; } }
-        function closeEditor(){ document.getElementById('editor-nota').classList.add('hidden'); renderNotesList(); }
+        function openNoteEditor(i) {
+    const n = userData.notas[i];
+    activeNoteId = n.id;
+    // Permitir editar el título directamente
+    document.getElementById('editor-title').innerHTML = `<input type="text" value="${n.title}" onchange="updateNoteTitle(${i}, this.value)" class="bg-transparent border-b border-white/30 outline-none text-center w-full">`;
+    
+    const t = document.getElementById('editor-text');
+    const d = document.getElementById('editor-draw');
+    document.getElementById('editor-nota').classList.remove('hidden');
+    
+    if (n.type === 'draw') {
+        t.classList.add('hidden');
+        d.classList.remove('hidden');
+        setTimeout(() => initCanvas(n.content), 100);
+    } else {
+        t.classList.remove('hidden');
+        d.classList.add('hidden');
+        t.value = n.content || '';
+    }
+}
+
+function updateNoteTitle(i, newTitle) {
+    userData.notas[i].title = newTitle;
+    saveData();
+} function closeEditor(){ document.getElementById('editor-nota').classList.add('hidden'); renderNotesList(); }
         function saveCurrentNote(){ const i=userData.notas.findIndex(n=>n.id===activeNoteId); if(i===-1)return; if(userData.notas[i].type==='text'){ userData.notas[i].content=document.getElementById('editor-text').value; } else { userData.notas[i].content=canvas.toDataURL(); } saveData(); 
             const btn = document.querySelector('#editor-nota button.bg-nomade-blue'); 
             const originalText = btn.innerHTML;
@@ -1057,17 +1076,88 @@ function saveClaseDetail(){
             setTimeout(() => { btn.innerHTML = originalText; btn.classList.replace('bg-green-500', 'bg-nomade-blue'); lucide.createIcons(); }, 2000);
         }
 
-        function initCanvas(src){ 
-            canvas = document.getElementById('drawing-canvas');
-            ctx = canvas.getContext('2d');
-            const p = document.getElementById('canvas-container');
-            
-            canvas.width = p.clientWidth;
-            canvas.height = p.clientHeight;
-            ctx.clearRect(0, 0, canvas.width, canvas.height); 
+       let scale = 1;
+let isStylusOnly = false;
 
-            if(src){ const i=new Image(); i.onload=()=>ctx.drawImage(i,0,0); i.src=src; }
+function toggleStylusMode() {
+    isStylusOnly = !isStylusOnly;
+    const btn = document.getElementById('btn-stylus-lock');
+    btn.classList.toggle('bg-nomade-blue', isStylusOnly);
+    btn.classList.toggle('text-white', isStylusOnly);
+    showToast(isStylusOnly ? "Modo Lápiz: Dedos solo para mover/zoom" : "Modo Libre: Escritura táctil activa");
+}
 
+function initCanvas(src) {
+    const canvas = document.getElementById('drawing-canvas');
+    const ctx = canvas.getContext('2d');
+    const wrapper = document.getElementById('canvas-zoom-wrapper');
+    const container = document.getElementById('canvas-scroll-container');
+
+    // Definimos un lienzo largo (ej: 3000px de alto)
+    canvas.width = container.clientWidth * 2; 
+    canvas.height = 5000; 
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    if(src) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0);
+        img.src = src;
+    }
+
+    let drawing = false;
+    let lastX = 0; let lastY = 0;
+
+    // --- MANEJO DE EVENTOS DE PUNTERO (Stylus vs Dedo) ---
+    canvas.addEventListener('pointerdown', (e) => {
+        // Si está activo "Solo Lápiz" e intentas usar el dedo, no dibuja
+        if (isStylusOnly && e.pointerType === 'touch') return;
+        
+        drawing = true;
+        const rect = canvas.getBoundingClientRect();
+        lastX = (e.clientX - rect.left) / scale;
+        lastY = (e.clientY - rect.top) / scale;
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+        if (!drawing) return;
+        if (isStylusOnly && e.pointerType === 'touch') return;
+
+        const rect = canvas.getBoundingClientRect();
+        const currX = (e.clientX - rect.left) / scale;
+        const currY = (e.clientY - rect.top) / scale;
+
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(currX, currY);
+        ctx.strokeStyle = penColor;
+        ctx.lineWidth = e.pointerType === 'pen' ? penSize * (e.pressure || 1) * 2 : penSize;
+        ctx.stroke();
+
+        lastX = currX; lastY = currY;
+    });
+
+    canvas.addEventListener('pointerup', () => drawing = false);
+
+    // --- ZOOM CON PELLIZCO (Multi-touch) ---
+    let initialDist = 0;
+    container.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2) {
+            const dist = Math.hypot(
+                e.touches[0].pageX - e.touches[1].pageX,
+                e.touches[0].pageY - e.touches[1].pageY
+            );
+            if (initialDist === 0) initialDist = dist;
+            else {
+                scale = Math.min(Math.max(0.5, scale * (dist / initialDist)), 3);
+                wrapper.style.transform = `scale(${scale})`;
+                initialDist = dist;
+            }
+        }
+    }, { passive: false });
+
+    container.addEventListener('touchend', () => initialDist = 0);
+}
             function getPos(e) { 
                 const r = canvas.getBoundingClientRect(); 
                 return { x: e.clientX - r.left, y: e.clientY - r.top }; 
@@ -1114,8 +1204,21 @@ function saveClaseDetail(){
         function changeMonth(s){currentMonth+=s; if(currentMonth>11){currentMonth=0;currentYear++}else if(currentMonth<0){currentMonth=11;currentYear--} renderCalendar(currentMonth,currentYear);}
         function renderCalendar(m,y){const mos=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"]; document.getElementById('cal-month-year').innerText=`${mos[m]} ${y}`; const f=new Date(y,m,1).getDay(), d=new Date(y,m+1,0).getDate(), g=document.getElementById('calendar-grid'); g.innerHTML=''; for(let i=0;i<f;i++)g.innerHTML+='<div></div>'; for(let i=1;i<=d;i++){ const iso=new Date(y,m,i).toISOString().split('T')[0]; let dots=''; if(userData.eventos?.[iso]) dots=`<div class="w-1.5 h-1.5 bg-nomade-green rounded-full"></div>`; g.innerHTML+=`<div onclick="openDayEvents('${iso}')" class="calendar-day flex flex-col items-center border rounded hover:bg-gray-50"><span class="text-xs">${i}</span>${dots}</div>`;}}
         function openDayEvents(iso){activeCalISO=iso; document.getElementById('event-date-title').innerText=iso; const l=document.getElementById('day-events-list'); l.innerHTML=''; userData.eventos?.[iso]?.forEach((e,i)=>l.innerHTML+=`<div class="flex justify-between border-b p-1"><span>${e}</span><button onclick="delEvent('${iso}',${i})">X</button></div>`); openModal('modal-cal-event');}
-        function addCalendarEvent(){const t=document.getElementById('new-event-text').value; if(!userData.eventos)userData.eventos={}; if(!userData.eventos[activeCalISO])userData.eventos[activeCalISO]=[]; userData.eventos[activeCalISO].push(t); saveData(); closeModal('modal-cal-event');}
-        function delEvent(iso,i){userData.eventos[iso].splice(i,1); saveData(); openDayEvents(iso);}
+        function addCalendarEvent() {
+    const t = document.getElementById('new-event-text').value;
+    if (!t.trim()) return;
+    if (!userData.eventos) userData.eventos = {};
+    if (!userData.eventos[activeCalISO]) userData.eventos[activeCalISO] = [];
+    
+    userData.eventos[activeCalISO].push(t);
+    document.getElementById('new-event-text').value = '';
+    
+    saveData(); // Guardamos en la nube
+    closeModal('modal-cal-event');
+    renderCalendar(currentMonth, currentYear); // Refrescamos vista
+    showToast("Evento guardado");
+}
+       function delEvent(iso,i){userData.eventos[iso].splice(i,1); saveData(); openDayEvents(iso);}
         
         let touchStartX = 0; let touchEndX = 0;
         const calendarioZona = document.getElementById('view-calendario');
@@ -1123,8 +1226,30 @@ function saveClaseDetail(){
         calendarioZona.addEventListener('touchend', function(event) { touchEndX = event.changedTouches[0].screenX; handleSwipe(); }, false);
         function handleSwipe() { const threshold = 50; if (touchEndX < touchStartX - threshold) { changeMonth(1); } if (touchEndX > touchStartX + threshold) { changeMonth(-1); } }
 
-        function renderTareas(){const l=document.getElementById('lista-tareas'); l.innerHTML=''; userData.tareas.forEach((t,i)=>l.innerHTML+=`<div class="flex items-center gap-2 p-2 border-b"><input type="checkbox" ${t.done?'checked':''} onchange="togTarea(${i})"><span class="${t.done?'line-through opacity-50':''}">${t.text}</span><button onclick="delTarea(${i})" class="ml-auto text-red-500">X</button></div>`);}
-        function guardarTarea(){userData.tareas.push({text:document.getElementById('input-tarea-txt').value, done:false}); saveData(); closeModal('modal-tarea'); renderTareas();}
+       function renderTareas() {
+    const l = document.getElementById('lista-tareas');
+    l.innerHTML = '';
+    if (!userData.tareas) userData.tareas = [];
+    userData.tareas.forEach((t, i) => {
+        l.innerHTML += `
+        <div class="flex items-center gap-2 p-2 border-b group">
+            <input type="checkbox" ${t.done ? 'checked' : ''} onchange="togTarea(${i})" class="w-4 h-4 accent-nomade-green">
+            <input type="text" value="${t.text}" 
+                onchange="editTarea(${i}, this.value)"
+                class="flex-1 bg-transparent outline-none text-sm ${t.done ? 'line-through opacity-50' : ''}">
+            <button onclick="delTarea(${i})" class="text-red-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+        </div>`;
+    });
+    lucide.createIcons();
+}
+
+function editTarea(i, val) {
+    userData.tareas[i].text = val;
+    saveData();
+}
+       function guardarTarea(){userData.tareas.push({text:document.getElementById('input-tarea-txt').value, done:false}); saveData(); closeModal('modal-tarea'); renderTareas();}
         function togTarea(i){userData.tareas[i].done=!userData.tareas[i].done; saveData(); renderTareas();}
         function delTarea(i){userData.tareas.splice(i,1); saveData(); renderTareas();}
 
@@ -1248,6 +1373,10 @@ function saveClaseDetail(){
 
     win.document.write(h);
     win.document.close();
+         setTimeout(() => {
+        closeModal('modal-export');
+        console.log("✅ Interfaz liberada");
+    }, 100);
     closeModal('modal-export');
 }
 
@@ -1327,6 +1456,7 @@ window.onload = function() {
     </script>
 </body>
 </html>
+
 
 
 
