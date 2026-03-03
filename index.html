@@ -945,7 +945,7 @@
         // ==========================================
         // 6. CRONOGRAMA, ALUMNOS Y NOTAS
         // ==========================================
-     function renderCrono() {
+   function renderCrono() {
     const m = userData.materias.find(x => x.id === activeId);
     if (!m) return;
     
@@ -970,17 +970,25 @@
         let st = m.cronograma?.[iso] || m.modalidadBase;
         const plan = m.planificacion?.[iso]?.tema || '';
         
+        // Creamos la tarjeta SIN el onclick general que suele causar problemas
         l.innerHTML += `
-            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-3">
+            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-3 relative">
                 <div class="flex justify-between items-center mb-2">
                     <span class="font-black text-nomade-blue text-sm w-10">${displayDate}</span>
                     <div class="flex gap-1">
                         <button onclick="cycle('${iso}')" class="px-2 py-1 rounded text-[9px] font-bold uppercase bg-gray-100 text-gray-500">${st}</button>
                     </div>
                 </div>
-                <input class="w-full text-sm bg-gray-50 p-2 rounded" placeholder="Tema..." value="${plan}" onchange="saveTema('${iso}',this.value)">
+                
+                <input class="w-full text-sm bg-gray-50 p-2 rounded border-0 focus:ring-1 focus:ring-nomade-green" 
+                       placeholder="Tema..." 
+                       value="${plan}" 
+                       onchange="saveTema('${iso}', this.value)">
+                
                 <div class="flex justify-end mt-2">
-                    <button onclick="event.stopPropagation(); openClaseDetail('${iso}')" class="text-nomade-green text-xs font-bold flex items-center gap-1 hover:scale-105 transition">
+                    <button type="button" 
+                            onclick="openClaseDetail('${iso}')" 
+                            class="text-nomade-green text-xs font-bold flex items-center gap-1 p-1 hover:bg-teal-50 rounded transition-all">
                         <i data-lucide="plus-circle" class="w-3"></i> DETALLES
                     </button>
                 </div>
@@ -991,33 +999,45 @@
     
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
-       function cycle(iso) { const m = userData.materias.find(x => x.id === activeId); if (!m.cronograma) m.cronograma = {}; const states = ['Presencial', 'Virtual', 'Receso']; m.cronograma[iso] = states[(states.indexOf(m.cronograma[iso] || m.modalidadBase) + 1) % states.length]; saveData(); renderCrono(); }
-        function saveTema(iso,val){ const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={}; if(!m.planificacion[iso]) m.planificacion[iso]={}; m.planificacion[iso].tema=val; saveData(); }
        // --- REEMPLAZAR ESTAS DOS FUNCIONES ---
-function openClaseDetail(iso){
+function openClaseDetail(iso) {
+    // 1. LIMPIEZA DE SEGURIDAD: Cerramos cualquier modal de exportación que haya quedado "fantasma"
+    closeModal('modal-export');
+
     activeDateISO = iso; 
-    const p = userData.materias.find(x => x.id === activeId).planificacion?.[iso] || {}; 
     
+    // Buscamos la materia activa
+    const materia = userData.materias.find(x => x.id === activeId);
+    if (!materia) return console.error("Materia no encontrada");
+    
+    const p = materia.planificacion?.[iso] || {}; 
+    
+    // Formateamos la fecha para el título
     const partes = iso.split('-'); 
     document.getElementById('detail-date').innerText = `${partes[2]}/${partes[1]}/${partes[0]}`;
     document.getElementById('detail-iso').value = iso;
     
+    // Función de limpieza de texto para Excel/Comillas
     const clean = (txt) => (txt || '').replace(/^"|"$/g, '').replace(/""/g, '"').trim();
     
+    // Cargamos los campos básicos
     document.getElementById('detail-tema').value = clean(p.tema); 
     document.getElementById('detail-biblio').value = clean(p.biblio); 
     document.getElementById('detail-act-clase').value = clean(p.actClase); 
     document.getElementById('detail-act-tarea').value = clean(p.actTarea); 
     
-    // Cargar links separados (y si tenías algo guardado en el diseño viejo, lo manda a "Otros")
+    // Cargamos los links (asegurando que no se mezclen)
     document.getElementById('detail-link-video').value = clean(p.linkVideo);
     document.getElementById('detail-link-placas').value = clean(p.linkPlacas);
     document.getElementById('detail-link-biblio').value = clean(p.linkBiblio);
     document.getElementById('detail-link-recursos').value = clean(p.linkRecursos);
     document.getElementById('detail-link-otros').value = clean(p.linkOtros || p.links); 
     
+    // 2. ABRIMOS EL MODAL CON PRIORIDAD
     openModal('modal-clase-detail');
-    lucide.createIcons();
+    
+    // Refrescamos íconos de Lucide dentro del modal
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function saveClaseDetail(){
@@ -1421,6 +1441,7 @@ window.onload = function() {
     </script>
 </body>
 </html>
+
 
 
 
