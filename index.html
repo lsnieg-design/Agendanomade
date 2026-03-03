@@ -81,6 +81,36 @@
 </head>
 <body class="h-screen flex flex-col text-nomade-text bg-nomade-cream">
 
+  <div id="modal-export" class="fixed inset-0 hidden flex items-center justify-center p-4" style="z-index: 99999 !important; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); pointer-events: auto !important;">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh] relative">
+        <input type="hidden" id="export-type" value="pdf"> 
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-black text-nomade-blue uppercase tracking-tight">Exportar Materia</h3>
+            <button type="button" onclick="closeModal('modal-export')" class="bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+
+        <p class="text-[10px] font-black text-gray-400 mb-2 uppercase">Datos de Alumnos</p>
+        <div class="space-y-2 mb-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+            <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-lista" class="w-5 h-5 text-nomade-green rounded" checked><span class="font-bold text-sm">Asistencia y Alumnos</span></label>
+            <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-notas" class="w-5 h-5 text-nomade-green rounded" checked><span class="font-bold text-sm">Libro de Notas</span></label>
+        </div>
+
+        <p class="text-[10px] font-black text-nomade-blue mb-2 uppercase">Columnas de Planificación</p>
+        <div class="space-y-3 mb-6 bg-blue-50/40 p-4 rounded-2xl border border-blue-100">
+            <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-tema" class="w-5 h-5 text-nomade-blue rounded" checked><span class="font-bold text-sm">Tema / Contenido</span></label>
+            <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-biblio" class="w-5 h-5 text-nomade-blue rounded" checked><span class="font-bold text-sm">Bibliografía</span></label>
+            <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-act" class="w-5 h-5 text-nomade-blue rounded" checked><span class="font-bold text-sm">Actividades</span></label>
+            <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-tarea" class="w-5 h-5 text-nomade-blue rounded" checked><span class="font-bold text-sm">Tareas</span></label>
+        </div>
+
+        <div class="flex gap-2">
+            <button type="button" onclick="closeModal('modal-export')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs">CANCELAR</button>
+            <button type="button" onclick="executeExport(event)" class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95">
+                <i data-lucide="printer" class="w-4 h-4"></i> GENERAR REPORTE AHORA
+            </button>
+        </div>
+    </div>
+</div>
     <div id="cloud-status"><i data-lucide="cloud" class="w-3 h-3"></i> <span id="cloud-text">Sincronizado</span></div>
 
     <div id="auth-screen" class="fixed inset-0 login-bg z-50 flex flex-col items-center justify-center p-6 text-center text-white fade-in">
@@ -511,64 +541,6 @@
                 </div>
             </div>
    
-<div id="modal-export" class="fixed inset-0 hidden flex items-center justify-center p-4" style="z-index: 99999 !important; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); pointer-events: auto !important;">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh] relative">
-        
-        <input type="hidden" id="export-type" value="pdf"> 
-
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-black text-nomade-blue uppercase tracking-tight">Exportar Materia</h3>
-            <button type="button" onclick="closeModal('modal-export')" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 transition">
-                <i data-lucide="x" class="w-4 h-4 text-gray-500"></i>
-            </button>
-        </div>
-
-        <p class="text-[10px] font-black text-gray-400 mb-2 uppercase tracking-wider">Datos de Alumnos</p>
-        <div class="space-y-2 mb-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
-            <label class="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" id="exp-lista" class="w-5 h-5 text-nomade-green rounded focus:ring-0" checked>
-                <span class="font-bold text-sm text-gray-700">Asistencia y Alumnos</span>
-            </label>
-            <label class="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" id="exp-notas" class="w-5 h-5 text-nomade-green rounded focus:ring-0" checked>
-                <span class="font-bold text-sm text-gray-700">Libro de Notas</span>
-            </label>
-        </div>
-
-        <p class="text-[10px] font-black text-nomade-blue mb-2 uppercase tracking-wider mt-4">Contenido de Planificación</p>
-        <div class="space-y-3 mb-6 bg-blue-50/40 p-4 rounded-2xl border border-blue-100">
-            <label class="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" id="exp-plan-tema" class="w-5 h-5 text-nomade-blue rounded focus:ring-0" checked>
-                <span class="font-bold text-sm text-nomade-blue">Tema / Contenido</span>
-            </label>
-            <label class="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" id="exp-plan-biblio" class="w-5 h-5 text-nomade-blue rounded focus:ring-0" checked>
-                <span class="font-bold text-sm text-nomade-blue">Bibliografía</span>
-            </label>
-            <label class="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" id="exp-plan-act" class="w-5 h-5 text-nomade-blue rounded focus:ring-0" checked>
-                <span class="font-bold text-sm text-nomade-blue">Actividades</span>
-            </label>
-            <label class="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" id="exp-plan-tarea" class="w-5 h-5 text-nomade-blue rounded focus:ring-0" checked>
-                <span class="font-bold text-sm text-nomade-blue">Tareas</span>
-            </label>
-            <label class="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" id="exp-plan-links" class="w-5 h-5 text-nomade-blue rounded focus:ring-0">
-                <span class="font-bold text-sm text-nomade-blue">Links y Recursos</span>
-            </label>
-        </div>
-
-        <div class="flex gap-2">
-            <button type="button" onclick="closeModal('modal-export')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider">
-                CANCELAR
-            </button>
-            <button type="button" onclick="executeExport(event)" class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95">
-                <i data-lucide="printer" class="w-4 h-4"></i> GENERAR REPORTE AHORA
-            </button>
-        </div>
-    </div>
-</div>
 
 <div id="connection-toast" class="fixed top-0 left-0 right-0 bg-red-500 text-white text-xs font-bold text-center py-2 z-[100] hidden transition-transform transform -translate-y-full">
     📡 SIN CONEXIÓN - Trabajando en modo offline
@@ -1342,81 +1314,57 @@ function guardarTarea(){userData.tareas.push({text:document.getElementById('inpu
         function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
         function copiarIA() { const t = document.getElementById("ia-output"); t.select(); document.execCommand("copy"); alert("Copiado!"); }
 
- async function executeExport(e) {
+async function executeExport(e) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
-    console.log("🚀 Iniciando exportación de datos...");
-
     const m = userData.materias.find(x => x.id === activeId);
-    if (!m) return alert("Seleccioná una materia primero");
+    if (!m) return alert("Seleccioná una materia");
 
-    const exportType = document.getElementById('export-type').value;
-    const docName = (document.getElementById('dash-name').innerText || 'LULISNIEG').toUpperCase();
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4'); // Paisaje para que entren las columnas
+    const docName = (document.getElementById('dash-name').innerText || 'DOCENTE').toUpperCase();
     
-    // Captura real de los checkboxes
-    const incLista = document.getElementById('exp-lista').checked;
+    // Checkboxes
     const pTema = document.getElementById('exp-plan-tema').checked;
     const pBiblio = document.getElementById('exp-plan-biblio').checked;
     const pAct = document.getElementById('exp-plan-act').checked;
     const pTarea = document.getElementById('exp-plan-tarea').checked;
 
-    if (exportType === 'pdf') {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        // Encabezado Pro
-        doc.setFillColor(20, 78, 126); doc.rect(0, 0, 210, 40, 'F');
-        doc.setTextColor(255, 255, 255); doc.setFontSize(22);
-        doc.text(m.nombre.toUpperCase(), 14, 22);
-        doc.setFontSize(10); doc.text("DOCENTE: " + docName, 14, 32);
+    // Cabecera Pro
+    doc.setFillColor(20, 78, 126); doc.rect(0, 0, 297, 30, 'F');
+    doc.setTextColor(255, 255, 255); doc.setFontSize(20);
+    doc.text(m.nombre.toUpperCase(), 15, 15);
+    doc.setFontSize(10); doc.text("REPORTE ACADÉMICO - DOCENTE: " + docName, 15, 22);
 
-        let currentY = 50;
+    // CONFIGURACIÓN DE COLUMNAS DINÁMICAS
+    let tableHead = ['Fecha'];
+    let columnStyles = { 0: { cellWidth: 20 } };
+    
+    if (pTema) tableHead.push('Contenido / Tema');
+    if (pBiblio) tableHead.push('Bibliografía');
+    if (pAct) tableHead.push('Actividades');
+    if (pTarea) tableHead.push('Tareas');
 
-        // TABLA ASISTENCIA
-        if (incLista && m.asistencias) {
-            doc.setTextColor(20, 78, 126); doc.setFontSize(14); doc.text("REGISTRO DE ASISTENCIA", 14, currentY);
-            const fechas = Object.keys(m.asistencias).sort();
-            const head = [['Estudiante', ...fechas.map(f => f.split('-').reverse().slice(0,2).join('/'))]];
-            const body = (m.alumnos || []).map(al => {
-                const fila = [al.ape + ", " + al.nom];
-                fechas.forEach(f => fila.push(m.asistencias[f][al.id] || '-'));
-                return fila;
-            });
-            doc.autoTable({ startY: currentY + 5, head: head, body: body, theme: 'grid', styles: { fontSize: 7 } });
-            currentY = doc.lastAutoTable.finalY + 15;
-        }
+    const tableBody = Object.keys(m.planificacion || {}).sort().map(f => {
+        const p = m.planificacion[f];
+        let fila = [f.split('-').reverse().slice(0,2).join('/')];
+        if (pTema) fila.push(p.tema || '-');
+        if (pBiblio) fila.push(p.biblio || '-');
+        if (pAct) fila.push(p.actClase || '-');
+        if (pTarea) fila.push(p.actTarea || '-');
+        return fila;
+    });
 
-        // TABLA PLANIFICACIÓN (Recuperando Bibliografía y Tarea)
-        if (m.planificacion) {
-            if (currentY > 240) { doc.addPage(); currentY = 20; }
-            doc.setTextColor(20, 78, 126); doc.setFontSize(14); doc.text("PLANIFICACIÓN DIDÁCTICA", 14, currentY);
-            
-            const planBody = Object.keys(m.planificacion).sort().map(f => {
-                const p = m.planificacion[f];
-                let contenido = "";
-                if (pTema && p.tema) contenido += "TEMA: " + p.tema + "\n";
-                if (pBiblio && p.biblio) contenido += "BIBLIO: " + p.biblio + "\n";
-                if (pAct && p.actClase) contenido += "ACTIVIDAD: " + p.actClase + "\n";
-                if (pTarea && p.actTarea) contenido += "TAREA: " + p.actTarea;
-                return [f.split('-').reverse().join('/'), contenido || 'Sin datos'];
-            });
+    doc.autoTable({
+        startY: 40,
+        head: [tableHead],
+        body: tableBody,
+        theme: 'grid',
+        headStyles: { fillColor: [20, 78, 126], fontSize: 9 },
+        styles: { fontSize: 8, cellPadding: 3, valign: 'middle' },
+        columnStyles: columnStyles
+    });
 
-            doc.autoTable({
-                startY: currentY + 5,
-                head: [['Fecha', 'Detalle de Clase']],
-                body: planBody,
-                columnStyles: { 0: { cellWidth: 25 }, 1: { cellWidth: 'auto' } },
-                headStyles: { fillColor: [20, 78, 126] }
-            });
-        }
-        doc.save(`Nomade_${m.nombre}.pdf`);
-    } else {
-        // LÓGICA XLS (Simplificada para no trabar)
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.json_to_sheet(m.alumnos.map(a => ({ Alumno: a.ape + ", " + a.nom })));
-        XLSX.utils.book_append_sheet(wb, ws, "Lista");
-        XLSX.writeFile(wb, `Planilla_${m.nombre}.xlsx`);
-    }
-
+    doc.save(`Nomade_Reporte_${m.nombre}.pdf`);
     setTimeout(() => { closeModal('modal-export'); }, 300);
 }
 function openExportModal(t) {
@@ -1537,6 +1485,7 @@ window.onload = function() {
     </script>
 </body>
 </html>
+
 
 
 
