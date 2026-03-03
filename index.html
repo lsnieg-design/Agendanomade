@@ -511,16 +511,60 @@
                 </div>
             </div>
    
- <<div id="modal-export" class="fixed inset-0 hidden flex items-center justify-center p-4 backdrop-blur-sm" style="z-index: 9999 !important; pointer-events: auto !important;">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
+ <div id="modal-export" class="fixed inset-0 hidden flex items-center justify-center p-4" style="z-index: 99999 !important; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); pointer-events: auto !important;">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh] relative" style="pointer-events: auto !important;">
         
         <input type="hidden" id="export-type" value="pdf"> 
 
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-black text-nomade-blue">Exportar Materia</h3>
-            <button onclick="closeModal('modal-export')" class="bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <button type="button" onclick="closeModal('modal-export')" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 transition">
+                <i data-lucide="x" class="w-4 h-4 text-gray-500"></i>
+            </button>
         </div>
-            
+
+        <p class="text-[10px] font-black text-gray-400 mb-2 uppercase tracking-wider">DATOS DE ALUMNOS</p>
+        <div class="space-y-2 mb-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+            <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" id="exp-lista" class="w-5 h-5 text-nomade-green rounded focus:ring-0" checked>
+                <span class="font-bold text-sm text-gray-700">Asistencia y Alumnos</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" id="exp-notas" class="w-5 h-5 text-nomade-green rounded focus:ring-0" checked>
+                <span class="font-bold text-sm text-gray-700">Libro de Notas</span>
+            </label>
+        </div>
+
+        <p class="text-[10px] font-black text-nomade-blue mb-2 uppercase tracking-wider mt-4">COLUMNAS DE PLANIFICACIÓN</p>
+        <div class="space-y-3 mb-6 bg-blue-50/40 p-4 rounded-2xl border border-blue-100">
+            <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" id="exp-plan-tema" class="w-5 h-5 text-nomade-blue rounded focus:ring-0" checked>
+                <span class="font-bold text-sm text-nomade-blue">Tema / Contenido</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" id="exp-plan-biblio" class="w-5 h-5 text-nomade-blue rounded focus:ring-0" checked>
+                <span class="font-bold text-sm text-nomade-blue">Bibliografía</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" id="exp-plan-act" class="w-5 h-5 text-nomade-blue rounded focus:ring-0">
+                <span class="font-medium text-sm text-gray-700">Actividades en Clase</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" id="exp-plan-tarea" class="w-5 h-5 text-nomade-blue rounded focus:ring-0">
+                <span class="font-medium text-sm text-gray-700">Tareas Asignadas</span>
+            </label>
+        </div>
+
+        <div class="flex gap-2">
+            <button type="button" onclick="closeModal('modal-export')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider">
+                CANCELAR
+            </button>
+            <button type="button" onclick="executeExport(event)" class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95">
+                <i data-lucide="printer" class="w-4 h-4"></i> GENERAR REPORTE
+            </button>
+        </div>
+    </div>
+</div>
             <p class="text-[10px] font-black text-gray-400 mb-2 uppercase tracking-wider">DATOS DE ALUMNOS</p>
             <div class="space-y-2 mb-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
                 <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-lista" class="w-5 h-5 text-nomade-green rounded focus:ring-0" checked><span class="font-bold text-sm text-gray-700">Asistencia y Alumnos</span></label>
@@ -1378,18 +1422,31 @@ function guardarTarea(){userData.tareas.push({text:document.getElementById('inpu
     }, 300);
 }
 function openExportModal(t) {
-    // Cerramos cualquier otra cosa abierta para no solapar
-    const detailModal = document.getElementById('modal-clase-detail');
-    if (detailModal) detailModal.classList.add('hidden');
+    console.log("🚀 PASO 1: Limpiando pantalla para exportar:", t);
+    
+    // 1. Forzamos el cierre de cualquier otro modal para que no se solapen
+    const modales = ['modal-clase-detail', 'modal-materia', 'modal-alumno'];
+    modales.forEach(id => {
+        const m = document.getElementById(id);
+        if(m) m.classList.add('hidden');
+    });
 
     const input = document.getElementById('export-type');
     if (input) input.value = t;
-    
+
     const modal = document.getElementById('modal-export');
     if (modal) {
+        // 2. Quitamos el 'hidden' y forzamos visibilidad total
         modal.classList.remove('hidden');
-        modal.style.display = 'flex';
-        console.log("✅ Modal export abierto para:", t);
+        modal.style.setProperty('display', 'flex', 'important');
+        modal.style.setProperty('opacity', '1', 'important');
+        modal.style.setProperty('z-index', '9999', 'important');
+        
+        // 3. El truco para que el navegador "despierte" sin esperar a Detalles
+        window.scrollTo(0, 0); 
+        window.dispatchEvent(new Event('resize')); 
+        
+        console.log("✅ PASO 2: Modal de exportación al frente.");
     }
 }
 
@@ -1482,6 +1539,7 @@ window.onload = function() {
     </script>
 </body>
 </html>
+
 
 
 
