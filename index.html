@@ -1317,36 +1317,58 @@ function guardarTarea(){userData.tareas.push({text:document.getElementById('inpu
 async function executeExport(e) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
     const m = userData.materias.find(x => x.id === activeId);
-    if (!m) return alert("Seleccioná una materia");
+    if (!m) return alert("Seleccioná una materia primero");
 
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('l', 'mm', 'a4'); // Paisaje para que entren las columnas
-    const docName = (document.getElementById('dash-name').innerText || 'DOCENTE').toUpperCase();
+    const doc = new jsPDF('l', 'mm', 'a4'); 
     
-    // Checkboxes
+    // DATOS DINÁMICOS DEL DOCENTE Y CICLO
+    const docName = "LUCÍA SNIEG"; 
+    const anioActual = new Date().getFullYear();
+    // Estos datos los toma de la materia (asegurate que existan en tu objeto materia)
+    const duracion = m.duracion || "Cuatrimestral"; 
+    const modGeneral = m.modalidadGeneral || "Híbrida";
+
+    const pLista = document.getElementById('exp-lista').checked;
+    const pNotas = document.getElementById('exp-notas').checked;
     const pTema = document.getElementById('exp-plan-tema').checked;
     const pBiblio = document.getElementById('exp-plan-biblio').checked;
     const pAct = document.getElementById('exp-plan-act').checked;
     const pTarea = document.getElementById('exp-plan-tarea').checked;
 
-    // Cabecera Pro
-    doc.setFillColor(20, 78, 126); doc.rect(0, 0, 297, 30, 'F');
-    doc.setTextColor(255, 255, 255); doc.setFontSize(20);
-    doc.text(m.nombre.toUpperCase(), 15, 15);
-    doc.setFontSize(10); doc.text("REPORTE ACADÉMICO - DOCENTE: " + docName, 15, 22);
-
-    // CONFIGURACIÓN DE COLUMNAS DINÁMICAS
-    let tableHead = ['Fecha'];
-    let columnStyles = { 0: { cellWidth: 20 } };
+    // --- HOJA 1: PLANIFICACIÓN ---
+    // Fondo de cabecera
+    doc.setFillColor(20, 78, 126); doc.rect(0, 0, 297, 35, 'F');
     
-    if (pTema) tableHead.push('Contenido / Tema');
-    if (pBiblio) tableHead.push('Bibliografía');
-    if (pAct) tableHead.push('Actividades');
-    if (pTarea) tableHead.push('Tareas');
+    // Título Principal
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.text(m.nombre.toUpperCase(), 15, 12);
+    
+    // Subtítulos de Identificación
+    doc.setFontSize(9);
+    doc.text(`PROFESORA: ${docName}`, 15, 19);
+    doc.text(`CICLO LECTIVO: ${anioActual}`, 15, 24);
+    
+    // Datos de Cursada (Lado Derecho de la cabecera)
+    doc.text(`DURACIÓN: ${duracion.toUpperCase()}`, 200, 19);
+    doc.text(`MODALIDAD: ${modGeneral.toUpperCase()}`, 200, 24);
 
-    const tableBody = Object.keys(m.planificacion || {}).sort().map(f => {
+    // Tabla de Planificación
+    let planHead = ['Clase', 'Unidad', 'Fecha', 'Mod. Clase'];
+    if (pTema) planHead.push('Contenido / Tema');
+    if (pBiblio) planHead.push('Bibliografía');
+    if (pAct) planHead.push('Actividades');
+    if (pTarea) planHead.push('Tareas');
+
+    const planBody = Object.keys(m.planificacion || {}).sort().map(f => {
         const p = m.planificacion[f];
-        let fila = [f.split('-').reverse().slice(0,2).join('/')];
+        let fila = [
+            p.nroClase || '-', 
+            p.nroUnidad || '-', 
+            f.split('-').reverse().slice(0,2).join('/'),
+            (p.modalidad || 'Presencial').toUpperCase()
+        ];
         if (pTema) fila.push(p.tema || '-');
         if (pBiblio) fila.push(p.biblio || '-');
         if (pAct) fila.push(p.actClase || '-');
@@ -1356,15 +1378,59 @@ async function executeExport(e) {
 
     doc.autoTable({
         startY: 40,
-        head: [tableHead],
-        body: tableBody,
+        head: [planHead],
+        body: planBody,
         theme: 'grid',
-        headStyles: { fillColor: [20, 78, 126], fontSize: 9 },
-        styles: { fontSize: 8, cellPadding: 3, valign: 'middle' },
-        columnStyles: columnStyles
+        headStyles: { fillColor: [20, 78, 126], fontSize: 8 },
+        styles: { fontSize: 7, cellPadding: 2 },
+        columnStyles: { 0: {cellWidth: 12}, 1: {cellWidth: 12}, 2: {cellWidth: 15}, 3: {cellWidth: 20} }
     });
 
-    doc.save(`Nomade_Reporte_${m.nombre}.pdf`);
+    // --- HOJA 2: ALUMNOS (Solo si se tilda) ---
+    if (pLista || pNotas) {
+        doc.addPage();
+        doc.setFillColor(31, 161, 148); doc.rect(0, 0, 297, 35, 'F'); 
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.text("REGISTRO DE ESTUDIANTES Y CALIFICACIONES", 15, 12);
+        doc.setFontSize(9);
+        doc.text(`MATERIA: ${m.nombre.toUpperCase()}`, 15, 19);
+        doc.text(`DOCENTE: ${docName} | AÑO: ${anioActual}`, 15, 24);
+
+        let alumHead = ['Estudiante'];
+        const fechasAsist = m.asistencias ? Object.keys(m.asistencias).sort() : [];
+        const examenes = m.examenes || [];
+        
+        if (pLista) fechasAsist.forEach(f => alumHead.push(f.split('-').reverse().slice(0,2).join('/')));
+        if (pNotas) examenes.forEach(ex => alumHead.push(ex.nombre));
+        alumHead.push('Promedio');
+
+        const alumBody = (m.alumnos || []).sort((a,b) => a.ape.localeCompare(b.ape)).map(al => {
+            let fila = [al.ape.toUpperCase() + ", " + al.nom];
+            if (pLista) fechasAsist.forEach(f => fila.push(m.asistencias[f][al.id] || '-'));
+            let suma = 0, cant = 0;
+            if (pNotas) {
+                examenes.forEach(ex => {
+                    const nota = al.notas?.[ex.id] || '-';
+                    fila.push(nota);
+                    if (!isNaN(parseFloat(nota))) { suma += parseFloat(nota); cant++; }
+                });
+            }
+            fila.push(cant > 0 ? (suma / cant).toFixed(2) : '-');
+            return fila;
+        });
+
+        doc.autoTable({
+            startY: 40,
+            head: [alumHead],
+            body: alumBody,
+            theme: 'grid',
+            headStyles: { fillColor: [31, 161, 148], fontSize: 7 },
+            styles: { fontSize: 7, cellPadding: 2 }
+        });
+    }
+
+    doc.save(`Reporte_${m.nombre}_${anioActual}.pdf`);
     setTimeout(() => { closeModal('modal-export'); }, 300);
 }
 function openExportModal(t) {
@@ -1485,6 +1551,7 @@ window.onload = function() {
     </script>
 </body>
 </html>
+
 
 
 
