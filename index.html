@@ -511,7 +511,7 @@
                 </div>
             </div>
    
- <div id="modal-export" class="fixed inset-0 hidden flex items-center justify-center p-4" style="z-index: 99999 !important; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); pointer-events: auto !important;">
+<div id="modal-export" class="fixed inset-0 hidden flex items-center justify-center p-4" style="z-index: 99999 !important; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); pointer-events: auto !important;">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh] relative" style="pointer-events: auto !important;">
         
         <input type="hidden" id="export-type" value="pdf"> 
@@ -1360,65 +1360,97 @@ function guardarTarea(){userData.tareas.push({text:document.getElementById('inpu
         function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
         function copiarIA() { const t = document.getElementById("ia-output"); t.select(); document.execCommand("copy"); alert("Copiado!"); }
 
-   async function executeExport(e) {
+  async function executeExport(e) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
-    console.log("🚀 Generando reporte profesional...");
+    console.log("🚀 Generando reporte completo...");
 
-    const m = userData.materias.find(function(x) { return x.id === activeId; });
-    if (!m) return alert("Seleccioná una materia primero");
+    const m = userData.materias.find(x => x.id === activeId);
+    if (!m) return alert("Seleccioná una materia");
 
-    const exportType = document.getElementById('export-type').value; // 'pdf' o 'xls'
+    const exportType = document.getElementById('export-type').value;
     const docName = document.getElementById('dash-name').innerText || 'Docente';
     
-    // Checkboxes de tu modal
+    // Capturamos los checkboxes
     const incLista = document.getElementById('exp-lista').checked;
     const incNotas = document.getElementById('exp-notas').checked;
+    const pTema = document.getElementById('exp-plan-tema').checked;
+    const pBiblio = document.getElementById('exp-plan-biblio').checked;
+    const pAct = document.getElementById('exp-plan-act').checked;
+    const pTarea = document.getElementById('exp-plan-tarea').checked;
 
     if (exportType === 'pdf') {
-        // --- LÓGICA DE PDF REAL ---
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
-        doc.setFillColor(20, 78, 126); // Azul Nómade
+        // Cabecera
+        doc.setFillColor(20, 78, 126); 
         doc.rect(0, 0, 210, 40, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(22);
-        doc.text(m.nombre.toUpperCase(), 14, 25);
+        doc.text(m.nombre.toUpperCase(), 14, 22);
         doc.setFontSize(10);
-        doc.text("DOCENTE: " + docName.toUpperCase(), 14, 33);
+        doc.text("DOCENTE: " + docName.toUpperCase(), 14, 32);
 
-        if (incLista) {
-            const head = [['Estudiante', 'Asistencias (%)']];
-            const body = (m.alumnos || []).map(al => [al.ape + ", " + al.nom, "Presente"]);
+        let currentY = 50;
+
+        // --- SECCIÓN ASISTENCIA ---
+        if (incLista && m.asistencias) {
+            doc.setTextColor(20, 78, 126);
+            doc.setFontSize(14);
+            doc.text("REGISTRO DE ASISTENCIA", 14, currentY);
             
+            const fechas = Object.keys(m.asistencias).sort();
+            const head = [['Estudiante', ...fechas.map(f => f.split('-').reverse().slice(0,2).join('/'))]];
+            const body = (m.alumnos || []).map(al => {
+                const fila = [al.ape + ", " + al.nom];
+                fechas.forEach(f => fila.push(m.asistencias[f][al.id] || '-'));
+                return fila;
+            });
+
             doc.autoTable({
-                startY: 50,
+                startY: currentY + 5,
                 head: head,
                 body: body,
-                headStyles: { fillColor: [31, 161, 148] } // Verde Nómade
+                theme: 'grid',
+                headStyles: { fillColor: [31, 161, 148], fontSize: 8 },
+                styles: { fontSize: 7 }
+            });
+            currentY = doc.lastAutoTable.finalY + 15;
+        }
+
+        // --- SECCIÓN PLANIFICACIÓN ---
+        if ((pTema || pAct) && m.planificacion) {
+            if (currentY > 250) { doc.addPage(); currentY = 20; }
+            doc.setTextColor(20, 78, 126);
+            doc.setFontSize(14);
+            doc.text("PLANIFICACIÓN DIDÁCTICA", 14, currentY);
+
+            const planBody = Object.keys(m.planificacion).sort().map(f => {
+                const p = m.planificacion[f];
+                let desc = "";
+                if (pTema && p.tema) desc += "TEMA: " + p.tema + "\n";
+                if (pBiblio && p.biblio) desc += "BIBLIO: " + p.biblio + "\n";
+                if (pAct && p.actClase) desc += "ACT: " + p.actClase + "\n";
+                if (pTarea && p.actTarea) desc += "TAREA: " + p.actTarea;
+                return [f.split('-').reverse().join('/'), desc];
+            });
+
+            doc.autoTable({
+                startY: currentY + 5,
+                head: [['Fecha', 'Contenidos y Actividades']],
+                body: planBody,
+                columnStyles: { 0: { cellWidth: 30 }, 1: { cellWidth: 'auto' } },
+                headStyles: { fillColor: [20, 78, 126] }
             });
         }
 
-        doc.save(`Reporte_${m.nombre}.pdf`);
-
-    } else {
-        // --- LÓGICA DE EXCEL REAL ---
-        let data = (m.alumnos || []).map(al => ({
-            "Apellido": al.ape,
-            "Nombre": al.nom,
-            "Materia": m.nombre
-        }));
-        
-        const ws = XLSX.utils.json_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Alumnos");
-        XLSX.writeFile(wb, `Planilla_${m.nombre}.xlsx`);
+        doc.save(`Nómade_${m.nombre}.pdf`);
     }
-
-    // Cerramos el modal y limpiamos la app para que no se trabe
+    
+    // Limpieza final para que no se trabe
     setTimeout(() => {
         closeModal('modal-export');
-        showToast("✅ ¡Reporte generado con éxito!");
+        window.dispatchEvent(new Event('resize')); 
     }, 300);
 }
 function openExportModal(t) {
@@ -1539,6 +1571,7 @@ window.onload = function() {
     </script>
 </body>
 </html>
+
 
 
 
