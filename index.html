@@ -511,19 +511,19 @@
                 </div>
             </div>
    
-<div id="modal-export" class="fixed inset-0 hidden flex items-center justify-center p-4" style="z-index: 99999 !important; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); pointer-events: auto !important;">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh] relative" style="pointer-events: auto !important;">
+<div id="modal-export" class="fixed inset-0 hidden flex items-center justify-center p-4" style="z-index: 99999 !important; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); pointer-events: auto !important;">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh] relative">
         
         <input type="hidden" id="export-type" value="pdf"> 
 
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-black text-nomade-blue">Exportar Materia</h3>
+            <h3 class="text-lg font-black text-nomade-blue uppercase tracking-tight">Exportar Materia</h3>
             <button type="button" onclick="closeModal('modal-export')" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 transition">
                 <i data-lucide="x" class="w-4 h-4 text-gray-500"></i>
             </button>
         </div>
 
-        <p class="text-[10px] font-black text-gray-400 mb-2 uppercase tracking-wider">DATOS DE ALUMNOS</p>
+        <p class="text-[10px] font-black text-gray-400 mb-2 uppercase tracking-wider">Datos de Alumnos</p>
         <div class="space-y-2 mb-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
             <label class="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" id="exp-lista" class="w-5 h-5 text-nomade-green rounded focus:ring-0" checked>
@@ -535,7 +535,7 @@
             </label>
         </div>
 
-        <p class="text-[10px] font-black text-nomade-blue mb-2 uppercase tracking-wider mt-4">COLUMNAS DE PLANIFICACIÓN</p>
+        <p class="text-[10px] font-black text-nomade-blue mb-2 uppercase tracking-wider mt-4">Contenido de Planificación</p>
         <div class="space-y-3 mb-6 bg-blue-50/40 p-4 rounded-2xl border border-blue-100">
             <label class="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" id="exp-plan-tema" class="w-5 h-5 text-nomade-blue rounded focus:ring-0" checked>
@@ -546,12 +546,16 @@
                 <span class="font-bold text-sm text-nomade-blue">Bibliografía</span>
             </label>
             <label class="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" id="exp-plan-act" class="w-5 h-5 text-nomade-blue rounded focus:ring-0">
-                <span class="font-medium text-sm text-gray-700">Actividades en Clase</span>
+                <input type="checkbox" id="exp-plan-act" class="w-5 h-5 text-nomade-blue rounded focus:ring-0" checked>
+                <span class="font-bold text-sm text-nomade-blue">Actividades</span>
             </label>
             <label class="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" id="exp-plan-tarea" class="w-5 h-5 text-nomade-blue rounded focus:ring-0">
-                <span class="font-medium text-sm text-gray-700">Tareas Asignadas</span>
+                <input type="checkbox" id="exp-plan-tarea" class="w-5 h-5 text-nomade-blue rounded focus:ring-0" checked>
+                <span class="font-bold text-sm text-nomade-blue">Tareas</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" id="exp-plan-links" class="w-5 h-5 text-nomade-blue rounded focus:ring-0">
+                <span class="font-bold text-sm text-nomade-blue">Links y Recursos</span>
             </label>
         </div>
 
@@ -560,45 +564,23 @@
                 CANCELAR
             </button>
             <button type="button" onclick="executeExport(event)" class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95">
-                <i data-lucide="printer" class="w-4 h-4"></i> GENERAR REPORTE
+                <i data-lucide="printer" class="w-4 h-4"></i> GENERAR REPORTE AHORA
             </button>
         </div>
     </div>
 </div>
-            <p class="text-[10px] font-black text-gray-400 mb-2 uppercase tracking-wider">DATOS DE ALUMNOS</p>
-            <div class="space-y-2 mb-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-lista" class="w-5 h-5 text-nomade-green rounded focus:ring-0" checked><span class="font-bold text-sm text-gray-700">Asistencia y Alumnos</span></label>
-                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-notas" class="w-5 h-5 text-nomade-green rounded focus:ring-0" checked><span class="font-bold text-sm text-gray-700">Libro de Notas</span></label>
-            </div>
 
-            <p class="text-[10px] font-black text-nomade-blue mb-2 uppercase tracking-wider mt-4">COLUMNAS DE PLANIFICACIÓN</p>
-            <div class="space-y-3 mb-6 bg-blue-50/40 p-4 rounded-2xl border border-blue-100">
-                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-tema" class="w-5 h-5 text-nomade-blue rounded focus:ring-0" checked><span class="font-bold text-sm text-nomade-blue">Tema / Contenido</span></label>
-                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-biblio" class="w-5 h-5 text-nomade-blue rounded focus:ring-0" checked><span class="font-bold text-sm text-nomade-blue">Bibliografía</span></label>
-                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-act" class="w-5 h-5 text-nomade-blue rounded focus:ring-0"><span class="font-medium text-sm text-gray-700">Actividades en Clase</span></label>
-                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-tarea" class="w-5 h-5 text-nomade-blue rounded focus:ring-0"><span class="font-medium text-sm text-gray-700">Tareas Asignadas</span></label>
-                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="exp-plan-links" class="w-5 h-5 text-nomade-blue rounded focus:ring-0"><span class="font-medium text-sm text-gray-700">Links y Recursos</span></label>
-            </div>
-
-     <div class="flex gap-2">
-    <button type="button" onclick="closeModal('modal-export')" class="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-xl font-bold text-xs tracking-wider">
-        CANCELAR
-    </button>
-    
-    <button type="button" 
-            onclick="executeExport(event)" 
-            id="btn-export-final" 
-            style="pointer-events: auto !important; position: relative; z-index: 9999;"
-            class="flex-[2] py-3.5 bg-nomade-green text-white rounded-xl font-bold text-xs tracking-wider shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95">
-        <i data-lucide="printer" class="w-4 h-4"></i> GENERAR REPORTE AHORA
-    </button>
+<div id="connection-toast" class="fixed top-0 left-0 right-0 bg-red-500 text-white text-xs font-bold text-center py-2 z-[100] hidden transition-transform transform -translate-y-full">
+    📡 SIN CONEXIÓN - Trabajando en modo offline
 </div>
-        </div>
-    </div>
-    
-    <div id="connection-toast" class="fixed top-0 left-0 right-0 bg-red-500 text-white text-xs font-bold text-center py-2 z-[100] hidden transition-transform transform -translate-y-full">
-        📡 SIN CONEXIÓN - Trabajando en modo offline
-    </div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -1360,19 +1342,18 @@ function guardarTarea(){userData.tareas.push({text:document.getElementById('inpu
         function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
         function copiarIA() { const t = document.getElementById("ia-output"); t.select(); document.execCommand("copy"); alert("Copiado!"); }
 
-  async function executeExport(e) {
+ async function executeExport(e) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
-    console.log("🚀 Generando reporte completo...");
+    console.log("🚀 Iniciando exportación de datos...");
 
     const m = userData.materias.find(x => x.id === activeId);
-    if (!m) return alert("Seleccioná una materia");
+    if (!m) return alert("Seleccioná una materia primero");
 
     const exportType = document.getElementById('export-type').value;
-    const docName = document.getElementById('dash-name').innerText || 'Docente';
+    const docName = (document.getElementById('dash-name').innerText || 'LULISNIEG').toUpperCase();
     
-    // Capturamos los checkboxes
+    // Captura real de los checkboxes
     const incLista = document.getElementById('exp-lista').checked;
-    const incNotas = document.getElementById('exp-notas').checked;
     const pTema = document.getElementById('exp-plan-tema').checked;
     const pBiblio = document.getElementById('exp-plan-biblio').checked;
     const pAct = document.getElementById('exp-plan-act').checked;
@@ -1382,23 +1363,17 @@ function guardarTarea(){userData.tareas.push({text:document.getElementById('inpu
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
-        // Cabecera
-        doc.setFillColor(20, 78, 126); 
-        doc.rect(0, 0, 210, 40, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(22);
+        // Encabezado Pro
+        doc.setFillColor(20, 78, 126); doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255); doc.setFontSize(22);
         doc.text(m.nombre.toUpperCase(), 14, 22);
-        doc.setFontSize(10);
-        doc.text("DOCENTE: " + docName.toUpperCase(), 14, 32);
+        doc.setFontSize(10); doc.text("DOCENTE: " + docName, 14, 32);
 
         let currentY = 50;
 
-        // --- SECCIÓN ASISTENCIA ---
+        // TABLA ASISTENCIA
         if (incLista && m.asistencias) {
-            doc.setTextColor(20, 78, 126);
-            doc.setFontSize(14);
-            doc.text("REGISTRO DE ASISTENCIA", 14, currentY);
-            
+            doc.setTextColor(20, 78, 126); doc.setFontSize(14); doc.text("REGISTRO DE ASISTENCIA", 14, currentY);
             const fechas = Object.keys(m.asistencias).sort();
             const head = [['Estudiante', ...fechas.map(f => f.split('-').reverse().slice(0,2).join('/'))]];
             const body = (m.alumnos || []).map(al => {
@@ -1406,52 +1381,43 @@ function guardarTarea(){userData.tareas.push({text:document.getElementById('inpu
                 fechas.forEach(f => fila.push(m.asistencias[f][al.id] || '-'));
                 return fila;
             });
-
-            doc.autoTable({
-                startY: currentY + 5,
-                head: head,
-                body: body,
-                theme: 'grid',
-                headStyles: { fillColor: [31, 161, 148], fontSize: 8 },
-                styles: { fontSize: 7 }
-            });
+            doc.autoTable({ startY: currentY + 5, head: head, body: body, theme: 'grid', styles: { fontSize: 7 } });
             currentY = doc.lastAutoTable.finalY + 15;
         }
 
-        // --- SECCIÓN PLANIFICACIÓN ---
-        if ((pTema || pAct) && m.planificacion) {
-            if (currentY > 250) { doc.addPage(); currentY = 20; }
-            doc.setTextColor(20, 78, 126);
-            doc.setFontSize(14);
-            doc.text("PLANIFICACIÓN DIDÁCTICA", 14, currentY);
-
+        // TABLA PLANIFICACIÓN (Recuperando Bibliografía y Tarea)
+        if (m.planificacion) {
+            if (currentY > 240) { doc.addPage(); currentY = 20; }
+            doc.setTextColor(20, 78, 126); doc.setFontSize(14); doc.text("PLANIFICACIÓN DIDÁCTICA", 14, currentY);
+            
             const planBody = Object.keys(m.planificacion).sort().map(f => {
                 const p = m.planificacion[f];
-                let desc = "";
-                if (pTema && p.tema) desc += "TEMA: " + p.tema + "\n";
-                if (pBiblio && p.biblio) desc += "BIBLIO: " + p.biblio + "\n";
-                if (pAct && p.actClase) desc += "ACT: " + p.actClase + "\n";
-                if (pTarea && p.actTarea) desc += "TAREA: " + p.actTarea;
-                return [f.split('-').reverse().join('/'), desc];
+                let contenido = "";
+                if (pTema && p.tema) contenido += "TEMA: " + p.tema + "\n";
+                if (pBiblio && p.biblio) contenido += "BIBLIO: " + p.biblio + "\n";
+                if (pAct && p.actClase) contenido += "ACTIVIDAD: " + p.actClase + "\n";
+                if (pTarea && p.actTarea) contenido += "TAREA: " + p.actTarea;
+                return [f.split('-').reverse().join('/'), contenido || 'Sin datos'];
             });
 
             doc.autoTable({
                 startY: currentY + 5,
-                head: [['Fecha', 'Contenidos y Actividades']],
+                head: [['Fecha', 'Detalle de Clase']],
                 body: planBody,
-                columnStyles: { 0: { cellWidth: 30 }, 1: { cellWidth: 'auto' } },
+                columnStyles: { 0: { cellWidth: 25 }, 1: { cellWidth: 'auto' } },
                 headStyles: { fillColor: [20, 78, 126] }
             });
         }
-
-        doc.save(`Nómade_${m.nombre}.pdf`);
+        doc.save(`Nomade_${m.nombre}.pdf`);
+    } else {
+        // LÓGICA XLS (Simplificada para no trabar)
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(m.alumnos.map(a => ({ Alumno: a.ape + ", " + a.nom })));
+        XLSX.utils.book_append_sheet(wb, ws, "Lista");
+        XLSX.writeFile(wb, `Planilla_${m.nombre}.xlsx`);
     }
-    
-    // Limpieza final para que no se trabe
-    setTimeout(() => {
-        closeModal('modal-export');
-        window.dispatchEvent(new Event('resize')); 
-    }, 300);
+
+    setTimeout(() => { closeModal('modal-export'); }, 300);
 }
 function openExportModal(t) {
     console.log("🚀 PASO 1: Limpiando pantalla para exportar:", t);
@@ -1571,6 +1537,7 @@ window.onload = function() {
     </script>
 </body>
 </html>
+
 
 
 
