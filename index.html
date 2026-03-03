@@ -1251,55 +1251,67 @@ function guardarTarea(){userData.tareas.push({text:document.getElementById('inpu
         function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
         function copiarIA() { const t = document.getElementById("ia-output"); t.select(); document.execCommand("copy"); alert("Copiado!"); }
 
-     function executeExport(e) {
+   async function executeExport(e) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
-    console.log("🚀 Iniciando exportación...");
+    console.log("🚀 Generando reporte profesional...");
 
     const m = userData.materias.find(function(x) { return x.id === activeId; });
     if (!m) return alert("Seleccioná una materia primero");
 
-    const win = window.open('', '_blank');
-    if (!win) return alert("Por favor, habilitá los pop-ups");
-
+    const exportType = document.getElementById('export-type').value; // 'pdf' o 'xls'
     const docName = document.getElementById('dash-name').innerText || 'Docente';
+    
+    // Checkboxes de tu modal
     const incLista = document.getElementById('exp-lista').checked;
-    const pTema = document.getElementById('exp-plan-tema').checked;
-    const pBiblio = document.getElementById('exp-plan-biblio').checked;
-    const pAct = document.getElementById('exp-plan-act').checked;
-    const pTarea = document.getElementById('exp-plan-tarea').checked;
+    const incNotas = document.getElementById('exp-notas').checked;
 
-    var h = '<html><head><title>Reporte Nómade</title>';
-    h += '<style>body{background:#FAF7F0;padding:40px;font-family:sans-serif;} .header{background:#144E7E;color:white;padding:20px;border-radius:10px;} table{width:100%;border-collapse:collapse;margin-top:20px;background:white;} th{background:#144E7E;color:white;padding:10px;text-align:left;} td{border:1px solid #ddd;padding:8px;}</style></head><body>';
-    h += '<div class="header"><h1>' + m.nombre + '</h1><p>DOCENTE: ' + docName.toUpperCase() + '</p></div>';
+    if (exportType === 'pdf') {
+        // --- LÓGICA DE PDF REAL ---
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        doc.setFillColor(20, 78, 126); // Azul Nómade
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.text(m.nombre.toUpperCase(), 14, 25);
+        doc.setFontSize(10);
+        doc.text("DOCENTE: " + docName.toUpperCase(), 14, 33);
 
-    if (incLista) {
-        h += '<h2>ASISTENCIA</h2><table><thead><tr><th>Alumno</th>';
-        var fechas = m.asistencias ? Object.keys(m.asistencias).sort() : [];
-        fechas.forEach(function(f) { h += '<th>' + f + '</th>'; });
-        h += '</tr></thead><tbody>';
-        (m.alumnos || []).forEach(function(al) {
-            h += '<tr><td>' + al.ape + ', ' + al.nom + '</td>';
-            fechas.forEach(function(f) {
-                var st = (m.asistencias[f] && m.asistencias[f][al.id]) ? m.asistencias[f][al.id] : '-';
-                h += '<td>' + st + '</td>';
+        if (incLista) {
+            const head = [['Estudiante', 'Asistencias (%)']];
+            const body = (m.alumnos || []).map(al => [al.ape + ", " + al.nom, "Presente"]);
+            
+            doc.autoTable({
+                startY: 50,
+                head: head,
+                body: body,
+                headStyles: { fillColor: [31, 161, 148] } // Verde Nómade
             });
-            h += '</tr>';
-        });
-        h += '</tbody></table>';
+        }
+
+        doc.save(`Reporte_${m.nombre}.pdf`);
+
+    } else {
+        // --- LÓGICA DE EXCEL REAL ---
+        let data = (m.alumnos || []).map(al => ({
+            "Apellido": al.ape,
+            "Nombre": al.nom,
+            "Materia": m.nombre
+        }));
+        
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Alumnos");
+        XLSX.writeFile(wb, `Planilla_${m.nombre}.xlsx`);
     }
 
-    h += '<br><button onclick="window.print()">IMPRIMIR / PDF</button></body></html>';
-
-    win.document.write(h);
-    win.document.close();
-
-    // DESTRABE GARANTIZADO
-    setTimeout(function() {
+    // Cerramos el modal y limpiamos la app para que no se trabe
+    setTimeout(() => {
         closeModal('modal-export');
-        console.log("✅ Interfaz liberada");
-    }, 250);
+        showToast("✅ ¡Reporte generado con éxito!");
+    }, 300);
 }
-
 function openExportModal(t) {
     const input = document.getElementById('export-type');
     if (input) input.value = t;
@@ -1364,6 +1376,7 @@ window.onload = function() {
     </script>
 </body>
 </html>
+
 
 
 
