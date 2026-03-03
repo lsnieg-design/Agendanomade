@@ -945,8 +945,53 @@
         // ==========================================
         // 6. CRONOGRAMA, ALUMNOS Y NOTAS
         // ==========================================
-        function renderCrono(){ const m = userData.materias.find(x => x.id === activeId); if (!m) return; const l = document.getElementById('lista-cronograma'); l.innerHTML = ''; const map = { 'Domingo': 0, 'Lunes': 1, 'Martes': 2, 'Miércoles': 3, 'Jueves': 4, 'Viernes': 5, 'Sábado': 6 }; const targetDay = map[m.dia]; if(!m.fechaInicio) return l.innerHTML='<div class="text-center text-xs text-red-400">Configurá fecha de inicio</div>'; let d = new Date(m.fechaInicio + 'T12:00:00'); const fin = new Date(m.fechaFin + 'T12:00:00'); while (d.getDay() !== targetDay) { d.setDate(d.getDate() + 1); } while (d <= fin) { const iso = d.toISOString().split('T')[0]; const displayDate = `${d.getDate()}/${d.getMonth() + 1}`; let st = m.cronograma?.[iso] || m.modalidadBase; const plan = m.planificacion?.[iso]?.tema || ''; l.innerHTML += `<div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-3"><div class="flex justify-between items-center mb-2"><span class="font-black text-nomade-blue text-sm w-10">${displayDate}</span><div class="flex gap-1"><button onclick="cycle('${iso}')" class="px-2 py-1 rounded text-[9px] font-bold uppercase bg-gray-100 text-gray-500">${st}</button></div></div><input class="w-full text-sm bg-gray-50 p-2 rounded" placeholder="Tema..." value="${plan}" onchange="saveTema('${iso}',this.value)"><div class="flex justify-end mt-2"><button onclick="openClaseDetail('${iso}')" class="text-nomade-green text-xs font-bold flex items-center gap-1"><i data-lucide="plus-circle" class="w-3"></i> DETALLES</button></div></div>`; d.setDate(d.getDate() + 7); } lucide.createIcons(); }
-        function cycle(iso) { const m = userData.materias.find(x => x.id === activeId); if (!m.cronograma) m.cronograma = {}; const states = ['Presencial', 'Virtual', 'Receso']; m.cronograma[iso] = states[(states.indexOf(m.cronograma[iso] || m.modalidadBase) + 1) % states.length]; saveData(); renderCrono(); }
+     function renderCrono() {
+    const m = userData.materias.find(x => x.id === activeId);
+    if (!m) return;
+    
+    const l = document.getElementById('lista-cronograma');
+    l.innerHTML = '';
+    
+    const map = { 'Domingo': 0, 'Lunes': 1, 'Martes': 2, 'Miércoles': 3, 'Jueves': 4, 'Viernes': 5, 'Sábado': 6 };
+    const targetDay = map[m.dia];
+    
+    if (!m.fechaInicio) return l.innerHTML = '<div class="text-center text-xs text-red-400">Configurá fecha de inicio</div>';
+    
+    let d = new Date(m.fechaInicio + 'T12:00:00');
+    const fin = new Date(m.fechaFin + 'T12:00:00');
+    
+    while (d.getDay() !== targetDay) {
+        d.setDate(d.getDate() + 1);
+    }
+    
+    while (d <= fin) {
+        const iso = d.toISOString().split('T')[0];
+        const displayDate = `${d.getDate()}/${d.getMonth() + 1}`;
+        let st = m.cronograma?.[iso] || m.modalidadBase;
+        const plan = m.planificacion?.[iso]?.tema || '';
+        
+        l.innerHTML += `
+            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-3">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="font-black text-nomade-blue text-sm w-10">${displayDate}</span>
+                    <div class="flex gap-1">
+                        <button onclick="cycle('${iso}')" class="px-2 py-1 rounded text-[9px] font-bold uppercase bg-gray-100 text-gray-500">${st}</button>
+                    </div>
+                </div>
+                <input class="w-full text-sm bg-gray-50 p-2 rounded" placeholder="Tema..." value="${plan}" onchange="saveTema('${iso}',this.value)">
+                <div class="flex justify-end mt-2">
+                    <button onclick="event.stopPropagation(); openClaseDetail('${iso}')" class="text-nomade-green text-xs font-bold flex items-center gap-1 hover:scale-105 transition">
+                        <i data-lucide="plus-circle" class="w-3"></i> DETALLES
+                    </button>
+                </div>
+            </div>`;
+            
+        d.setDate(d.getDate() + 7);
+    }
+    
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+       function cycle(iso) { const m = userData.materias.find(x => x.id === activeId); if (!m.cronograma) m.cronograma = {}; const states = ['Presencial', 'Virtual', 'Receso']; m.cronograma[iso] = states[(states.indexOf(m.cronograma[iso] || m.modalidadBase) + 1) % states.length]; saveData(); renderCrono(); }
         function saveTema(iso,val){ const m=userData.materias.find(x=>x.id===activeId); if(!m.planificacion) m.planificacion={}; if(!m.planificacion[iso]) m.planificacion[iso]={}; m.planificacion[iso].tema=val; saveData(); }
        // --- REEMPLAZAR ESTAS DOS FUNCIONES ---
 function openClaseDetail(iso){
@@ -1376,6 +1421,7 @@ window.onload = function() {
     </script>
 </body>
 </html>
+
 
 
 
