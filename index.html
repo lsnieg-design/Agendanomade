@@ -1378,20 +1378,61 @@ function guardarTarea(){userData.tareas.push({text:document.getElementById('inpu
     }, 300);
 }
 function openExportModal(t) {
+    // Cerramos cualquier otra cosa abierta para no solapar
+    const detailModal = document.getElementById('modal-clase-detail');
+    if (detailModal) detailModal.classList.add('hidden');
+
     const input = document.getElementById('export-type');
     if (input) input.value = t;
+    
     const modal = document.getElementById('modal-export');
     if (modal) {
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
+        console.log("✅ Modal export abierto para:", t);
     }
+}
+
+function openClaseDetail(iso) {
+    // Cerramos el modal de exportación para que no se traben
+    const exportModal = document.getElementById('modal-export');
+    if (exportModal) exportModal.classList.add('hidden');
+
+    activeDateISO = iso; 
+    const materia = userData.materias.find(x => x.id === activeId);
+    if (!materia) return;
+    
+    const p = materia.planificacion?.[iso] || {}; 
+    const partes = iso.split('-'); 
+    
+    document.getElementById('detail-date').innerText = `${partes[2]}/${partes[1]}/${partes[0]}`;
+    document.getElementById('detail-iso').value = iso;
+    
+    const clean = (txt) => (txt || '').replace(/^"|"$/g, '').replace(/""/g, '"').trim();
+    
+    document.getElementById('detail-tema').value = clean(p.tema); 
+    document.getElementById('detail-biblio').value = clean(p.biblio); 
+    document.getElementById('detail-act-clase').value = clean(p.actClase); 
+    document.getElementById('detail-act-tarea').value = clean(p.actTarea); 
+    
+    // Links
+    document.getElementById('detail-link-video').value = clean(p.linkVideo);
+    document.getElementById('detail-link-placas').value = clean(p.linkPlacas);
+    document.getElementById('detail-link-biblio').value = clean(p.linkBiblio);
+    document.getElementById('detail-link-recursos').value = clean(p.linkRecursos);
+    document.getElementById('detail-link-otros').value = clean(p.linkOtros || p.links); 
+    
+    openModal('modal-clase-detail');
+    lucide.createIcons();
 }
 
 function closeModal(id) {
     const modal = document.getElementById(id);
     if (modal) {
         modal.classList.add('hidden');
-        modal.style.display = 'none';
+        // Forzamos el cierre visual completo
+        modal.style.display = 'none'; 
+        console.log("✅ Modal cerrado:", id);
     }
 }
 
@@ -1441,6 +1482,7 @@ window.onload = function() {
     </script>
 </body>
 </html>
+
 
 
 
