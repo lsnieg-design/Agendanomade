@@ -1266,54 +1266,46 @@ function guardarTarea(){userData.tareas.push({text:document.getElementById('inpu
     const raw = document.getElementById('input-import-text').value;
     if (!raw.trim()) { alert("No pegaste nada 😅"); return; }
 
-    const lines = raw.split('\n');
     const m = userData.materias.find(x => x.id === activeId);
     if (!m.planificacion) m.planificacion = {};
     
     let count = 0;
-    const clean = (txt) => (txt || '').replace(/^"|"$/g, '').replace(/""/g, '"').trim();
 
-    lines.forEach(line => {
-        const parts = line.split('\t');
-        // Necesitamos al menos Fecha (0) y Tema (1)
-        if (parts.length >= 2) {
-            const dateRaw = parts[0].trim();
-            const match = dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/);
-
-            if (match) {
-                const day = match[1].padStart(2, '0');
-                const month = match[2].padStart(2, '0');
-                const year = match[3].length === 2 ? '20' + match[3] : match[3];
-                const isoDate = `${year}-${month}-${day}`;
-
-                // Mapeo inteligente de columnas (Fecha, Tema, Biblio, Actividad, Tarea, Unidad, Clase, Modalidad)
-                // Ajustamos los índices según el orden de tu Excel
-                m.planificacion[isoDate] = {
-                    tema: clean(parts[1]),
-                    biblio: clean(parts[2]),
-                    actClase: clean(parts[3]),
-                    actTarea: clean(parts[4]),
-                    nroUnidad: clean(parts[5]) || "1", // Si no hay, pone 1 por defecto
-                    nroClase: clean(parts[6]) || (count + 1).toString(),
-                    modalidad: clean(parts[7]) || "Presencial"
+    try {
+        // Intentamos leer como JSON
+        const data = JSON.parse(raw);
+        
+        // Si el JSON es una lista de clases
+        data.forEach(clase => {
+            // Validamos que tenga fecha en formato YYYY-MM-DD
+            if (clase.fecha) {
+                m.planificacion[clase.fecha] = {
+                    tema: clase.tema || "",
+                    biblio: clase.biblio || "",
+                    actClase: clase.actClase || "",
+                    actTarea: clase.actTarea || "",
+                    nroUnidad: clase.unidad || "1",
+                    nroClase: clase.clase || "",
+                    modalidad: clase.modalidad || "Presencial"
                 };
                 count++;
             }
-        }
-    });
+        });
 
-    if (count > 0) {
-        saveData(); // Guarda en Firebase
-        alert(`✅ ¡Éxito! Se importaron ${count} clases.`);
-        closeModal('modal-import');
-        
-        // REFRESCO FORZADO: Esto es lo que faltaba para que no quede en blanco
-        setTimeout(() => {
-            renderCrono(); 
-            showToast("Planificación actualizada");
-        }, 500);
-    } else {
-        alert("❌ No se reconoció el formato. Asegurate de que la primera columna sea la Fecha.");
+        if (count > 0) {
+            saveData(); 
+            alert(`✅ ¡Éxito! Se importaron ${count} clases desde JSON.`);
+            closeModal('modal-import');
+            
+            // Forzamos el refresco de la pantalla
+            setTimeout(() => {
+                renderCrono();
+            }, 500);
+        }
+
+    } catch (e) {
+        alert("❌ Error en el formato JSON. Asegurate de que empiece con [ y termine con ]");
+        console.error("Error de parseo:", e);
     }
 }
         function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
