@@ -1262,54 +1262,59 @@ function guardarTarea(){userData.tareas.push({text:document.getElementById('inpu
         function setTab(t){['crono','alumnos','notas'].forEach(x=>{document.getElementById('tab-'+x).classList.add('hidden'); document.getElementById('btn-'+x).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400';}); document.getElementById('tab-'+t).classList.remove('hidden'); document.getElementById('btn-'+t).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-nomade-blue text-white'; if(t==='crono')renderCrono(); if(t==='alumnos')renderAlum(); if(t==='notas')renderNotas();}
         
         function openImportModal(){document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('input-import-text').value='';}
-        function processImport(){
-    const raw = document.getElementById('input-import-text').value; 
-    if(!raw.trim()){ alert("No pegaste nada 😅"); return; } 
+    function processImport() {
+    const raw = document.getElementById('input-import-text').value;
+    if (!raw.trim()) { alert("No pegaste nada 😅"); return; }
+
+    const lines = raw.split('\n');
+    const m = userData.materias.find(x => x.id === activeId);
+    if (!m.planificacion) m.planificacion = {};
     
-    const lines = raw.split('\n'); 
-    const m = userData.materias.find(x => x.id === activeId); 
-    if(!m.planificacion) m.planificacion = {}; 
-    let count = 0; 
-    
-    // Función para limpiar comillas raras de Excel
+    let count = 0;
     const clean = (txt) => (txt || '').replace(/^"|"$/g, '').replace(/""/g, '"').trim();
 
     lines.forEach(line => {
-        const parts = line.split('\t'); 
-        // Si hay al menos 2 columnas (Fecha y Tema), procedemos
-        if(parts.length >= 2){
-            const dateRaw = parts[0].trim(); 
-            const match = dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/); 
-            
-            if(match){
-                const day = match[1].padStart(2,'0'); 
-                const month = match[2].padStart(2,'0'); 
-                const year = match[3].length === 2 ? '20'+match[3] : match[3]; 
-                const isoDate = `${year}-${month}-${day}`; 
-                
-                // Extraemos las 5 columnas!
-                const tema = clean(parts[1]); 
-                const biblio = clean(parts[2]); 
-                const actClase = clean(parts[3]); 
-                const actTarea = clean(parts[4]); // <-- Acá atrapa la tarea
-                
-                if(tema || actClase){ 
-                    m.planificacion[isoDate] = {
-                        tema: tema,
-                        biblio: biblio,
-                        actClase: actClase,
-                        actTarea: actTarea
-                    }; 
-                    count++;
-                }
+        const parts = line.split('\t');
+        // Necesitamos al menos Fecha (0) y Tema (1)
+        if (parts.length >= 2) {
+            const dateRaw = parts[0].trim();
+            const match = dateRaw.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/);
+
+            if (match) {
+                const day = match[1].padStart(2, '0');
+                const month = match[2].padStart(2, '0');
+                const year = match[3].length === 2 ? '20' + match[3] : match[3];
+                const isoDate = `${year}-${month}-${day}`;
+
+                // Mapeo inteligente de columnas (Fecha, Tema, Biblio, Actividad, Tarea, Unidad, Clase, Modalidad)
+                // Ajustamos los índices según el orden de tu Excel
+                m.planificacion[isoDate] = {
+                    tema: clean(parts[1]),
+                    biblio: clean(parts[2]),
+                    actClase: clean(parts[3]),
+                    actTarea: clean(parts[4]),
+                    nroUnidad: clean(parts[5]) || "1", // Si no hay, pone 1 por defecto
+                    nroClase: clean(parts[6]) || (count + 1).toString(),
+                    modalidad: clean(parts[7]) || "Presencial"
+                };
+                count++;
             }
         }
-    }); 
-    
-    saveData(); 
-    alert(`✅ ¡Éxito! Se importaron ${count} clases.`); 
-    closeModal('modal-import'); 
-    renderCrono();
+    });
+
+    if (count > 0) {
+        saveData(); // Guarda en Firebase
+        alert(`✅ ¡Éxito! Se importaron ${count} clases.`);
+        closeModal('modal-import');
+        
+        // REFRESCO FORZADO: Esto es lo que faltaba para que no quede en blanco
+        setTimeout(() => {
+            renderCrono(); 
+            showToast("Planificación actualizada");
+        }, 500);
+    } else {
+        alert("❌ No se reconoció el formato. Asegurate de que la primera columna sea la Fecha.");
+    }
 }
         function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
         function copiarIA() { const t = document.getElementById("ia-output"); t.select(); document.execCommand("copy"); alert("Copiado!"); }
