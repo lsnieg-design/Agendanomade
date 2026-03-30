@@ -508,7 +508,17 @@
                 <label class="text-[11px] font-black text-nomade-green flex items-center gap-1.5 mb-2 uppercase tracking-wider"><i data-lucide="home" class="w-4 h-4"></i> Tarea Asignada</label>
                 <textarea id="detail-act-tarea" placeholder="No hay tarea registrada para esta clase." class="w-full bg-nomade-cream rounded-xl p-3 border-0 text-sm text-gray-700 leading-relaxed focus:ring-2 focus:ring-nomade-green outline-none resize-none h-24 placeholder:text-gray-400 placeholder:italic"></textarea>
             </div>
-
+<div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm mb-4">
+    <label class="text-[10px] font-black text-purple-500 uppercase tracking-wider mb-2 block">
+        <i data-lucide="monitor" class="inline w-3 h-3"></i> Modalidad de esta clase
+    </label>
+    <select id="detail-modalidad" class="w-full bg-purple-50/30 rounded-lg p-2 text-sm font-bold text-gray-700 outline-none border border-purple-100">
+        <option value="Presencial">Presencial</option>
+        <option value="Sincrónica">Sincrónica (Virtual en vivo)</option>
+        <option value="Asincrónica">Asincrónica (Material subido)</option>
+        <option value="Receso">Receso / Feriado</option>
+    </select>
+</div>
            <div class="bg-white p-4 rounded-2xl border border-yellow-100 shadow-md relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-1.5 h-full bg-yellow-400"></div>
                 <label class="text-[11px] font-black text-yellow-600 flex items-center gap-1.5 mb-3 uppercase tracking-wider"><i data-lucide="link" class="w-4 h-4"></i> Links y Recursos</label>
@@ -940,35 +950,27 @@
             alert("Materia eliminada.");
         }
 
-        // ==========================================
-        // 6. CRONOGRAMA, ALUMNOS Y NOTAS
-        // ==========================================
-   function renderCrono() {
+      function renderCrono() {
     const m = userData.materias.find(x => x.id === activeId);
     if (!m) return;
-    
     const l = document.getElementById('lista-cronograma');
     l.innerHTML = '';
-    
     const map = { 'Domingo': 0, 'Lunes': 1, 'Martes': 2, 'Miércoles': 3, 'Jueves': 4, 'Viernes': 5, 'Sábado': 6 };
     const targetDay = map[m.dia];
-    
     if (!m.fechaInicio) return l.innerHTML = '<div class="text-center text-xs text-red-400">Configurá fecha de inicio</div>';
     
     let d = new Date(m.fechaInicio + 'T12:00:00');
     const fin = new Date(m.fechaFin + 'T12:00:00');
-    
-    while (d.getDay() !== targetDay) {
-        d.setDate(d.getDate() + 1);
-    }
+    while (d.getDay() !== targetDay) { d.setDate(d.getDate() + 1); }
     
     while (d <= fin) {
         const iso = d.toISOString().split('T')[0];
         const displayDate = `${d.getDate()}/${d.getMonth() + 1}`;
-        let st = m.cronograma?.[iso] || m.modalidadBase;
+        
+        // MODIFICACIÓN: Prioriza modalidad de planificación para que el JSON mande
+        let st = m.planificacion?.[iso]?.modalidad || m.cronograma?.[iso] || m.modalidadBase;
         const plan = m.planificacion?.[iso]?.tema || '';
         
-        // Creamos la tarjeta SIN el onclick general que suele causar problemas
         l.innerHTML += `
             <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-3 relative">
                 <div class="flex justify-between items-center mb-2">
@@ -977,64 +979,50 @@
                         <button onclick="cycle('${iso}')" class="px-2 py-1 rounded text-[9px] font-bold uppercase bg-gray-100 text-gray-500">${st}</button>
                     </div>
                 </div>
-                
                 <input class="w-full text-sm bg-gray-50 p-2 rounded border-0 focus:ring-1 focus:ring-nomade-green" 
-                       placeholder="Tema..." 
-                       value="${plan}" 
-                       onchange="saveTema('${iso}', this.value)">
-                
+                       placeholder="Tema..." value="${plan}" onchange="saveTema('${iso}', this.value)">
                 <div class="flex justify-end mt-2">
-                    <button type="button" 
-                            onclick="openClaseDetail('${iso}')" 
-                            class="text-nomade-green text-xs font-bold flex items-center gap-1 p-1 hover:bg-teal-50 rounded transition-all">
+                    <button type="button" onclick="openClaseDetail('${iso}')" class="text-nomade-green text-xs font-bold flex items-center gap-1 p-1 hover:bg-teal-50 rounded transition-all">
                         <i data-lucide="plus-circle" class="w-3"></i> DETALLES
                     </button>
                 </div>
             </div>`;
-            
         d.setDate(d.getDate() + 7);
     }
-    
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
-       // --- REEMPLAZAR ESTAS DOS FUNCIONES ---
-function openClaseDetail(iso) {
-    // 1. LIMPIEZA DE SEGURIDAD: Cerramos cualquier modal de exportación que haya quedado "fantasma"
-    closeModal('modal-export');
 
+function openClaseDetail(iso) {
+    closeModal('modal-export');
     activeDateISO = iso; 
-    
-    // Buscamos la materia activa
-    const materia = userData.materias.find(x => x.id === activeId);
-    if (!materia) return console.error("Materia no encontrada");
-    
-    const p = materia.planificacion?.[iso] || {}; 
-    
-    // Formateamos la fecha para el título
+    const m = userData.materias.find(x => x.id === activeId);
+    if (!m) return console.error("Materia no encontrada");
+    const p = m.planificacion?.[iso] || {}; 
     const partes = iso.split('-'); 
     document.getElementById('detail-date').innerText = `${partes[2]}/${partes[1]}/${partes[0]}`;
     document.getElementById('detail-iso').value = iso;
-    
-    // Función de limpieza de texto para Excel/Comillas
     const clean = (txt) => (txt || '').replace(/^"|"$/g, '').replace(/""/g, '"').trim();
     
-    // Cargamos los campos básicos
+    // CAMPOS BÁSICOS
     document.getElementById('detail-tema').value = clean(p.tema); 
     document.getElementById('detail-biblio').value = clean(p.biblio); 
     document.getElementById('detail-act-clase').value = clean(p.actClase); 
     document.getElementById('detail-act-tarea').value = clean(p.actTarea); 
     
-    // Cargamos los links (asegurando que no se mezclen)
+    // MODIFICACIÓN: Carga de Unidad y Clase (si no existen pone vacío)
+    // Nota: Asegúrate de tener estos IDs en tu HTML o se ignorarán
+    if(document.getElementById('detail-unidad')) document.getElementById('detail-unidad').value = p.nroUnidad || "";
+    if(document.getElementById('detail-clase')) document.getElementById('detail-clase').value = p.nroClase || "";
+    if(document.getElementById('detail-modalidad')) document.getElementById('detail-modalidad').value = p.modalidad || m.cronograma?.[iso] || 'Presencial';
+
+    // LINKS (Tu lógica que funcionaba)
     document.getElementById('detail-link-video').value = clean(p.linkVideo);
     document.getElementById('detail-link-placas').value = clean(p.linkPlacas);
     document.getElementById('detail-link-biblio').value = clean(p.linkBiblio);
     document.getElementById('detail-link-recursos').value = clean(p.linkRecursos);
     document.getElementById('detail-link-otros').value = clean(p.linkOtros || p.links); 
     
-    // 2. ABRIMOS EL MODAL CON PRIORIDAD
     openModal('modal-clase-detail');
-    
-    // Refrescamos íconos de Lucide dentro del modal
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
@@ -1047,7 +1035,13 @@ function saveClaseDetail(){
         biblio: document.getElementById('detail-biblio').value.trim(), 
         actClase: document.getElementById('detail-act-clase').value.trim(), 
         actTarea: document.getElementById('detail-act-tarea').value.trim(),
-        // Guardar links separados
+        
+        // MODIFICACIÓN: Guardado de los campos nuevos para el reporte
+        nroUnidad: document.getElementById('detail-unidad')?.value || "",
+        nroClase: document.getElementById('detail-clase')?.value || "",
+        modalidad: document.getElementById('detail-modalidad')?.value || (m.cronograma?.[activeDateISO] || m.modalidadBase),
+
+        // LINKS (Tu lógica que funcionaba)
         linkVideo: document.getElementById('detail-link-video').value.trim(),
         linkPlacas: document.getElementById('detail-link-placas').value.trim(),
         linkBiblio: document.getElementById('detail-link-biblio').value.trim(),
@@ -1074,8 +1068,33 @@ function saveClaseDetail(){
         // ==========================================
         function iniciarTomaLista(){if(!activeId)return; const h=new Date().toISOString().split('T')[0]; document.getElementById('input-fecha-lista').value=h; cambiarFechaLista(h); nav('lista');}
         function cambiarFechaLista(iso){activeDateISO=iso; const m=userData.materias.find(x=>x.id===activeId), c=document.getElementById('lista-check-container'); c.innerHTML=''; m.alumnos.forEach(al=>{const st=m.asistencias?.[iso]?.[al.id]||'P'; c.innerHTML+=`<div class="bg-white p-3 border rounded mb-2 flex justify-between"><span class="font-bold">${al.ape}</span><button id="btn-as-${al.id}" onclick="cycleAsist(${al.id})" class="font-bold border px-2 rounded">${st}</button></div>`;});}
-        function cycleAsist(uid){const b=document.getElementById(`btn-as-${uid}`), sts=['P','A','T','J']; b.innerText=sts[(sts.indexOf(b.innerText)+1)%4];}
-        function guardarLista(){const m=userData.materias.find(x=>x.id===activeId); if(!m.asistencias)m.asistencias={}; const map={}; m.alumnos.forEach(al=>map[al.id]=document.getElementById(`btn-as-${al.id}`).innerText); m.asistencias[activeDateISO]=map; saveData(); nav('aula'); setTab('alumnos');}
+        function cycle(iso) {
+    const m = userData.materias.find(x => x.id === activeId);
+    if (!m) return;
+    if (!m.cronograma) m.cronograma = {};
+
+    // Definimos las 3 modalidades que necesitás + Receso por si hay feriado
+    const estados = ['Presencial', 'Sincrónica', 'Asincrónica', 'Receso'];
+    
+    // Obtenemos el estado actual (o la modalidad base de la materia si está vacío)
+    let actual = m.cronograma[iso] || m.modalidadBase || 'Presencial';
+    
+    // Buscamos el siguiente índice en la lista
+    let siguienteIndice = (estados.indexOf(actual) + 1) % estados.length;
+    
+    // Guardamos el nuevo estado
+    m.cronograma[iso] = estados[siguienteIndice];
+    
+    // Si tenés una planificación para esa fecha, también actualizamos su modalidad interna
+    if(m.planificacion && m.planificacion[iso]) {
+        m.planificacion[iso].modalidad = estados[siguienteIndice];
+    }
+
+    saveData(); // Guardamos en la nube
+    renderCrono(); // Refrescamos la vista para ver el cambio
+    showToast(`Modalidad: ${estados[siguienteIndice]}`);
+}
+       function guardarLista(){const m=userData.materias.find(x=>x.id===activeId); if(!m.asistencias)m.asistencias={}; const map={}; m.alumnos.forEach(al=>map[al.id]=document.getElementById(`btn-as-${al.id}`).innerText); m.asistencias[activeDateISO]=map; saveData(); nav('aula'); setTab('alumnos');}
         function cancelarLista(){nav('aula');}
 
         // ==========================================
