@@ -1282,49 +1282,37 @@ function guardarTarea(){userData.tareas.push({text:document.getElementById('inpu
         
         function openImportModal(){document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('input-import-text').value='';}
     function processImport() {
-    const raw = document.getElementById('input-import-text').value;
-    if (!raw.trim()) { alert("No pegaste nada 😅"); return; }
-
+    const raw = document.getElementById('input-import-text').value.trim();
+    if (!raw) return alert("Pegá el JSON");
     const m = userData.materias.find(x => x.id === activeId);
     if (!m.planificacion) m.planificacion = {};
     
-    let count = 0;
-
     try {
-        // Intentamos leer como JSON
         const data = JSON.parse(raw);
-        
-        // Si el JSON es una lista de clases
-        data.forEach(clase => {
-            // Validamos que tenga fecha en formato YYYY-MM-DD
-            if (clase.fecha) {
-                m.planificacion[clase.fecha] = {
-                    tema: clase.tema || "",
-                    biblio: clase.biblio || "",
-                    actClase: clase.actClase || "",
-                    actTarea: clase.actTarea || "",
-                    nroUnidad: clase.unidad || "1",
-                    nroClase: clase.clase || "",
-                    modalidad: clase.modalidad || "Presencial"
+        data.forEach(c => {
+            if (c.fecha) {
+                m.planificacion[c.fecha] = {
+                    tema: c.tema || "",
+                    biblio: c.biblio || "",
+                    actClase: c.actClase || "",
+                    actTarea: c.actTarea || "",
+                    modalidad: c.modalidad || "Presencial",
+                    nroClase: c.clase || "",
+                    nroUnidad: c.unidad || ""
                 };
-                count++;
             }
         });
-
-        if (count > 0) {
-            saveData(); 
-            alert(`✅ ¡Éxito! Se importaron ${count} clases desde JSON.`);
-            closeModal('modal-import');
-            
-            // Forzamos el refresco de la pantalla
-            setTimeout(() => {
-                renderCrono();
-            }, 500);
-        }
-
+        saveData();
+        alert("✅ Importación exitosa");
+        closeModal('modal-import');
+        
+        // REINICIO TOTAL DE INTERFAZ
+        setTimeout(() => {
+            renderCrono(); // Redibuja la lista
+            lucide.createIcons(); // Vuelve a prender los íconos/botones
+        }, 300);
     } catch (e) {
-        alert("❌ Error en el formato JSON. Asegurate de que empiece con [ y termine con ]");
-        console.error("Error de parseo:", e);
+        alert("❌ Error: Revisá que el JSON sea válido (que empiece con [ y termine con ])");
     }
 }
         function generarDevolucion(){ alert("Función de IA simulada. En versión completa conectaría con API."); }
