@@ -465,7 +465,7 @@
         <button onclick="processImport()" class="w-full bg-nomade-green text-white py-3.5 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2 hover:bg-teal-600 transition active:scale-95"><i data-lucide="check" class="w-5 h-5"></i> IMPORTAR CLASES</button>
     </div>
 </div>
-    <div id="modal-clase-detail" class="fixed inset-0 bg-black/60 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+   <div id="modal-clase-detail" class="fixed inset-0 hidden items-center justify-center p-4" style="z-index: 80; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); pointer-events: auto;">
     <div class="bg-gray-50 rounded-3xl w-full max-w-lg shadow-2xl relative max-h-[90vh] flex flex-col overflow-hidden">
         
         <div class="bg-nomade-blue p-5 flex justify-between items-center text-white shadow-md z-10">
@@ -1030,18 +1030,16 @@ function saveClaseDetail(){
     const m = userData.materias.find(x => x.id === activeId); 
     if(!m.planificacion) m.planificacion = {}; 
     
-    m.planificacion[activeDateISO] = {
+    const iso = document.getElementById('detail-iso').value;
+    
+    m.planificacion[iso] = {
         tema: document.getElementById('detail-tema').value.trim(), 
         biblio: document.getElementById('detail-biblio').value.trim(), 
         actClase: document.getElementById('detail-act-clase').value.trim(), 
         actTarea: document.getElementById('detail-act-tarea').value.trim(),
-        
-        // MODIFICACIÓN: Guardado de los campos nuevos para el reporte
         nroUnidad: document.getElementById('detail-unidad')?.value || "",
         nroClase: document.getElementById('detail-clase')?.value || "",
-        modalidad: document.getElementById('detail-modalidad')?.value || (m.cronograma?.[activeDateISO] || m.modalidadBase),
-
-        // LINKS (Tu lógica que funcionaba)
+        modalidad: document.getElementById('detail-modalidad')?.value || (m.cronograma?.[iso] || m.modalidadBase),
         linkVideo: document.getElementById('detail-link-video').value.trim(),
         linkPlacas: document.getElementById('detail-link-placas').value.trim(),
         linkBiblio: document.getElementById('detail-link-biblio').value.trim(),
@@ -1050,8 +1048,9 @@ function saveClaseDetail(){
     }; 
     
     saveData(); 
-    closeModal('modal-clase-detail'); 
+    closeModal('modal-clase-detail'); // Usamos la función corregida
     renderCrono(); 
+    showToast("✅ Clase guardada");
 }
         function renderAlum(){const m=userData.materias.find(x=>x.id===activeId), l=document.getElementById('lista-alumnos'); l.innerHTML=''; m.alumnos.forEach((al,i)=>{l.innerHTML+=`<div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center mb-2 shadow-sm"><div class="flex items-center gap-3"><div class="avatar-small overflow-hidden"><img src="${al.foto||'https://via.placeholder.com/40'}" class="w-full h-full object-cover"></div><span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span></div><button onclick="delAlum(${i})" class="text-red-400"><i data-lucide="trash-2" class="w-4"></i></button></div>`;}); lucide.createIcons();}
         function guardarAlumno(){const m=userData.materias.find(x=>x.id===activeId); const fotoInput=document.getElementById('input-alum-foto'); let fotoUrl=''; const saver=(url)=>{m.alumnos.push({id:Date.now(), ape:document.getElementById('input-alum-ape').value, nom:document.getElementById('input-alum-nom').value, foto:url, notas:{}}); saveData(); closeModal('modal-alumno'); renderAlum();}; if(fotoInput.files[0]){const r=new FileReader(); r.onload=e=>saver(e.target.result); r.readAsDataURL(fotoInput.files[0]);} else saver('');}
@@ -1322,10 +1321,24 @@ function guardarTarea(){userData.tareas.push({text:document.getElementById('inpu
         function togTarea(i){userData.tareas[i].done=!userData.tareas[i].done; saveData(); renderTareas();}
         function delTarea(i){userData.tareas.splice(i,1); saveData(); renderTareas();}
 
-        function openModal(id){document.getElementById(id).classList.remove('hidden');}
-        function closeModal(id) {
+       function openModal(id) {
     const modal = document.getElementById(id);
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex'; // Forzamos el modo flexible para centrarlo
+        // Bloqueamos el scroll del fondo para que no se mueva la app atrás
+        document.body.style.overflow = 'hidden'; 
+    }
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+        // Liberamos el scroll del fondo
+        document.body.style.overflow = 'auto';
+    }
 }
         function setTab(t){['crono','alumnos','notas'].forEach(x=>{document.getElementById('tab-'+x).classList.add('hidden'); document.getElementById('btn-'+x).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg text-gray-400';}); document.getElementById('tab-'+t).classList.remove('hidden'); document.getElementById('btn-'+t).className='flex-1 py-2 px-1 text-[10px] font-bold rounded-lg bg-nomade-blue text-white'; if(t==='crono')renderCrono(); if(t==='alumnos')renderAlum(); if(t==='notas')renderNotas();}
         
