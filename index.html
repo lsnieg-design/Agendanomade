@@ -1065,37 +1065,86 @@ function saveClaseDetail(){
 
         // ==========================================
         // 7. ASISTENCIA
-        // ==========================================
-        function iniciarTomaLista(){if(!activeId)return; const h=new Date().toISOString().split('T')[0]; document.getElementById('input-fecha-lista').value=h; cambiarFechaLista(h); nav('lista');}
-        function cambiarFechaLista(iso){activeDateISO=iso; const m=userData.materias.find(x=>x.id===activeId), c=document.getElementById('lista-check-container'); c.innerHTML=''; m.alumnos.forEach(al=>{const st=m.asistencias?.[iso]?.[al.id]||'P'; c.innerHTML+=`<div class="bg-white p-3 border rounded mb-2 flex justify-between"><span class="font-bold">${al.ape}</span><button id="btn-as-${al.id}" onclick="cycleAsist(${al.id})" class="font-bold border px-2 rounded">${st}</button></div>`;});}
-        function cycle(iso) {
+       // ==========================================
+// 7. ASISTENCIA (CORREGIDO Y COMPLETO)
+// ==========================================
+function iniciarTomaLista() {
+    if (!activeId) return;
+    const h = new Date().toISOString().split('T')[0];
+    document.getElementById('input-fecha-lista').value = h;
+    cambiarFechaLista(h);
+    nav('lista');
+}
+
+function cambiarFechaLista(iso) {
+    activeDateISO = iso;
+    const m = userData.materias.find(x => x.id === activeId);
+    const c = document.getElementById('lista-check-container');
+    c.innerHTML = '';
+    
+    if (!m.alumnos || m.alumnos.length === 0) {
+        c.innerHTML = '<p class="text-center text-gray-400 py-10 text-sm italic">No hay alumnos en esta materia.</p>';
+        return;
+    }
+
+    m.alumnos.forEach(al => {
+        const st = m.asistencias?.[iso]?.[al.id] || 'P';
+        c.innerHTML += `
+            <div class="bg-white p-4 border border-gray-100 rounded-2xl mb-2 flex justify-between items-center shadow-sm">
+                <span class="font-bold text-gray-700">${al.ape}, ${al.nom}</span>
+                <button id="btn-as-${al.id}" 
+                        onclick="cycleAsist('${al.id}')" 
+                        class="btn-asist st-${st}">${st}</button>
+            </div>`;
+    });
+}
+
+// ESTA ES LA FUNCIÓN QUE TE FALTABA
+function cycleAsist(alumnoId) {
+    const btn = document.getElementById(`btn-as-${alumnoId}`);
+    const estados = ['P', 'A', 'T', 'J'];
+    let actual = btn.innerText;
+    let siguiente = estados[(estados.indexOf(actual) + 1) % estados.length];
+    
+    btn.innerText = siguiente;
+    // Esto cambia el color automáticamente si tenés los estilos st-P, st-A, etc.
+    btn.className = `btn-asist st-${siguiente}`;
+}
+
+function guardarLista() {
+    const m = userData.materias.find(x => x.id === activeId);
+    if (!m.asistencias) m.asistencias = {};
+    const map = {};
+    m.alumnos.forEach(al => {
+        map[al.id] = document.getElementById(`btn-as-${al.id}`).innerText;
+    });
+    m.asistencias[activeDateISO] = map;
+    saveData();
+    nav('aula');
+    setTab('alumnos');
+    showToast("✅ Asistencia guardada");
+}
+
+function cancelarLista() {
+    nav('aula');
+}
+
+// Mantenemos tu función cycle de modalidades que pasaste antes
+function cycle(iso) {
     const m = userData.materias.find(x => x.id === activeId);
     if (!m) return;
     if (!m.cronograma) m.cronograma = {};
-
-    // Definimos las 3 modalidades que necesitás + Receso por si hay feriado
     const estados = ['Presencial', 'Sincrónica', 'Asincrónica', 'Receso'];
-    
-    // Obtenemos el estado actual (o la modalidad base de la materia si está vacío)
     let actual = m.cronograma[iso] || m.modalidadBase || 'Presencial';
-    
-    // Buscamos el siguiente índice en la lista
     let siguienteIndice = (estados.indexOf(actual) + 1) % estados.length;
-    
-    // Guardamos el nuevo estado
     m.cronograma[iso] = estados[siguienteIndice];
-    
-    // Si tenés una planificación para esa fecha, también actualizamos su modalidad interna
-    if(m.planificacion && m.planificacion[iso]) {
+    if (m.planificacion && m.planificacion[iso]) {
         m.planificacion[iso].modalidad = estados[siguienteIndice];
     }
-
-    saveData(); // Guardamos en la nube
-    renderCrono(); // Refrescamos la vista para ver el cambio
+    saveData();
+    renderCrono();
     showToast(`Modalidad: ${estados[siguienteIndice]}`);
 }
-       function guardarLista(){const m=userData.materias.find(x=>x.id===activeId); if(!m.asistencias)m.asistencias={}; const map={}; m.alumnos.forEach(al=>map[al.id]=document.getElementById(`btn-as-${al.id}`).innerText); m.asistencias[activeDateISO]=map; saveData(); nav('aula'); setTab('alumnos');}
-        function cancelarLista(){nav('aula');}
 
         // ==========================================
         // 8. CUADERNO MEJORADO (LÓGICA)
